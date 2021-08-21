@@ -1,0 +1,30 @@
+name: Application Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  run_linter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Install Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+        
+      - name: Install Poetry
+        uses: Gr1N/setup-poetry@v7
+      
+      - name: Install dependencies
+        run: poetry install
+
+      - name: Run Tests
+        run: poetry run pytest
+        env:
+          ENVIRONMENT: test

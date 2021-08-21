@@ -1,0 +1,57 @@
+name: Build Docker image and Publish to Github Packages
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  push_to_registry:
+    name: Push Docker image to GitHub Packages
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: read
+
+    steps:
+      - name: Check out the repo
+        uses: actions/checkout@v2
+
+      - name: Get normalized repository name
+        run: echo "IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Get Release version
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Log in to GitHub Docker Registry
+        uses: docker/login-action@v1
+
+        with:
+          registry: docker.pkg.github.com
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build container image
+        uses: docker/build-push-action@v2
+
+        with:
+          push: true
+
+          tags: |
+            docker.pkg.github.com/${{ env.IMAGE_REPOSITORY }}/test-image:latest
+            docker.pkg.github.com/${{ env.IMAGE_REPOSITORY }}/test-image:${{ env.RELEASE_VERSION }}
+
+      - name: Deploy to Docker swarm
+        uses: wshihadeh/docker-deployment-action@v2
+
+        with:
+          remote_docker_host: ${{ secrets.DOCKER_REMOTE_HOST }}
+          ssh_private_key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
+          ssh_public_key: ${{ secrets.DOCKER_SSH_PUBLIC_KEY }}
+          copy_stack_file: true
+          pull_images_first: true
+          keep_files: 5
+          deployment_mode: docker-swarm
+          deploy_path: ${{ secrets.DOCKER_DEPLOY_PATH }}
+          stack_file_name: docker-compose.yaml
+          args: testegithubactions
