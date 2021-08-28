@@ -4,8 +4,7 @@ from sqlalchemy import Column, Date, ForeignKey, String, exists
 from sqlalchemy.orm import Query, Session, relationship
 from sqlalchemy.sql.sqltypes import Integer
 
-from src.core.schemas import CreateFiscalNote, GetFiscalNote
-
+from ...schemas import CreateFiscalNote, GetFiscalNote
 from .base import BaseModel
 from .file import File
 

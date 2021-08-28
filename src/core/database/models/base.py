@@ -5,7 +5,7 @@ from typing import Any, Dict, List, TypeVar, Union
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Query, Session, session
 
-from src.core.schemas.base import QuerySchema, Schema
+from ...schemas.base import QuerySchema, Schema
 
 Base = declarative_base()
 

@@ -1,4 +1,5 @@
-from pydantic import AnyHttpUrl, BaseSettings, Field, PositiveInt
+from pydantic import AnyHttpUrl, BaseSettings, Field, PositiveInt, validator
+from pydantic.networks import RedisDsn
 
 from src.core.constants import Environment as EnvironmemntEnum
 
@@ -11,6 +12,10 @@ class Environment(BaseSettings):
 
     class Config:
         env_file: str = ".env"
+
+
+ENVIRONMENT = Environment()
+ENV_FILE = f".env.{ENVIRONMENT}"
 
 
 class Settings(BaseSettings):
@@ -32,6 +37,12 @@ class Settings(BaseSettings):
     # Security
     SECRET_KEY: str = Field(...)
     ACCESS_TOKEN_EXPIRE_MINUTES: PositiveInt = Field(60)
+    ACESS_TOKEN_REFRESH_MINUTES: int = Field(5)
+    ACCESS_TOKEN_NAME: str = Field("access_token")
+
+    @validator("ACCESS_TOKEN_NAME")
+    def validate_access_token_name(cls, value: str) -> str:
+        return value.lower().replace("-", "_")
 
     # Monitoring
     APM_SERVER_URL: AnyHttpUrl = Field("http://localhost:8200/")
@@ -41,5 +52,24 @@ class Settings(BaseSettings):
     AWS_S3_BUCKET: str = Field("storage")
     AWS_REGION_NAME: str = "us-east-1"
 
+    # Cache
+    CACHE: RedisDsn = Field(...)
 
-settings = Settings(_env_file=f".env.{Environment()}", ENVIRONMENT=Environment().ENVIRONMENT)
+    class Config:
+        env_file: str = ENV_FILE
+
+
+class AppSettings(BaseSettings):
+    # Application
+    VERSION: str
+    APPLICATION_NAME: str = Field(...)
+
+    @validator("APPLICATION_NAME")
+    def normalize_application_name(cls, value: str) -> str:
+        return value.title().replace("-", " ").replace("_", " ")
+
+    class Config:
+        env_file: str = ENV_FILE
+
+
+settings = Settings(ENVIRONMENT=ENVIRONMENT.ENVIRONMENT)

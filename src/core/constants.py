@@ -12,3 +12,9 @@ class Environment(str, Enum):
 
     def __str__(self) -> str:
         return self.name
+
+
+class ContextEnum(str, Enum):
+    API: str = "api"
+    WEB: str = "web"
+    TEST: str = "test"

@@ -4,8 +4,7 @@ from sqlalchemy import Column, ForeignKey, Integer, exists
 from sqlalchemy.orm import Query, Session, relationship
 from sqlalchemy.sql.sqltypes import DateTime
 
-from src.core.schemas import CreateOrder, GetOrder
-
+from ...schemas import CreateOrder, GetOrder
 from .base import BaseModel
 
 
@@ -48,8 +47,8 @@ class Order(BaseModel):
         return session.query(cls).filter(cls.id == order_id).first()
 
     @classmethod
-    def get_by_hash(cls, session: Session, hash: str) -> Union[None, "Order"]:
-        return session.query(cls).filter(cls.hash == hash).first()
+    def get_by_id(cls, session: Session, order_id: int) -> Union[None, "Order"]:
+        return session.query(cls).filter(cls.id == order_id).first()
 
     @classmethod
     def get_all(cls, session: Session, schema: GetOrder) -> List["Order"]:

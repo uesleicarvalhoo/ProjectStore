@@ -1,4 +1,5 @@
 from typing import Any, Dict
+from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, validator
 
@@ -12,7 +13,7 @@ class BaseUser(BaseModel):
 
 
 class User(BaseUser):
-    id: int = Field(..., description="Id do usuário")
+    id: UUID = Field(..., description="Id do usuário")
     password_hash: str = Field(..., description="Hash da senha")
 
     class Config:

@@ -123,3 +123,4 @@ venv.bak/
 *.session-journal
 
 # Others
+node_modules

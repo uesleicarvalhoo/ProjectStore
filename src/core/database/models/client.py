@@ -4,10 +4,9 @@ from sqlalchemy import Column, Integer, String, exists, or_
 from sqlalchemy.orm import Query, Session, relationship
 from sqlalchemy.sql.sqltypes import BigInteger, DateTime
 
-from src.core.schemas import GetClient
-from src.core.schemas.client import CreateClient
 from src.utils.date import now_datetime
 
+from ...schemas import CreateClient, GetClient
 from .base import BaseModel
 
 

@@ -3,8 +3,7 @@ from typing import List, Union
 from sqlalchemy import Column, Float, ForeignKey, Integer, exists
 from sqlalchemy.orm import Query, Session, relationship
 
-from src.core.schemas.order_detail import CreateOrderDetail, GetOrderDetail
-
+from ...schemas import CreateOrderDetail, GetOrderDetail
 from .base import BaseModel
 
 

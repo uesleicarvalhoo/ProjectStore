@@ -1,0 +1,80 @@
+from fastapi import Depends, FastAPI, status
+from fastapi.requests import Request
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from starlette.middleware.base import RequestResponseEndpoint
+from starlette.responses import RedirectResponse
+
+from src.apm import apm
+from src.core.config import AppSettings, settings
+from src.core.exceptions import NotAuthorizedError
+from src.core.security import refresh_access_token, validate_access_token
+
+from . import views
+from .dependencies import ContextManager
+from .utils import templates
+
+__version__ = "0.0.0"
+
+app = FastAPI(
+    title="Store - Web",
+    version=__version__,
+    description="Template app for e-commerce",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
+    default_response_class=HTMLResponse,
+)
+
+app.mount("/static", StaticFiles(directory="src/web/static"), name="static")
+app.include_router(views.endpoints)
+
+
+@app.middleware("http")
+async def refresh_session(request: Request, call_next: RequestResponseEndpoint):
+    cookie_token: str = request.cookies.get(settings.ACCESS_TOKEN_NAME, None)
+
+    response = await call_next(request)
+
+    if (
+        cookie_token
+        and validate_access_token(cookie_token)
+        and not any(path in request.url.path for path in ["/login", "/logout", "/static", "favicon"])
+    ):
+        await refresh_access_token(response=response, token=cookie_token)
+
+    return response
+
+
+@app.exception_handler(status.HTTP_404_NOT_FOUND)
+async def http_404_not_found(
+    request: Request,
+    exc: Exception,
+    settings: AppSettings = Depends(),
+    context: ContextManager = Depends(ContextManager("web")),
+):
+    return templates.TemplateResponse(
+        "not_found.html",
+        context={"request": request, "error": exc, "settings": settings, "context": context},
+        status_code=status.HTTP_404_NOT_FOUND,
+    )
+
+
+@app.exception_handler(NotAuthorizedError)
+async def not_authorized(request: Request, exc: NotAuthorizedError):
+    return RedirectResponse("/login", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@app.exception_handler(Exception)
+async def error(
+    request: Request,
+    exc: Exception,
+    settings: AppSettings = Depends(),
+    context: ContextManager = Depends(ContextManager("web")),
+):
+    apm.capture_exception()
+    return templates.TemplateResponse(
+        "error.html",
+        context={"request": request, "error": exc, "settings": settings, "context": context},
+        status_code=status.HTTP_404_NOT_FOUND,
+    )

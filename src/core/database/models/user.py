@@ -1,12 +1,12 @@
 from typing import List, Union
+from uuid import uuid4
 
 from sqlalchemy import Boolean, Column, String, exists
 from sqlalchemy.orm import Query, Session
-from sqlalchemy.sql.sqltypes import Integer
 
-from src.core.schemas import CreateUser, GetUser
-from src.core.security import get_password_hash
-
+from ...schemas import CreateUser, GetUser
+from ...security import get_password_hash
+from ..types import GUID
 from .base import BaseModel
 
 
@@ -14,7 +14,7 @@ class User(BaseModel):
     __tablename__ = "users"
     __dict_exclude_fields__ = ["password_hash"]
 
-    id = Column("id", Integer, autoincrement=True, primary_key=True)
+    id = Column("id", GUID(), default=uuid4(), primary_key=True)
     email = Column("email", String, unique=True, nullable=False)
     password_hash = Column("password_hash", String, nullable=False)
     name = Column("name", String, nullable=False)
@@ -54,6 +54,10 @@ class User(BaseModel):
     @classmethod
     def get_all(cls, session: Session, schema: GetUser) -> List["User"]:
         return super().get_all(session, schema)
+
+    @classmethod
+    def get_by_email(cls, session: Session, email: str) -> "User":
+        return session.query(cls).filter(cls.email == cls.email).first()
 
     @classmethod
     def delete_by_id(cls, session: Session, user_id: int) -> Union[None, "User"]:

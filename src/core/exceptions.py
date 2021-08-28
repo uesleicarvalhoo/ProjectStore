@@ -15,7 +15,14 @@ class NotFoundError(Exception):
         self.detail = message
 
 
-class DataValidationError(Exception):
+class InvalidCredentialError(Exception):
+    detail: str = None
+
+    def __init__(self, message: str) -> None:
+        self.detail = message
+
+
+class NotAuthorizedError(Exception):
     detail: str = None
 
     def __init__(self, message: str) -> None:

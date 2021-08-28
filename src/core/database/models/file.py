@@ -3,9 +3,9 @@ from typing import List, Union
 from sqlalchemy import Column, DateTime, String, exists
 from sqlalchemy.orm import Query, Session
 
-from src.core.schemas import CreateFile, GetFile
 from src.utils.date import now_datetime
 
+from ...schemas import CreateFile, CreateItem, GetFile
 from .base import BaseModel
 
 
@@ -27,6 +27,10 @@ class File(BaseModel):
     @classmethod
     def create(cls, session: Session, schema: CreateFile) -> "File":
         return super().create(session, schema)
+
+    @classmethod
+    def create_with_items(cls, session: Session, schema: CreateFile, items: List[CreateItem]) -> "File":
+        raise NotImplementedError
 
     @classmethod
     def get(cls, session: Session, bucket_key: str) -> Union[None, "File"]:

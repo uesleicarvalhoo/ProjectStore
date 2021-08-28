@@ -16,7 +16,7 @@ def test_create_item(session: Session):
     with open("tests/static/fiscal_note.png", "rb") as f:
         fn_image = b64encode(f.read())
 
-    fn_item = FileModel.create(
+    fn_file = FileModel.create(
         session,
         CreateFile(
             bucket_key=faker.random_bucket_key(),
@@ -29,11 +29,11 @@ def test_create_item(session: Session):
         CreateFiscalNote(
             description=faker.random_description(),
             purchase_date=faker.random_date(),
-            file_id=fn_item.bucket_key,
+            file_id=fn_file.bucket_key,
             filename=faker.random_filename("image", "png"),
             image=fn_image,
         ),
-        fn_item,
+        fn_file,
     )
 
     # Create Item

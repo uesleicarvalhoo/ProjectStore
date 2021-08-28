@@ -7,6 +7,8 @@ from pydantic import BaseModel, Field
 from src.core.config import settings
 from src.core.events import EventCode
 
+from .context import Context
+
 
 class Event(BaseModel):
     id: UUID = Field(default_factory=uuid4)
@@ -14,6 +16,7 @@ class Event(BaseModel):
     date_time: str = Field(default_factory=datetime.now)
     event_code: EventCode = Field(...)
     data: Dict[str, Any] = Field(...)
+    context: Context = Field(...)
 
     class Config:
         allow_population_by_field_name = True
