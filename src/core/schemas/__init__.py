@@ -1,6 +1,6 @@
 from .access import Token
-from .client import Client, CreateClient, GetClient
-from .context import Context
+from .client import Client, CreateClient, GetClient, UpdateClient
+from .context import Context, Message
 from .event import Event
 from .file import CreateFile, DeleteFile, GetFile
 from .fiscal_note import CreateFiscalNote, FiscalNote, GetFiscalNote

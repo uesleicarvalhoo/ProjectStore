@@ -1,4 +1,8 @@
-from fastapi import Depends, FastAPI, status
+from uuid import uuid4
+
+from fastapi import FastAPI, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.params import Depends
 from fastapi.requests import Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
@@ -8,11 +12,12 @@ from starlette.responses import RedirectResponse
 from src.apm import apm
 from src.core.config import AppSettings, settings
 from src.core.exceptions import NotAuthorizedError
+from src.core.schemas import Context
 from src.core.security import refresh_access_token, validate_access_token
 
 from . import views
-from .dependencies import ContextManager
-from .utils import templates
+from .dependencies import context_manager
+from .utils import send_message, templates
 
 __version__ = "0.0.0"
 
@@ -26,6 +31,7 @@ app = FastAPI(
     default_response_class=HTMLResponse,
 )
 
+# TODO: Tentar servir as imagens do S3
 app.mount("/static", StaticFiles(directory="src/web/static"), name="static")
 app.include_router(views.endpoints)
 
@@ -33,6 +39,7 @@ app.include_router(views.endpoints)
 @app.middleware("http")
 async def refresh_session(request: Request, call_next: RequestResponseEndpoint):
     cookie_token: str = request.cookies.get(settings.ACCESS_TOKEN_NAME, None)
+    session_id: str = request.cookies.get(settings.SESSION_KEY_NAME, None)
 
     response = await call_next(request)
 
@@ -43,6 +50,9 @@ async def refresh_session(request: Request, call_next: RequestResponseEndpoint):
     ):
         await refresh_access_token(response=response, token=cookie_token)
 
+    if not session_id:
+        response.set_cookie(settings.SESSION_KEY_NAME, str(uuid4()))
+
     return response
 
 
@@ -51,7 +61,7 @@ async def http_404_not_found(
     request: Request,
     exc: Exception,
     settings: AppSettings = Depends(),
-    context: ContextManager = Depends(ContextManager("web")),
+    context: Context = Depends(context_manager),
 ):
     return templates.TemplateResponse(
         "not_found.html",
@@ -62,7 +72,34 @@ async def http_404_not_found(
 
 @app.exception_handler(NotAuthorizedError)
 async def not_authorized(request: Request, exc: NotAuthorizedError):
+    send_message(
+        request,
+        "Acesso não autorizado",
+        exc.detail,
+    )
     return RedirectResponse("/login", status_code=status.HTTP_303_SEE_OTHER)
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_error(
+    request: Request,
+    exc: RequestValidationError,
+    settings: AppSettings = Depends(),
+    context: Context = Depends(context_manager),
+):
+    apm.capture_exception()
+
+    return templates.TemplateResponse(
+        "error.html",
+        context={
+            "request": request,
+            "error": exc,
+            "settings": settings,
+            "context": context,
+            "error_description": f"422 - Dados de entrada invalidos",
+        },
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+    )
 
 
 @app.exception_handler(Exception)
@@ -70,11 +107,18 @@ async def error(
     request: Request,
     exc: Exception,
     settings: AppSettings = Depends(),
-    context: ContextManager = Depends(ContextManager("web")),
+    context: Context = Depends(context_manager),
 ):
+
     apm.capture_exception()
     return templates.TemplateResponse(
         "error.html",
-        context={"request": request, "error": exc, "settings": settings, "context": context},
-        status_code=status.HTTP_404_NOT_FOUND,
+        context={
+            "request": request,
+            "error": exc,
+            "settings": settings,
+            "context": context,
+            "error_description": "400 - Erro interno",
+        },
+        status_code=status.HTTP_400_BAD_REQUEST,
     )

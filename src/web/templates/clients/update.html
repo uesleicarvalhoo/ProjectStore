@@ -16,12 +16,13 @@
         <h4 class="mb-4 text-lg font-semibold text-gray-600 dark:text-gray-300">
             Cadastro de Clientes
         </h4>
+        <input type="text" hidden=true name=id value="{{client.id}}"/>
         <div class="text-sm">
             <label class="block text-sm">
                 <span class="text-gray-700 dark:text-gray-400">Nome</span>
                 <input name="name"
                     class="rounded-lg border block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
-                    placeholder="Nome do cliente" />
+                    placeholder="Nome do cliente" value="{{client.name}}" />
             </label>
         </div>
         <div class="mt-4 text-sm">
@@ -29,7 +30,7 @@
                 <span class="text-gray-700 dark:text-gray-400">Email</span>
                 <!-- focus-within sets the color for the icon when input is focused -->
                 <div class="relative text-gray-500 focus-within:text-purple-600 dark:focus-within:text-purple-400">
-                    <input name="email" type="email"
+                    <input name="email" type="email" value="{{client.email}}"
                         class="rounded-lg border block w-full pl-10 mt-1 text-sm text-black dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray form-input"
                         placeholder="email@exemplo.com" />
                     <div class="absolute inset-y-0 flex items-center ml-3 pointer-events-none">
@@ -49,7 +50,7 @@
                     Celular
                 </span>
                 <div class="relative">
-                    <input name="phone" type="number"
+                    <input name="phone" type="number" value="{{client.phone}}"
                         class="rounded-lg border block w-full pl-20 mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray form-input"
                         placeholder="00912345678" />
                     <button

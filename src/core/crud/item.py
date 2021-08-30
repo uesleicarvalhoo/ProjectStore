@@ -1,6 +1,7 @@
 from typing import List
 from uuid import uuid4
 
+import inject
 from sqlalchemy.orm import Session
 
 from src.core.database.models import File as FileModel
@@ -8,14 +9,12 @@ from src.core.database.models import FiscalNote as FiscalNoteModel
 from src.core.database.models import Item as ItemModel
 from src.core.events import EventCode
 from src.core.exceptions import NotFoundError
-from src.core.schemas import Context
-from src.core.schemas.file import CreateFile
-from src.core.schemas.item import CreateItem, GetItem
-from src.core.services.storage import Storage
-from src.core.services.streamer import Streamer
+from src.core.schemas import Context, CreateFile, CreateItem, GetItem
+from src.core.services import Storage, Streamer
 from src.utils.miscellaneous import get_file_hash
 
 
+@inject.params(streamer=Streamer, storage=Storage)
 def create(
     session: Session, item: CreateItem, fiscal_note_id: int, context: Context, streamer: Streamer, storage: Storage
 ) -> ItemModel:
@@ -47,11 +46,11 @@ def create(
     return item_obj
 
 
-def get_all(session: Session, query: GetItem, context: Context, streamer: Streamer) -> List[ItemModel]:
+def get_all(session: Session, query: GetItem, context: Context) -> List[ItemModel]:
     return ItemModel.get_all(session, query)
 
 
-def get_by_id(session: Session, item_id: int, context: Context, streamer: Streamer) -> ItemModel:
+def get_by_id(session: Session, item_id: int, context: Context) -> ItemModel:
     item = ItemModel.get(session, item_id)
 
     if not item:
@@ -60,7 +59,8 @@ def get_by_id(session: Session, item_id: int, context: Context, streamer: Stream
     return item
 
 
-def delete(session: Session, item_id: int, context: Context, streamer: Streamer, storage: Storage) -> ItemModel:
+@inject.params(streamer=Streamer)
+def delete(session: Session, item_id: int, context: Context, streamer: Streamer) -> ItemModel:
     item = ItemModel.delete_by_id(session, item_id)
 
     if not item:

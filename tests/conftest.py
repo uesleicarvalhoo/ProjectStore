@@ -6,7 +6,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session, sessionmaker
 
 from src.core.config import Settings
-from src.core.constants import Environment
+from src.core.constants import EnvironmentEnum
 from src.core.database.models.base import BaseModel
 
 settings = Settings(_env_file=".env.test", ENVIRONMENT="test")
@@ -15,7 +15,7 @@ SessionLocal = sessionmaker(bind=engine, autocommit=False)
 
 
 def pytest_configure(config: Config):
-    if settings.ENVIRONMENT != Environment.testing:
+    if settings.ENVIRONMENT != EnvironmentEnum.testing:
         raise RuntimeError(
             f"You should run tests only in testing environment! Current environment: {settings.ENVIRONMENT.name}"
         )

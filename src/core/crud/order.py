@@ -1,5 +1,6 @@
 from typing import List
 
+import inject
 from sqlalchemy.orm import Session
 
 from src.core.database.models import Item as ItemModel
@@ -8,17 +9,18 @@ from src.core.database.models import OrderDetail as OrderDetailModel
 from src.core.events import EventCode
 from src.core.exceptions import NotFoundError
 from src.core.schemas import Context, CreateOrder, GetOrder
-from src.core.services.streamer import Streamer
+from src.core.services import Streamer
 
 
-def get_all(session: Session, query: GetOrder, context: Context, streamer: Streamer) -> List[OrderModel]:
+def get_all(session: Session, query: GetOrder, context: Context) -> List[OrderModel]:
     return OrderModel.get_all(session, query)
 
 
-def get_by_id(session: Session, order_id: int, context: Context, streamer: Streamer) -> OrderModel:
+def get_by_id(session: Session, order_id: int, context: Context) -> OrderModel:
     return OrderModel.get_by_id(session, order_id)
 
 
+@inject.params(streamer=Streamer)
 def create(session: Session, schema: CreateOrder, context: Context, streamer: Streamer) -> OrderModel:
     for detail in schema.details:
         if not ItemModel.exists(session, item_id=detail.item_id):
@@ -33,6 +35,7 @@ def create(session: Session, schema: CreateOrder, context: Context, streamer: St
     return order
 
 
+@inject.params(streamer=Streamer)
 def delete_by_id(session: Session, order_id: str, context: Context, streamer: Streamer) -> OrderModel:
     order = OrderModel.delete_by_id(session, order_id=order_id)
 

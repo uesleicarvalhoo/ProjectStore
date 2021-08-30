@@ -1,8 +1,9 @@
-from .client import Streamer
-from .elastic import ElasticStreamer
+from abc import ABC, abstractclassmethod
 
-DefaultStreamer = ElasticStreamer()
+from src.core.events import EventCode
 
 
-def default_streamer() -> Streamer:
-    return ElasticStreamer()
+class Streamer(ABC):
+    @abstractclassmethod
+    def send_event(cls, event_code: EventCode, context: str, **data) -> None:
+        pass

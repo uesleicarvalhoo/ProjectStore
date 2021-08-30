@@ -5,7 +5,7 @@ from elasticapm.conf.constants import BASE_SANITIZE_FIELD_NAMES_UNPROCESSED
 APM_SANITIZE_FIELDS = [] + BASE_SANITIZE_FIELD_NAMES_UNPROCESSED
 
 
-class Environment(str, Enum):
+class EnvironmentEnum(str, Enum):
     production = "prod"
     development = "dev"
     testing = "test"

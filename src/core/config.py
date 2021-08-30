@@ -1,11 +1,11 @@
 from pydantic import AnyHttpUrl, BaseSettings, Field, PositiveInt, validator
 from pydantic.networks import RedisDsn
 
-from src.core.constants import Environment as EnvironmemntEnum
+from src.core.constants import EnvironmentEnum
 
 
 class Environment(BaseSettings):
-    ENVIRONMENT: EnvironmemntEnum
+    ENVIRONMENT: EnvironmentEnum
 
     def __str__(self) -> str:
         return self.ENVIRONMENT
@@ -19,7 +19,7 @@ ENV_FILE = f".env.{ENVIRONMENT}"
 
 
 class Settings(BaseSettings):
-    ENVIRONMENT: EnvironmemntEnum
+    ENVIRONMENT: EnvironmentEnum
 
     # Application
     VERSION: str
@@ -39,6 +39,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: PositiveInt = Field(60)
     ACESS_TOKEN_REFRESH_MINUTES: int = Field(5)
     ACCESS_TOKEN_NAME: str = Field("access_token")
+    SESSION_KEY_NAME: str = Field("session_id")
 
     @validator("ACCESS_TOKEN_NAME")
     def validate_access_token_name(cls, value: str) -> str:

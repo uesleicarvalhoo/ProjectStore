@@ -1,6 +1,7 @@
 from typing import List
 from uuid import uuid4
 
+import inject
 from sqlalchemy.orm import Session
 
 from src.core.database.models import File as FileModel
@@ -8,14 +9,12 @@ from src.core.database.models import FiscalNote as FiscalNoteModel
 from src.core.database.models import Item as ItemModel
 from src.core.events import EventCode
 from src.core.exceptions import NotFoundError
-from src.core.schemas import Context, CreateFiscalNote
-from src.core.schemas.file import CreateFile
-from src.core.schemas.fiscal_note import GetFiscalNote
-from src.core.services.storage import Storage
-from src.core.services.streamer import Streamer
+from src.core.schemas import Context, CreateFile, CreateFiscalNote, GetFiscalNote
+from src.core.services import Storage, Streamer
 from src.utils.miscellaneous import get_file_hash
 
 
+@inject.params(streamer=Streamer, storage=Storage)
 def create(session: Session, schema: CreateFiscalNote, context: Context, streamer: Streamer, storage: Storage):
     file_hash = get_file_hash(schema.image)
     file = FileModel.get_by_hash(session, file_hash)
@@ -51,13 +50,12 @@ def create(session: Session, schema: CreateFiscalNote, context: Context, streame
     return fiscal_note
 
 
-def get_all(session: Session, query: GetFiscalNote, context: Context, streamer: Streamer) -> List[FiscalNoteModel]:
+def get_all(session: Session, query: GetFiscalNote, context: Context) -> List[FiscalNoteModel]:
     return FiscalNoteModel.get_all(session, query)
 
 
-def get_by_id(
-    session: Session, fiscal_note_id: int, context: Context, Streamer: Streamer, storage: Storage
-) -> FiscalNoteModel:
+@inject.params(storage=Storage)
+def get_by_id(session: Session, fiscal_note_id: int, context: Context, storage: Storage) -> FiscalNoteModel:
     fiscal_note = FiscalNoteModel.get(session, fiscal_note_id)
 
     if not fiscal_note:
@@ -69,6 +67,7 @@ def get_by_id(
     return fiscal_note
 
 
+@inject.params(streamer=Streamer)
 def delete_by_id(session: Session, fiscal_note_id: int, context: Context, streamer: Streamer) -> FiscalNoteModel:
     fiscal_note = FiscalNoteModel.delete_by_id(session, fiscal_note_id)
 

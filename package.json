@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "description": "E-commerce",
   "scripts": {
-    "tailwind": "tailwindcss build src/pages/static/base/css/main.css -o src/pages/static/css/main.css",
-    "build": "env NODE_ENV=production postcss src/pages/static/base/css/main.css -o src/pages/static/css/main.css",
+    "tailwind": "tailwindcss build -i  src/web/static/base/css/main.css -o src/web/static/css/main.css",
+    "build": "env NODE_ENV=production postcss src/web/static/base/css/main.css -o src/web/static/css/main.css",
     "cz": "git-cz",
     "release": "release-it"
   },

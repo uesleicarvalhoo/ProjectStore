@@ -5,7 +5,7 @@ from src.core.events import EventCode
 from src.core.schemas import Context, Event
 from src.utils.logger import log_error
 
-from .client import Streamer
+from .. import Streamer
 
 
 class ElasticStreamer(Streamer):

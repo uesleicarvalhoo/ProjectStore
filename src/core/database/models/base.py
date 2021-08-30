@@ -3,7 +3,7 @@ import json
 from typing import Any, Dict, List, TypeVar, Union
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Query, Session, session
+from sqlalchemy.orm import Query, Session
 
 from ...schemas.base import QuerySchema, Schema
 
@@ -60,16 +60,18 @@ class BaseModel(Base):
 
         return query.all()
 
-    def update(self, schema: Union[Schema, Dict[str, Any]], auto_commit: bool = True) -> DatabaseModel:
+    def update(
+        self, session: Session, schema: Union[Schema, Dict[str, Any]], auto_commit: bool = True
+    ) -> DatabaseModel:
         columns = self.__table__.columns.keys()
 
-        if isinstance(dict, schema):
+        if isinstance(schema, dict):
             update_data = schema
 
         else:
             update_data = schema.dict(exclude_defaults=True, exclude_unset=True)
 
-        for key, value in update_data:
+        for key, value in update_data.items():
             if key not in columns or key in self.__uneditable_fields__:
                 continue
 

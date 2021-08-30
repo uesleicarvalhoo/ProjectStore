@@ -5,7 +5,7 @@ from typing import Any, Union
 from pydantic.networks import RedisDsn
 from redis import Redis
 
-from .client import CacheClient
+from .. import CacheClient
 
 
 class RedisClient(CacheClient):
@@ -33,8 +33,8 @@ class RedisClient(CacheClient):
 
         self.client.pipeline().hset(name, key, value=pickle.dumps(value)).expire(name, expiration).execute()
 
-    def delete(self, key: str) -> None:
-        self.client.delete(self._get_final_key(key))
+    def delete(self, name: str, key: str) -> None:
+        self.client.hdel(self._get_final_name(name), self._get_final_key(key))
 
     def _get_final_name(self, name: str) -> str:
         if self.prefix:

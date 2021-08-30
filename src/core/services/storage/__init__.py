@@ -1,8 +1,18 @@
-from .client import Storage
-from .s3 import StorageS3
+from abc import ABC, abstractmethod
+from typing import Union
 
-DefaultStorage = StorageS3()
+DEFAULT_BUCKET = ...
 
 
-def default_storage() -> Storage:
-    return StorageS3()
+class Storage(ABC):
+    @abstractmethod
+    def upload_file(self, file: Union[str, bytes], key: str, bucket: str = DEFAULT_BUCKET) -> str:
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete_file(self, key: str, bucket: str = DEFAULT_BUCKET) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def check_file_exists(self, key: str, bucket: str = DEFAULT_BUCKET) -> bool:
+        raise NotImplementedError

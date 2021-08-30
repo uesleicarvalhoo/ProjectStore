@@ -1,4 +1,4 @@
-from typing import List, Union
+from typing import Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -16,7 +16,7 @@ class Context(BaseModel):
     user_id: Union[UUID, int, str]
     method: str
     authenticated: bool = False
-    messages: List[Message] = []
+    message: Optional[Message]
 
-    def add_message(self, header: str, text: str) -> None:
-        self.messages.append(Message(header=header, text=text))
+    def send_message(self, header: str, text: str) -> None:
+        self.message = Message(header=header, text=text)

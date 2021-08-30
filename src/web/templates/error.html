@@ -8,15 +8,14 @@
       clip-rule="evenodd"></path>
   </svg>
   <h1 class="text-6xl font-semibold text-gray-700 dark:text-gray-200">
-    404
+    {{ error_description }}
   </h1>
   <p class="text-gray-700 dark:text-gray-300">
     Ops! Alguma cosa deu errado :(
     <a class="text-purple-600 hover:underline dark:text-purple-300" href="{{url_for('web:index')}}">
-      go back
+      retornar
     </a>
     .
   </p>
 </div>
-
 {% endblock content%}

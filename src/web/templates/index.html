@@ -1,4 +1,14 @@
 {% extends "base.html" %}
+
+{% block desktop_dashboard_menu %}
+<span class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg" aria-hidden="true"></span>
+{{ super() }}
+{% endblock desktop_dashboard_menu %}
+
+{% block mobile_dashboard_menu %}
+<span class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg" aria-hidden="true"></span>
+{{ super() }}
+{% endblock mobile_dashboard_menu %}
+
 {% block content %}
-ALOOW
 {% endblock content %}

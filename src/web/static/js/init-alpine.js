@@ -49,32 +49,69 @@ function data() {
       this.isSalesMenuOpen = !this.isSalesMenuOpen
     },
     isItemsMenuOpen: false,
-    toggleItemsMenu(){
+    toggleItemsMenu() {
       this.isItemsMenuOpen = !this.isItemsMenuOpen
     },
     isFiscalNoteMenuOpen: false,
-    toggleFiscalNoteMenu(){
+    toggleFiscalNoteMenu() {
       this.isFiscalNoteMenuOpen = !this.isFiscalNoteMenuOpen
     },
     isNotificationOpen: true,
-    closeNotification(){
+    closeNotification() {
       this.isNotificationOpen = false
     },
     isFiscalNoteMenuOpen: false,
-    toggleFiscalNoteMenu(){
+    toggleFiscalNoteMenu() {
       this.isFiscalNoteMenuOpen = !this.isFiscalNoteMenuOpen
+    },
+
+    // Client
+    targetClientId: null,
+    targetClientName: null,
+    setClientTarget(clientId, clientName) {
+      this.targetClientId = clientId,
+        this.targetClientName = clientName
+    },
+
+    deleteClient(clientId) {
+      console.log(clientId)
+      fetch(window.location.pathname.split(/\/\d$/)[0] + 'delete', {
+        method: 'POST',
+        body: new URLSearchParams({ 'id': clientId })
+      })
+        .then((response) => {
+          window.location.reload()
+        })
+        .catch(() => {
+          this.openModal('Ops!', 'Alguma coisa deu errado! x.x')
+        })
     },
 
     // Modal
     isModalOpen: false,
+    modalHeader: null,
+    modalText: null,
     trapCleanup: null,
-    openModal() {
-      this.isModalOpen = true
-      this.trapCleanup = focusTrap(document.querySelector('#modal'))
-    },
     closeModal() {
       this.isModalOpen = false
       this.trapCleanup()
-    }
+    },
+    modalAcceptCallback: function () { 
+      this.closeModal()
+    },
+    openModal(modalHeader, modalText, acceptCallback = null) {
+      this.modalHeader = modalHeader
+      this.modalText = modalText
+      this.isModalOpen = true
+      this.trapCleanup = focusTrap(document.querySelector('#modal'))
+
+      if (acceptCallback == null) {
+        acceptCallback = () => this.closeModal()
+
+      } else {
+        console.log('tenho callback!')
+        this.modalAcceptCallback = acceptCallback
+      }
+    },
   }
 }

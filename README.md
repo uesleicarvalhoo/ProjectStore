@@ -6,7 +6,7 @@ Sistema de controle de estoque e registro de vendas
 
 ### Web
 
-- [ ] Exibir uma mensagem de erro quando levantar as exceções
+- [X] Exibir uma mensagem de erro quando levantar as exceções
 - [ ] Dashboard
 - [ ] View de Clientes
 - [ ] View de Estoque
@@ -26,8 +26,8 @@ Sistema de controle de estoque e registro de vendas
 - [ ] Modificar os eventos para ficar com o código e descrição
 - [ ] Gerar uma nota fiscal para as ordens de compra
 - [ ] Acrescentar os detalhes do pagamento ao pedido
-- [ ] Salvar as mensagens em request.state.messages, passar para o template as mensagens e expira-las do redis
-- [ ] Migrar as dependencias para a pasta correta
+- [X] Salvar as mensagens em request.state.messages, passar para o template as mensagens e expira-las do redis
+- [X] Migrar as dependencias para a pasta correta
 
 ### Testes
 

@@ -5,7 +5,7 @@ from botocore.exceptions import ClientError
 
 from src.core.config import settings
 
-from .client import Storage
+from .. import Storage
 
 DEFAULT_BUCKET = settings.AWS_S3_BUCKET
 

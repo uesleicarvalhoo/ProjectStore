@@ -1,5 +1,6 @@
 from typing import Union
 
+import inject
 from fastapi import Request
 from fastapi.param_functions import Depends
 from fastapi.params import Cookie
@@ -10,8 +11,9 @@ from src.core.constants import ContextEnum
 from src.core.database import make_session
 from src.core.database.models import User
 from src.core.exceptions import NotAuthorizedError
-from src.core.schemas import Context, Token
+from src.core.schemas import Context, Message, Token
 from src.core.security import load_jwt_token, validate_access_token
+from src.core.services import CacheClient
 
 
 class ContextManager:
@@ -31,11 +33,40 @@ class ContextManager:
             user_id = "anonymous"
             authenticated = False
 
-        # TODO: Carregar as mensagens no contexto, utilizar o redis(?)
-        return Context(context=self.context, user_id=user_id, method=request.url.path, authenticated=authenticated)
+        return Context(
+            context=self.context,
+            user_id=user_id,
+            method=request.url.path,
+            authenticated=authenticated,
+            message=self.load_message(request),
+        )
+
+    def _get_session_id(self, request: Request) -> str:
+        return request.cookies.get(settings.SESSION_KEY_NAME)
+
+    @inject.params(cache=CacheClient)
+    def load_message(self, request: Request, cache: CacheClient) -> Message:
+        session_id = self._get_session_id(request)
+        message = cache.get("messages", session_id)
+
+        if not message:
+            return None
+
+        cache.delete("messages", session_id)
+
+        return Message(**message)
+
+    @inject.params(cache=CacheClient)
+    def send_message(self, request: Request, header: str, text: str, cache: CacheClient) -> None:
+        session_id = self._get_session_id(request)
+
+        if not session_id:
+            return
+
+        cache.set("messages", session_id, {"header": header, "text": text}, expiration=5 * 60)
 
 
-def make_settings() -> AppSettings:
+def load_app_settings() -> AppSettings:
     return AppSettings()
 
 

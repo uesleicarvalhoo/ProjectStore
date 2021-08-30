@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from pydantic.class_validators import validator
 from pydantic.fields import Field
 from pydantic.networks import EmailStr
 from pydantic.types import constr
@@ -11,6 +12,10 @@ class BaseClient(BaseModel):
     email: EmailStr = Field(..., description="Email do cliente")
     phone: constr(regex=r"^\d{2}9\d{8}$") = Field(..., description="Telefone do cliente")  # noqa
 
+    @validator("name")
+    def validate_name(cls, value: str) -> str:
+        return value.title()
+
 
 class Client(BaseClient):
     id: int = Field(..., description="Id do Cliente")
@@ -21,6 +26,10 @@ class Client(BaseClient):
 
 class CreateClient(BaseClient):
     pass
+
+
+class UpdateClient(BaseClient):
+    id: int = Field(..., description="ID do Cliente")
 
 
 class GetClient(BaseQuerySchema):
