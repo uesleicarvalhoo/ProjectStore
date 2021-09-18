@@ -8,22 +8,25 @@ Sistema de controle de estoque e registro de vendas
 
 - [X] Exibir uma mensagem de erro quando levantar as exceções
 - [ ] Dashboard
-- [ ] View de Clientes
-- [ ] View de Estoque
-- [ ] View de Vendas
-- [ ] View de Notas Fiscais
+- [X] View de Clientes
+- [X] View de Estoque
+- [X] View de Vendas
+- [X] View de Notas Fiscais
+- [X] Colocar a borda roxa para destacar todas as views
+- [X] Destacar em negrito sempre a view atual
 
 ### API
 
 ### Database
 
-- [ ] Vincular as compras aos Clientes
+- [X] Vincular as compras aos Clientes
 - [ ] Adicionar um campo "data" JSON a tabela clients para incluir informações extras
 - [ ] Utilizar o SQLModel
 
 #### Core
 
 - [ ] Modificar os eventos para ficar com o código e descrição
+- [ ] Trocar o nome da pasta CRUD para handlers ou algo que faça mais sentido
 - [ ] Gerar uma nota fiscal para as ordens de compra
 - [ ] Acrescentar os detalhes do pagamento ao pedido
 - [X] Salvar as mensagens em request.state.messages, passar para o template as mensagens e expira-las do redis
@@ -34,6 +37,7 @@ Sistema de controle de estoque e registro de vendas
 - [ ] Implementar os testes da API
 - [ ] Implementar os testes da Web
 - [ ] Implementar o Mock das classes para testes
+- [ ] Implementar o Factory Boy para gerar os objetos
 
 ### Outros
 

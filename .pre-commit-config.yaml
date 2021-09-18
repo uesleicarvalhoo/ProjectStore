@@ -1,0 +1,13 @@
+repos:
+-   repo: local
+    rev: meta
+    hooks:
+    -   id: black
+        language: python
+        name: Run black
+        description: Check code format
+        entry: poetry run black --check src tests
+        always_run: true
+        stages:
+          - commit
+# Incluir Flake8 e testes

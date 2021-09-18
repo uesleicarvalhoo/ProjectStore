@@ -1,9 +1,9 @@
 from typing import List, Union
 
-from sqlalchemy import Column, ForeignKey, Integer, exists
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, Integer, exists
 from sqlalchemy.orm import Query, Session, relationship
-from sqlalchemy.sql.sqltypes import DateTime
 
+from ...constants import OrderEnum
 from ...schemas import CreateOrder, GetOrder
 from .base import BaseModel
 
@@ -14,10 +14,9 @@ class Order(BaseModel):
     id = Column("id", Integer, primary_key=True)
     client_id = Column("client_id", Integer, ForeignKey("clients.id", ondelete="CASCADE"), nullable=False)
     date = Column("date", DateTime)
+    status = Column("status", Enum(OrderEnum))
 
-    client = relationship(
-        "Client", back_populates="orders", cascade="all,delete", lazy="selectin", passive_deletes=True
-    )
+    client = relationship("Client", back_populates="orders", cascade="all", lazy="selectin", passive_deletes=True)
 
     details = relationship(
         "OrderDetail", back_populates="order", cascade="all,delete", lazy="selectin", passive_deletes=True
@@ -61,3 +60,15 @@ class Order(BaseModel):
     @classmethod
     def exists(cls, session: Session, order_id: int) -> bool:
         return session.query(exists().where(cls.order_id == order_id)).scalar()
+
+    @property
+    def cost_total(self) -> float:
+        return sum(detail.buy_value for detail in self.details)
+
+    @property
+    def sell_total(self) -> float:
+        return sum(detail.sell_value for detail in self.details)
+
+    @property
+    def profit(self) -> float:
+        return self.sell_total - self.cost_total

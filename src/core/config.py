@@ -53,6 +53,9 @@ class Settings(BaseSettings):
     AWS_S3_BUCKET: str = Field("storage")
     AWS_REGION_NAME: str = "us-east-1"
 
+    # Files
+    STATIC_FILES_HOST: str = Field(...)
+
     # Cache
     CACHE: RedisDsn = Field(...)
 
@@ -64,6 +67,7 @@ class AppSettings(BaseSettings):
     # Application
     VERSION: str
     APPLICATION_NAME: str = Field(...)
+    STATIC_FILES_HOST: str = Field(...)
 
     @validator("APPLICATION_NAME")
     def normalize_application_name(cls, value: str) -> str:

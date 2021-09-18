@@ -66,3 +66,7 @@ class User(BaseModel):
     @classmethod
     def exists(cls, session: Session, email: str) -> bool:
         return bool(session.query(exists().where(cls.email == email)).scalar())
+
+    @property
+    def is_super_user(self) -> bool:
+        return self.admin

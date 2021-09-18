@@ -12,8 +12,10 @@ from .file import File
 
 class BaseItem(BaseModel):
     code: str = Field(..., description="Código do produto")
+    name: str = Field(..., description="Nome do item")
     avaliable: bool = Field(..., description="Item disponível")
     buy_value: PositiveFloat = Field(..., description="Valor de compra do item")
+    sugested_sell_value: PositiveFloat = Field(..., description="Valor de venda sugerido")
 
 
 class Item(BaseItem):
@@ -42,3 +44,4 @@ class CreateItem(BaseItem):
 
 class GetItem(BaseQuerySchema):
     id: int = Field(None, description="ID do item")
+    avaliable: bool = Field(None, description="Items disponíveis/indisponíveis (None será ignorado)")

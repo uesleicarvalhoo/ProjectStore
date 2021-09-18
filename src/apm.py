@@ -13,7 +13,7 @@ apm = make_apm_client(
         "SANITIZE_FIELD_NAMES": APM_SANITIZE_FIELDS,
         "COLLECT_LOCAL_VARIABLES": "all",
         "CAPTURE_HEADERS": "true",
-        "CAPTURE_BODY": "all",
+        "CAPTURE_BODY": "off",
         "ELASTIC_APM_USE_ELASTIC_EXCEPTHOOK": True,
     }
 )

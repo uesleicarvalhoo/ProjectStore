@@ -52,3 +52,7 @@ class OrderDetail(BaseModel):
     @classmethod
     def exists(cls, session: Session, order_id: int) -> bool:
         return session.query(exists().where(cls.order_id == order_id)).scalar()
+
+    @property
+    def profit(self) -> float:
+        return self.sell_value - self.buy_value

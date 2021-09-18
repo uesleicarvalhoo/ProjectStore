@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block desktop_sales_menu %}
+<span class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg" aria-hidden="true"></span>
+{{ super() }}
+{% endblock desktop_sales_menu %}
+
+{% block mobile_sales_menu %}
+<span class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg" aria-hidden="true"></span>
+{{ super() }}
+{% endblock mobile_sales_menu %}
+
+{% block content %}
+<div class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800">
+    <h4 class="mb-4 text-2xl font-semibold text-gray-600 dark:text-gray-300">
+        <div class="flex justify-between">
+            <label>Venda - {{ order.id }}</label>
+            <label class="text-xl">
+                {{ order.date.strftime("%d/%m/%Y") }}
+            </label>
+        </div>
+    </h4>
+
+    <div class="text">
+        <div class="text mt-4">
+            <label class="block">
+                <span class="text-gray-700 dark:text-gray-400 font-semibold">Cliente</span>
+                <span
+                    class="rounded-lg border block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input">
+                    {{ order.client.name }}
+                </span>
+            </label>
+        </div>
+    </div>
+    <div>
+        <div class="text mt-4">
+            <label class="block">
+                <span class="text-gray-700 dark:text-gray-400 font-semibold">Telefone</span>
+                <span
+                    class="rounded-lg border block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input">
+                    {{ order.client.phone }}
+                </span>
+            </label>
+        </div>
+        <div class="text mt-4">
+            <label class="block">
+                <span class="text-gray-700 dark:text-gray-400 font-semibold">Email</span>
+                <span
+                    class="rounded-lg border block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input">
+                    {{ order.client.email }}
+                </span>
+            </label>
+        </div>
+    </div>
+    <table class="w-full border-cool-gray-400 mt-6 whitespace-no-wrap">
+        <thead>
+            <tr
+                class="text-xs font-semibold tracking-wide text-center text-white uppercase border-b dark:border-gray-700 bg-purple-500 dark:text-gray-400 dark:bg-gray-800">
+                <th class="px-4 py-3">Produto</th>
+                <th class="px-4 py-3">Código</th>
+                <th class="px-4 py-3">Preço de compra</th>
+                <th class="px-4 py-3">Preço de venda</th>
+                <th class="px-4 py-3">Lucro</th>
+            </tr>
+        </thead>
+        {% for detail in order.details %}
+        <tr class="text-gray-700 dark:text-gray-400 border-t dark:border-gray-700">
+            <td class="px-4 py-3 text-center text-xs">
+                <span class="px-4 py-3 text-sm">{{ detail.item.name }}</span>
+            </td>
+            <td class="px-4 py-3 text-center text-xs">
+                <span class="px-4 py-3 text-sm">{{ detail.item.code }}</span>
+            </td>
+            <td class="px-4 py-3 text-center text-xs">
+                <span class="px-4 py-3 text-sm"> R$ {{ '%0.2f' % detail.buy_value }}</span>
+            </td>
+            <td class="px-4 py-3 text-center text-xs">
+                <span class="px-4 py-3 text-sm"> R$ {{ '%0.2f' % detail.sell_value }} </span>
+            </td>
+            <td class="px-4 py-3 text-center text-xs">
+                <span class="px-4 py-3 text-sm"> R$ {{ '%0.2f' % detail.profit }} </span>
+            </td>
+        </tr>
+        {% endfor %}
+        <tfoot>
+            <tr class="text-xs font-semibold tracking-wide text-center uppercase border-t-2 text-gray-600 dark:border-gray-700 dark:text-gray-400 dark:bg-gray-800">
+                <td class="px-4 py-3 text-center text-xs font-semibold">
+                    <span class="px-4 py-3 text-sm"> Total </span>
+                </td>
+                <td class="px-4 py-3 text-center text-xs">
+                    <span class="px-4 py-3 text-sm"> - </span>
+                </td>
+                <td class="px-4 py-3 text-center text-xs">
+                    <span class="px-4 py-3 text-sm"> R$ {{ '%0.2f' % order.cost_total }} </span>
+                </td>
+                <td class="px-4 py-3 text-center text-xs">
+                    <span class="px-4 py-3 text-sm"> R$ {{ '%0.2f' % order.sell_total }} </span>
+                </td>
+                <td class="px-4 py-3 text-center text-xs">
+                    <span class="px-4 py-3 text-sm"> R$ {{ '%0.2f' % order.profit }} </span>
+                </td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+{% endblock content %}

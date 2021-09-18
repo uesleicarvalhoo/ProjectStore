@@ -74,10 +74,33 @@ function data() {
     },
 
     deleteClient(clientId) {
-      console.log(clientId)
       fetch(window.location.pathname.split(/\/\d$/)[0] + 'delete', {
         method: 'POST',
         body: new URLSearchParams({ 'id': clientId })
+      })
+        .then((response) => {
+          window.location.reload()
+        })
+        .catch(() => {
+          this.openModal('Ops!', 'Alguma coisa deu errado! x.x')
+        })
+    },
+    deleteFiscalNote(fiscalNoteId) {
+      fetch(window.location.pathname.split(/\/\d$/)[0] + 'delete', {
+        method: 'POST',
+        body: new URLSearchParams({ 'id': fiscalNoteId })
+      })
+        .then((response) => {
+          window.location.reload()
+        })
+        .catch(() => {
+          this.openModal('Ops!', 'Alguma coisa deu errado! x.x')
+        })
+    },
+    deleteItem(itemId) {
+      fetch('/produtos/delete', {
+        method: 'POST',
+        body: new URLSearchParams({ 'id': itemId })
       })
         .then((response) => {
           window.location.reload()
@@ -96,7 +119,7 @@ function data() {
       this.isModalOpen = false
       this.trapCleanup()
     },
-    modalAcceptCallback: function () { 
+    modalAcceptCallback: function () {
       this.closeModal()
     },
     openModal(modalHeader, modalText, acceptCallback = null) {
@@ -109,9 +132,116 @@ function data() {
         acceptCallback = () => this.closeModal()
 
       } else {
-        console.log('tenho callback!')
         this.modalAcceptCallback = acceptCallback
       }
     },
+  }
+}
+
+function fiscalNoteForm() {
+  return {
+    formData: {
+      imageData: null,
+      description: null,
+      purchase_date: null,
+    },
+    fileChosen(event) {
+      console.log(event)
+      this.fileToDataUrl(event, src => this.imageData = src)
+    },
+    fileToDataUrl(event, callback) {
+      if (!event.target.files.length) return
+      let file = event.target.files[0],
+        reader = new FileReader()
+      reader.readAsText(file)
+      console.log(reader)
+      reader.onload = e => callback(e.target.result)
+    },
+    submitData() {
+      var form = new FormData();
+      form.append("file", this.formData.imageData)
+      form.append("description", this.formData.description)
+      form.append("purchase_date", this.formData.purchase_date)
+
+      fetch(window.location, {
+        method: 'POST',
+        headers: {
+          'content-Type': 'multipart/form-data'
+        },
+        body: form
+      })
+        .then((response) => {
+          window.location.reload()
+        })
+        .catch(() => {
+          this.openModal('Ops!', 'Alguma coisa deu errado! x.x')
+        })
+    }
+  }
+}
+
+function imageViewer() {
+  return {
+    imageUrl: '',
+
+    fileChosen(event) {
+      this.fileToDataUrl(event, src => this.imageUrl = src)
+    },
+
+    fileToDataUrl(event, callback) {
+      if (!event.target.files.length) return
+
+      let file = event.target.files[0],
+        reader = new FileReader()
+
+      reader.readAsDataURL(file)
+      reader.onload = e => callback(e.target.result)
+    },
+  }
+}
+
+function orderForm() {
+  return {
+    items: [],
+    clients: [],
+    orderItems: [],
+    selectedItem: null,
+    selectedClient: { "phone": "-", "email": "-" },
+    clientData: { "id": "-", "phone": "-", "email": "-" },
+
+    updateData(clients, items) {
+      this.clients = clients
+      this.items = items
+    },
+    removeSelectedItem(item) {
+      this.items = this.items.filter(item => (!this.orderItems.includes(item)))
+    },
+    updateSelectedClient() {
+      this.clientData = JSON.parse(this.selectedClient)
+    },
+    addItem() {
+      if (this.selectedItem !== null && !this.orderItems.includes(this.selectedItem)) {
+        this.orderItems.push(this.selectedItem)
+      }
+    },
+    removeItem(item) {
+      this.orderItems = this.orderItems.filter(el => el != item)
+    },
+    submitData() {
+      fetch(window.location, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client: this.selectedClient,
+          items: this.orderItems
+        }, )
+      })
+        .then((response) => {
+          // window.location.reload()
+        })
+        .catch(() => {
+          this.openModal('Ops!', 'Alguma coisa deu errado! x.x')
+        })
+    }
   }
 }

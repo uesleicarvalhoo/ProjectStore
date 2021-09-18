@@ -14,7 +14,6 @@ from .item import CreateItem, Item
 class BaseFiscalNote(BaseModel):
     description: str = Field(..., description="Descrição da nota fiscal")
     purchase_date: date = Field(..., description="Data da compra")
-    file_id: str = Field(..., description="ID do arquivo da nota fiscal")
 
 
 class FiscalNote(BaseFiscalNote):
@@ -43,4 +42,4 @@ class CreateFiscalNote(BaseFiscalNote):
 
 
 class GetFiscalNote(BaseQuerySchema):
-    id: int = Field(..., description="ID da nota fiscal")
+    id: int = Field(None, description="ID da nota fiscal")

@@ -5,6 +5,7 @@ from sqlalchemy.orm import Query, Session
 
 from src.utils.date import now_datetime
 
+from ...config import settings
 from ...schemas import CreateFile, CreateItem, GetFile
 from .base import BaseModel
 
@@ -56,3 +57,7 @@ class File(BaseModel):
     @classmethod
     def exists(cls, session: Session, hash: str) -> bool:
         return session.query(exists().where(cls.hash == hash)).scalar()
+
+    @property
+    def src_url(self) -> str:
+        return f"{settings.STATIC_FILES_HOST}/{self.bucket_key}"

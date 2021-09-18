@@ -68,7 +68,7 @@ def get_by_id(session: Session, fiscal_note_id: int, context: Context, storage: 
 
 
 @inject.params(streamer=Streamer)
-def delete_by_id(session: Session, fiscal_note_id: int, context: Context, streamer: Streamer) -> FiscalNoteModel:
+def delete(session: Session, fiscal_note_id: int, context: Context, streamer: Streamer) -> FiscalNoteModel:
     fiscal_note = FiscalNoteModel.delete_by_id(session, fiscal_note_id)
 
     if not fiscal_note:

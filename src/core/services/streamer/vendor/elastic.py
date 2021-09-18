@@ -19,7 +19,7 @@ class ElasticStreamer(Streamer):
             cls.client.create(
                 "events-store",
                 id=event.id,
-                body=event.json(by_alias=True, exclude={"context": ["messages"]}),
+                body=event.json(by_alias=True, exclude={"context": {"message"}}),
             )
 
         except Exception as exc:

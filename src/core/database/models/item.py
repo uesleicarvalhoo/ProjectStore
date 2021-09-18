@@ -13,16 +13,16 @@ class Item(BaseModel):
 
     id = Column("id", Integer, primary_key=True)
     code = Column("code", String, nullable=False)
+    name = Column("name", String, nullable=False)
     fiscal_note_id = Column(
         "fiscal_note_id", Integer, ForeignKey("fiscal_notes.id", ondelete="CASCADE"), nullable=False
     )
     file_id = Column("file_id", String, ForeignKey("files.bucket_key"), nullable=True)
     avaliable = Column("avaliable", Boolean, default=True)
     buy_value = Column("buy_value", Float, nullable=False)
+    sugested_sell_value = Column("sugested_sell_value", Float, nullable=False)
 
-    fiscal_note = relationship(
-        "FiscalNote", back_populates="items", cascade="all,delete", lazy="selectin", passive_deletes=True
-    )
+    fiscal_note = relationship("FiscalNote", back_populates="items", lazy="selectin", passive_deletes=True)
     file = relationship("File", cascade="all,delete", lazy="selectin", passive_deletes=True)
 
     @classmethod
@@ -31,6 +31,9 @@ class Item(BaseModel):
 
         if schema.id:
             return query.filter(cls.id == schema.id)
+
+        if schema.avaliable is not None:
+            return query.filter(cls.avaliable == schema.avaliable)
 
         return query
 

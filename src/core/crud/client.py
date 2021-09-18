@@ -19,7 +19,7 @@ def create(session: Session, schema: CreateClient, context: Context, streamer: S
         raise DatabaseError("Já existe um cliente cadastrado com o telefone: %s" % schema.phone)
 
     client = ClientModel.create(session, schema)
-    streamer.send_event(EventCode.CREATE_USER, context=context, **{"client": client})
+    streamer.send_event(EventCode.CREATE_USER, context=context, client=client.dict())
 
     return client
 

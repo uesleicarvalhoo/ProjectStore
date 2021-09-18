@@ -25,6 +25,7 @@ Jinja2 = "^3.0.1"
 aiofiles = "^0.7.0"
 redis = "^3.5.3"
 Inject = "^4.3.1"
+sqlmodel = "^0.0.4"
 
 [tool.poetry.dev-dependencies]
 black = "^21.7b0"

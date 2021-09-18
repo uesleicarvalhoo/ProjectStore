@@ -6,7 +6,7 @@ from fastapi.param_functions import Depends
 from fastapi.params import Cookie
 from sqlalchemy.orm import Session
 
-from src.core.config import AppSettings, settings
+from src.core.config import settings
 from src.core.constants import ContextEnum
 from src.core.database import make_session
 from src.core.database.models import User
@@ -64,10 +64,6 @@ class ContextManager:
             return
 
         cache.set("messages", session_id, {"header": header, "text": text}, expiration=5 * 60)
-
-
-def load_app_settings() -> AppSettings:
-    return AppSettings()
 
 
 def get_token(access_token: str = Cookie(None)) -> str:

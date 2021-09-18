@@ -11,7 +11,7 @@ from starlette.responses import RedirectResponse
 
 from src.apm import apm
 from src.core.config import AppSettings, settings
-from src.core.exceptions import NotAuthorizedError
+from src.core.exceptions import NotAuthorizedError, ValidationError
 from src.core.schemas import Context
 from src.core.security import refresh_access_token, validate_access_token
 
@@ -77,16 +77,16 @@ async def not_authorized(request: Request, exc: NotAuthorizedError):
         "Acesso não autorizado",
         exc.detail,
     )
-    return RedirectResponse("/login", status_code=status.HTTP_303_SEE_OTHER)
+    return RedirectResponse(request.url_for("web:login"), status_code=status.HTTP_303_SEE_OTHER)
 
 
 @app.exception_handler(RequestValidationError)
-async def validation_error(
+async def schema_validation_error(
     request: Request,
     exc: RequestValidationError,
-    settings: AppSettings = Depends(),
     context: Context = Depends(context_manager),
 ):
+    await request.json()
     apm.capture_exception()
 
     return templates.TemplateResponse(
@@ -94,9 +94,26 @@ async def validation_error(
         context={
             "request": request,
             "error": exc,
-            "settings": settings,
             "context": context,
-            "error_description": f"422 - Dados de entrada invalidos",
+            "error_description": "422 - Dados de entrada invalidos",
+        },
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+    )
+
+
+@app.exception_handler(ValidationError)
+async def validation_error(
+    request: Request,
+    exc: ValidationError,
+    context: Context = Depends(context_manager),
+):
+    return templates.TemplateResponse(
+        "error.html",
+        context={
+            "request": request,
+            "error": exc,
+            "context": context,
+            "error_description": f"422 - {exc.detail}",
         },
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
     )

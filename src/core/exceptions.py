@@ -27,3 +27,10 @@ class NotAuthorizedError(Exception):
 
     def __init__(self, message: str) -> None:
         self.detail = message
+
+
+class ValidationError(Exception):
+    detail: str = None
+
+    def __init__(self, message: str) -> None:
+        self.edtail = message

@@ -25,12 +25,15 @@ class BaseModel(Base):
             col: getattr(self, col) for col in self.__table__.columns.keys() if col not in self.__dict_exclude_fields__
         }
 
-    def json(self, **kwargs) -> str:
-        data = self.to_dict()
+    def json(self, *, as_dict: bool = False, **kwargs) -> str:
+        data = self.dict()
 
         for col, value in data.items():
             if isinstance(value, dt.datetime) or isinstance(value, dt.date):
                 data[col] = value.isoformat()
+
+        if as_dict:
+            return data
 
         return json.dumps(data, **kwargs)
 

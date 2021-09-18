@@ -2,11 +2,19 @@ import inject
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 
-from src.core.config import settings
+from src.core.config import AppSettings, settings
+from src.core.constants import OrderEnum
 from src.core.schemas import Message
 from src.core.services import CacheClient
 
 templates = Jinja2Templates(directory="src/web/templates")
+templates.env.globals.update(
+    {
+        "settings": AppSettings(),
+        "round": round,
+        "OrderEnum": OrderEnum,
+    }
+)
 
 
 def _get_session_id(request: Request) -> str:
