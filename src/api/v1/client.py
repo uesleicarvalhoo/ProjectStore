@@ -2,13 +2,13 @@ from typing import List
 
 from fastapi import APIRouter
 from fastapi.param_functions import Depends
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 from starlette.status import HTTP_201_CREATED
 
 from src.core.constants import ContextEnum
-from src.core.crud import client
+from src.core.controller import client
 from src.core.database import make_session
-from src.core.schemas import Client, CreateClient, GetClient
+from src.core.models import Client, CreateClient, GetClient
 
 router = APIRouter()
 

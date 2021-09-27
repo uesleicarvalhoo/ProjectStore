@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 from starlette.status import HTTP_201_CREATED
 
-from src.core.crud import fiscal_note
+from src.core.controller import fiscal_note
 from src.core.database import make_session
-from src.core.schemas import Context, CreateFiscalNote, FiscalNote
+from src.core.models import Context, CreateFiscalNote, FiscalNote
 
 router = APIRouter()
 

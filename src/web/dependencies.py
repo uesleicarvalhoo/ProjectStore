@@ -4,14 +4,13 @@ import inject
 from fastapi import Request
 from fastapi.param_functions import Depends
 from fastapi.params import Cookie
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 
 from src.core.config import settings
 from src.core.constants import ContextEnum
 from src.core.database import make_session
-from src.core.database.models import User
 from src.core.exceptions import NotAuthorizedError
-from src.core.schemas import Context, Message, Token
+from src.core.models import Context, Message, Token, User
 from src.core.security import load_jwt_token, validate_access_token
 from src.core.services import CacheClient
 

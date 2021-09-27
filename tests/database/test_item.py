@@ -2,12 +2,12 @@ from base64 import b64encode
 from contextlib import suppress
 from random import choice
 
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 
-from src.core.database.models import File as FileModel
-from src.core.database.models import FiscalNote as FiscalNoteModel
-from src.core.database.models import Item as ItemModel
-from src.core.schemas import CreateFile, CreateFiscalNote, CreateItem
+from src.core.models import CreateFile, CreateFiscalNote, CreateItem
+from src.core.models import File as FileModel
+from src.core.models import FiscalNote as FiscalNoteModel
+from src.core.models import Item as ItemModel
 from tests.utils import faker
 
 

@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class EventCode(str, Enum):
+class EventCode(str, Enum):  # TODO: Usar uma tupla de argumentos com o código e descrição
     # User range 100 ~ 199
     CREATE_USER: int = 100
     UPDATE_USER: int = 101

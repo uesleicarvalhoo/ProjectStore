@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request
 
-from src.core.database.models.user import User
-from src.core.schemas import Context
+from src.core.models import Context
+from src.core.models.user import User
 
 from ..dependencies import context_manager, get_current_user
 from ..utils import templates

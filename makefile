@@ -24,7 +24,7 @@ upgrade:
 	@PYTHONPATH="${PYTHONPATH}" alembic upgrade head
 
 downgrade:
-	@PYTHONPATH="${PYTHONPATH}" alembic downgrade 69ae8a7b14d3
+	@PYTHONPATH="${PYTHONPATH}" alembic downgrade head
 
 clean-pyc:
 	@find . -name "__pycache__" -exec rm -rf {} +

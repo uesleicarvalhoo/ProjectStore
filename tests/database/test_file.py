@@ -1,9 +1,9 @@
 from contextlib import suppress
 
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 
-from src.core.database.models import File as FileModel
-from src.core.schemas import CreateFile
+from src.core.models import CreateFile
+from src.core.models import File as FileModel
 from tests.utils.faker import random_bucket_key, random_hash
 
 

@@ -124,3 +124,6 @@ venv.bak/
 
 # Others
 node_modules
+
+versions_old
+old_*

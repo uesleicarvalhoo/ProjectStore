@@ -3,11 +3,11 @@ from typing import Generator
 import pytest
 from _pytest.config import Config
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
+from sqlmodel import Session, sessionmaker
 
 from src.core.config import Settings
 from src.core.constants import EnvironmentEnum
-from src.core.database.models.base import BaseModel
+from src.core.models.base import BaseModel
 
 settings = Settings(_env_file=".env.test", ENVIRONMENT="test")
 engine = create_engine(settings.SQLALCHEMY_DB_URI)

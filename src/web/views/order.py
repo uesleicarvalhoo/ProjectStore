@@ -3,16 +3,15 @@ from datetime import date
 
 from fastapi import APIRouter, status
 from fastapi.params import Depends
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 from starlette.requests import Request
 from starlette.responses import RedirectResponse
 from starlette.status import HTTP_201_CREATED, HTTP_202_ACCEPTED
 
-from src.core import crud
+from src.core import controller
 from src.core.constants import OrderEnum
-from src.core.database.models import User
-from src.core.schemas import (Client, Context, CreateOrder, CreateOrderDetail, GetClient, GetItem, GetOrder,
-                              UpdateOrderStatus)
+from src.core.models import (Client, Context, CreateOrder, CreateOrderDetail, GetClient, GetItem, GetOrder,
+                             UpdateOrderStatus, User)
 
 from ..dependencies import context_manager, get_current_user, make_session
 from ..utils import send_message, templates
@@ -28,7 +27,7 @@ async def order_view(
     current_user: User = Depends(get_current_user),
     context: Context = Depends(context_manager),
 ):
-    orders = crud.order.get_all(session, query, context)
+    orders = controller.order.get_all(session, query, context)
     return templates.TemplateResponse(
         "orders/view.html",
         context={"request": request, "context": context, "orders": orders, "current_user": current_user},
@@ -39,8 +38,8 @@ async def order_view(
 async def order_create(
     request: Request, session: Session = Depends(make_session), context: Context = Depends(context_manager)
 ):
-    clients = crud.client.get_all(session, GetClient(), context=context)
-    items = crud.item.get_all(session, query=GetItem(avaliable=True), context=context)
+    clients = controller.client.get_all(session, GetClient(), context=context)
+    items = controller.item.get_all(session, query=GetItem(avaliable=True), context=context)
 
     return templates.TemplateResponse(
         "orders/create.html",
@@ -60,7 +59,7 @@ async def order_detail(
     session: Session = Depends(make_session),
     context: Context = Depends(context_manager),
 ):
-    order = crud.order.get_by_id(session, order_id, context=context)
+    order = controller.order.get_by_id(session, order_id, context=context)
 
     return templates.TemplateResponse(
         "orders/view_detail.html", context={"request": request, "context": context, "order": order}
@@ -73,7 +72,7 @@ async def order_update_status(
     session: Session = Depends(make_session),
     context: Context = Depends(context_manager),
 ):
-    crud.order.update_status(session, schema, context=context)
+    controller.order.update_status(session, schema, context=context)
 
 
 @router.post("/", status_code=HTTP_201_CREATED)
@@ -91,7 +90,7 @@ async def order_create_post(
         data["item_id"] = data.get("id")
         items.append(data)
 
-    order = crud.order.create(
+    order = controller.order.create(
         session,
         CreateOrder(
             client_id=client.id,

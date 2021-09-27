@@ -2,14 +2,11 @@ from typing import List
 from uuid import uuid4
 
 import inject
-from sqlalchemy.orm import Session
+from sqlmodel import Session, select
 
-from src.core.database.models import File as FileModel
-from src.core.database.models import FiscalNote as FiscalNoteModel
-from src.core.database.models import Item as ItemModel
 from src.core.events import EventCode
 from src.core.exceptions import NotFoundError
-from src.core.schemas import Context, CreateFile, CreateItem, GetItem
+from src.core.models import Context, CreateItem, File, FiscalNote, GetItem, Item
 from src.core.services import Storage, Streamer
 from src.utils.miscellaneous import get_file_hash
 
@@ -17,21 +14,19 @@ from src.utils.miscellaneous import get_file_hash
 @inject.params(streamer=Streamer, storage=Storage)
 def create(
     session: Session, schema: CreateItem, fiscal_note_id: int, context: Context, streamer: Streamer, storage: Storage
-) -> ItemModel:
-    if not FiscalNoteModel.get(session, fiscal_note_id):
+) -> Item:
+
+    if not session.exec(select(FiscalNote).where(FiscalNote.id == fiscal_note_id)).scalar():
         raise NotFoundError(f"Não foi possível localizar a nota fiscal com id: {fiscal_note_id}.")
 
     file_hash = get_file_hash(schema.image)
-    file = FileModel.get_by_hash(session, file_hash)
+    file = session.exec(select(File).where(File.hash == file_hash)).scalar()
 
     if not file:
         streamer.send_event(
             EventCode.UPLOAD_FILE, context=context, file={"filename": schema.filename, "hash": file_hash}
         )
-        file = FileModel.create(
-            session,
-            CreateFile(bucket_key=f"item-{uuid4()}.{schema.filename.split('.')[-1]}", hash=file_hash),
-        )
+        file = File(bucket_key=f"item-{uuid4()}.{schema.file_extension}", hash=file_hash)
 
     if not storage.check_file_exists(file.bucket_key):
         storage.upload_file(schema.image, key=file.bucket_key)
@@ -41,19 +36,26 @@ def create(
             file={"filename": schema.filename, "hash": file_hash, "bucket_key": file.bucket_key},
         )
 
-    item_obj = ItemModel.create(session, schema, fiscal_note_id=fiscal_note_id, file=file)
+    item_obj = Item(**schema.dict(exclude={"image", "filename"}), fiscal_note_id=fiscal_note_id, file=file)
 
     streamer.send_event(event_code=EventCode.CREATE_ITEM, context=context, item=item_obj.dict())
 
     return item_obj
 
 
-def get_all(session: Session, query: GetItem, context: Context) -> List[ItemModel]:
-    return ItemModel.get_all(session, query)
+def get_all(session: Session, query: GetItem, context: Context) -> List[Item]:
+    query_args = []
+    if query.id:
+        query_args.append(Item.id == query.id)
+
+    elif query.avaliable is not None:
+        query_args.append(Item.avaliable == query.avaliable)
+
+    return session.exec(select(Item).where(*query_args)).scalars()
 
 
-def get_by_id(session: Session, item_id: int, context: Context) -> ItemModel:
-    item = ItemModel.get(session, item_id)
+def get_by_id(session: Session, item_id: int, context: Context) -> Item:
+    item = session.exec(select(Item).where(Item.id == item_id)).scalar()
 
     if not item:
         raise NotFoundError("Não foi possível localizar o Item com ID: %s" % item_id)
@@ -62,12 +64,14 @@ def get_by_id(session: Session, item_id: int, context: Context) -> ItemModel:
 
 
 @inject.params(streamer=Streamer)
-def delete(session: Session, item_id: int, context: Context, streamer: Streamer) -> ItemModel:
-    item = ItemModel.delete_by_id(session, item_id)
+def delete(session: Session, item_id: int, context: Context, streamer: Streamer) -> Item:
+    item = session.exec(select(Item).where(Item.id == item_id)).scalar()
 
     if not item:
         raise NotFoundError(f"Não foi possível localizar o item com ID {item_id}")
 
+    session.delete(item)
+    session.commit()
     streamer.send_event(EventCode.DELETE_ITEM, context=context, item=item.dict())
 
     return item

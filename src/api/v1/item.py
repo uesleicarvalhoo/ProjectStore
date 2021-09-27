@@ -3,9 +3,9 @@ from fastapi.param_functions import Depends
 from sqlalchemy.orm.session import Session
 from starlette.status import HTTP_201_CREATED
 
-from src.core.crud import item
+from src.core.controller import item
 from src.core.database import make_session
-from src.core.schemas import Context, CreateItem, Item
+from src.core.models import Context, CreateItem, Item
 
 router = APIRouter()
 

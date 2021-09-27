@@ -2,6 +2,7 @@ from datetime import timedelta
 from time import time
 from typing import Union
 
+import inject
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError
 from passlib.context import CryptContext
@@ -10,11 +11,11 @@ from starlette.responses import Response
 
 from src.apm import apm
 from src.core.exceptions import NotAuthorizedError
+from src.core.services import CacheClient
 from src.utils.date import now_datetime
-from src.utils.miscellaneous import cache
 
 from .config import settings
-from .schemas import Token
+from .models import Token
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -52,7 +53,8 @@ def load_jwt_token(token: str) -> Token:
         raise NotAuthorizedError("Não foi possível validar as suas credenciais")
 
 
-def validate_access_token(token: str) -> bool:
+@inject.params(cache=CacheClient)
+def validate_access_token(token: str, cache: CacheClient) -> bool:
     try:
         load_jwt_token(token=token)
     except NotAuthorizedError:
@@ -61,7 +63,8 @@ def validate_access_token(token: str) -> bool:
     return cache.get("token-black-list", token) is None
 
 
-async def invalidate_access_token(jwt_token: str, response: Response = None) -> None:
+@inject.params(cache=CacheClient)
+async def invalidate_access_token(jwt_token: str, cache: CacheClient, response: Response = None) -> None:
     token = load_jwt_token(jwt_token)
     expire = int(token.exp - now_datetime().timestamp())
     cache.set("token-black-list", jwt_token, token, expire)

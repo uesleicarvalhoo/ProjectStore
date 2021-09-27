@@ -1,9 +1,9 @@
 from contextlib import suppress
 
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 
-from src.core.database.models import Client as ClientModel
-from src.core.schemas import CreateClient
+from src.core.models import Client as ClientModel
+from src.core.models import CreateClient
 from tests.utils.faker import random_email, random_name, random_phone
 
 

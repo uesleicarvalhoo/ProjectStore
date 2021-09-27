@@ -10,4 +10,4 @@ repos:
         always_run: true
         stages:
           - commit
-# Incluir Flake8 e testes
+#TODO: Fixar, incluir o Flake8 e testes

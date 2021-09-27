@@ -2,7 +2,7 @@ from elasticsearch import Elasticsearch
 
 from src.apm import apm
 from src.core.events import EventCode
-from src.core.schemas import Context, Event
+from src.core.models import Context, Event
 from src.utils.logger import log_error
 
 from .. import Streamer

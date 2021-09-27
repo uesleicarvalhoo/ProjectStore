@@ -1,5 +1,5 @@
 from src.core.database import engine
-from src.core.database.models.base import BaseModel
+from src.core.models.base import BaseModel
 
 
 def reset_db() -> None:

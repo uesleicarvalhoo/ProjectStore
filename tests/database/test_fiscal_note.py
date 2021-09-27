@@ -1,11 +1,11 @@
 from base64 import b64encode
 from contextlib import suppress
 
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 
-from src.core.database.models import File as FileModel
-from src.core.database.models import FiscalNote as FiscalNoteModel
-from src.core.schemas import CreateFile, CreateFiscalNote
+from src.core.models import CreateFile, CreateFiscalNote
+from src.core.models import File as FileModel
+from src.core.models import FiscalNote as FiscalNoteModel
 from tests.utils.faker import random_bucket_key, random_date, random_description, random_filename, random_hash
 
 

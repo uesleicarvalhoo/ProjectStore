@@ -2,13 +2,13 @@ from base64 import b64encode
 
 from fastapi import APIRouter, File, Request, UploadFile, status
 from fastapi.params import Depends, Form
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 from starlette.responses import RedirectResponse
 
-from src.core import crud
+from src.core import controller
 from src.core.database import make_session
-from src.core.schemas import Context, CreateItem
-from src.core.schemas.item import GetItem
+from src.core.models import Context, CreateItem
+from src.core.models.item import GetItem
 
 from ..dependencies import context_manager
 from ..utils import send_message, templates
@@ -23,7 +23,7 @@ async def items_view(
     session: Session = Depends(make_session),
     context: Context = Depends(context_manager),
 ):
-    items = crud.item.get_all(session, query=query, context=context)
+    items = controller.item.get_all(session, query=query, context=context)
     return templates.TemplateResponse(
         "items/view.html", context={"request": request, "context": context, "items": items}
     )
@@ -36,7 +36,7 @@ async def item_by_id(
     session: Session = Depends(make_session),
     context: Context = Depends(context_manager),
 ):
-    item = crud.item.get_by_id(session, item_id, context)
+    item = controller.item.get_by_id(session, item_id, context)
 
     return templates.TemplateResponse(
         "items/view_detail.html", context={"request": request, "context": context, "item": item}
@@ -69,7 +69,7 @@ async def items_create_post(
     context: Context = Depends(context_manager),
 ):
 
-    item = crud.item.create(
+    item = controller.item.create(
         session,
         schema=CreateItem(
             code=code,
@@ -98,7 +98,7 @@ async def items_delete(
     session: Session = Depends(make_session),
     context: Context = Depends(context_manager),
 ):
-    item = crud.item.delete(session, item_id=id, context=context)
+    item = controller.item.delete(session, item_id=id, context=context)
 
     return RedirectResponse(
         request.url_for("web:fiscal_note_by_id", fiscal_note_id=item.fiscal_note_id),

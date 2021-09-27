@@ -1,9 +1,9 @@
 import random
 
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 
-from src.core.database.models import User as UserModel
-from src.core.schemas import CreateUser
+from src.core.models import CreateUser
+from src.core.models import User as UserModel
 from src.core.security import verify_password
 from tests.utils.faker import random_email, random_name, random_password
 

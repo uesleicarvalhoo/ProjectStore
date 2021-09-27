@@ -1,15 +1,15 @@
 from base64 import b64encode
 from random import choice
 
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 
-from src.core.database.models import Client as ClientModel
-from src.core.database.models import File as FileModel
-from src.core.database.models import FiscalNote as FiscalNoteModel
-from src.core.database.models import Item as ItemModel
-from src.core.database.models import Order as OrderModel
-from src.core.database.models import OrderDetail as OrderDetailModel
-from src.core.schemas import CreateClient, CreateFile, CreateFiscalNote, CreateItem, CreateOrder, CreateOrderDetail
+from src.core.models import Client as ClientModel
+from src.core.models import CreateClient, CreateFile, CreateFiscalNote, CreateItem, CreateOrder, CreateOrderDetail
+from src.core.models import File as FileModel
+from src.core.models import FiscalNote as FiscalNoteModel
+from src.core.models import Item as ItemModel
+from src.core.models import Order as OrderModel
+from src.core.models import OrderDetail as OrderDetailModel
 from tests.utils import faker
 
 

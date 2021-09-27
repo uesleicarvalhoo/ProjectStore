@@ -1,23 +1,18 @@
 from typing import Any, Dict
-from uuid import UUID
+from uuid import UUID, uuid4
 
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import EmailStr, validator
+from sqlalchemy import Column
+from sqlmodel import Field, SQLModel
 
-from src.core.models.base import BaseQuerySchema
+from .base import BaseQuerySchema
+from .types import GUID
 
 
-class BaseUser(BaseModel):
+class BaseUser(SQLModel):
     name: str = Field(..., description="Nome do usuário")
     email: EmailStr = Field(..., description="Email do usuário")
     admin: bool = Field(False, description="Previlegio de administrador")
-
-
-class User(BaseUser):
-    id: UUID = Field(..., description="Id do usuário")
-    password_hash: str = Field(..., description="Hash da senha")
-
-    class Config:
-        orm_mode: bool = True
 
 
 class CreateUser(BaseUser):
@@ -36,3 +31,16 @@ class GetUser(BaseQuerySchema):
     id: int = Field(None, description="ID do Usuário")
     name: str = Field(None, description="Nome do usuário")
     email: EmailStr = Field(None, description="Email do usuário")
+
+
+class User(BaseUser, table=True):
+    __tablename__ = "users"
+
+    id: UUID = Field(
+        ..., description="Id do usuário", sa_column=Column("id", GUID(), default=uuid4(), primary_key=True)
+    )
+    password_hash: str = Field(..., description="Hash da senha")
+
+    @property
+    def is_super_user(self) -> bool:
+        return self.admin

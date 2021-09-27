@@ -12,7 +12,7 @@ from starlette.responses import RedirectResponse
 from src.apm import apm
 from src.core.config import AppSettings, settings
 from src.core.exceptions import NotAuthorizedError, ValidationError
-from src.core.schemas import Context
+from src.core.models import Context
 from src.core.security import refresh_access_token, validate_access_token
 
 from . import views

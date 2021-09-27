@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Request, status
 from fastapi.params import Depends, Form
 from pydantic import EmailStr
-from sqlalchemy.orm import Session
+from sqlmodel import Session
 from starlette.responses import RedirectResponse
 
-from src.core import crud
+from src.core import controller
 from src.core.database import make_session
-from src.core.schemas import Context, CreateClient, GetClient, UpdateClient
+from src.core.models import Context, CreateClient, GetClient, UpdateClient
 
 from ..dependencies import context_manager
 from ..utils import send_message, templates
@@ -21,7 +21,7 @@ async def clients_view(
     session: Session = Depends(make_session),
     context: Context = Depends(context_manager),
 ):
-    clients = crud.client.get_all(session, query, context=context)
+    clients = controller.client.get_all(session, query, context=context)
     return templates.TemplateResponse(
         "clients/view.html", context={"request": request, "context": context, "clients": clients}
     )
@@ -42,7 +42,9 @@ async def clients_create_post(
     context: Context = Depends(context_manager),
 ):
 
-    client = crud.client.create(session, schema=CreateClient(name=name, email=email, phone=phone), context=context)
+    client = controller.client.create(
+        session, schema=CreateClient(name=name, email=email, phone=phone), context=context
+    )
     context.send_message(header="Sucesso!", text=f"Cliente {client.name} cadastrado com sucesso! ID: {client.id}")
 
     return templates.TemplateResponse("clients/create.html", context={"request": request, "context": context})
@@ -55,7 +57,7 @@ async def clients_delete(
     session: Session = Depends(make_session),
     context: Context = Depends(context_manager),
 ):
-    client = crud.client.delete(session, client_id=id, context=context)
+    client = controller.client.delete(session, client_id=id, context=context)
     send_message(request, "Client excluido!", f"Cliente: {client.name} excluido com sucesso!")
 
     return RedirectResponse(request.url_for("web:clients_view"), status_code=status.HTTP_303_SEE_OTHER)
@@ -68,7 +70,7 @@ async def clients_update(
     session: Session = Depends(make_session),
     context: Context = Depends(context_manager),
 ):
-    client = crud.client.get_by_id(session, client_id, context=context)
+    client = controller.client.get_by_id(session, client_id, context=context)
 
     if not client:
         send_message(
@@ -91,7 +93,7 @@ async def clients_update_post(
     session: Session = Depends(make_session),
     context: Context = Depends(context_manager),
 ):
-    client = crud.client.update(
+    client = controller.client.update(
         session, UpdateClient(id=client_id, name=name, email=email, phone=phone), context=context
     )
 
