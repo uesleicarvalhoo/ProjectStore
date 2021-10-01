@@ -1,5 +1,6 @@
 from base64 import b64encode
 from datetime import date
+from uuid import UUID
 
 from fastapi import APIRouter, File, Request, status
 from fastapi.datastructures import UploadFile
@@ -8,7 +9,7 @@ from sqlmodel import Session
 from starlette.responses import RedirectResponse
 
 from src.core import controller
-from src.core.database import make_session
+from src.core.helpers.database import make_session
 from src.core.models import Context, CreateFiscalNote, GetFiscalNote
 
 from ..dependencies import context_manager
@@ -58,13 +59,15 @@ async def fiscal_notes_create_post(
     )
     send_message(request, header="Sucesso!", text=f"Nota fiscal cadastrada com sucesso! ID: {fiscal_note.id}")
 
-    return RedirectResponse(request.url_for("fiscal_note_by_id"), fiscal_note_id=fiscal_note.id)
+    return RedirectResponse(
+        request.url_for("web:fiscal_note_by_id", fiscal_note_id=fiscal_note.id), status_code=status.HTTP_303_SEE_OTHER
+    )
 
 
 @router.get("/{fiscal_note_id}")
 async def fiscal_note_by_id(
     request: Request,
-    fiscal_note_id: int,
+    fiscal_note_id: UUID,
     session: Session = Depends(make_session),
     context: Context = Depends(context_manager),
 ):

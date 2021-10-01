@@ -10,7 +10,7 @@ from pydantic.error_wrappers import ValidationError
 from starlette.responses import Response
 
 from src.apm import apm
-from src.core.exceptions import NotAuthorizedError
+from src.core.helpers.exceptions import NotAuthorizedError
 from src.core.services import CacheClient
 from src.utils.date import now_datetime
 

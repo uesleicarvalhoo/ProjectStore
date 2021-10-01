@@ -1,11 +1,12 @@
 from typing import List
+from uuid import UUID
 
 import inject
-from sqlalchemy.future import select
-from sqlmodel import Session
+from pydantic import EmailStr
+from sqlmodel import Session, select
 
 from src.core.events import EventCode
-from src.core.exceptions import DatabaseError, InvalidCredentialError, NotFoundError
+from src.core.helpers.exceptions import DatabaseError, InvalidCredentialError, NotFoundError
 from src.core.models import Context, CreateUser, GetUser, User
 from src.core.security import get_password_hash, verify_password
 from src.core.services import Streamer
@@ -13,10 +14,10 @@ from src.core.services import Streamer
 
 @inject.params(streamer=Streamer)
 def create(session: Session, schema: CreateUser, context: Context, streamer: Streamer) -> User:
-    if session.exec(select(User)).scalar():
+    if session.exec(select(User)).first():
         raise DatabaseError("Já existe um usuário cadastrado com o email: %s" % schema.email)
 
-    data = schema.dict(exclude={"confirm_password"})
+    data = schema.dict(exclude={"confirm_password": ...})
     data["password_hash"] = get_password_hash(data.pop("password"))
 
     user = User(**data)
@@ -28,8 +29,8 @@ def create(session: Session, schema: CreateUser, context: Context, streamer: Str
     return user
 
 
-def get_by_id(session: Session, user_id: int, context: Context) -> User:
-    user = session.exec(select(User).where(User.id == user_id)).scalar()
+def get_by_id(session: Session, user_id: UUID, context: Context) -> User:
+    user = session.exec(select(User).where(User.id == user_id)).first()
 
     if not user:
         raise NotFoundError("Não foi possível localizar o usuário com o ID: %s" % user_id)
@@ -37,17 +38,31 @@ def get_by_id(session: Session, user_id: int, context: Context) -> User:
     return user
 
 
-def get_all(session: Session, query: GetUser, context: Context) -> List[User]:
-    query_args = []  # TODO: Utilizar o operador "like"
+def get_by_email(session: Session, email: EmailStr, context: Context) -> User:
+    user = session.exec(select(User).where(User.email == email)).first()
 
-    if query.email:
-        query_args.append(User.email == query.email)
+    if not user:
+        raise NotFoundError("Não foi possível localizar o usuário com o Email: %s" % email)
 
-    return session.exec(select(User).where(*query_args)).scalars()
+    return user
+
+
+def get_all(session: Session, query_schema: GetUser, context: Context) -> List[User]:
+    query = select(User)
+
+    if query_schema.email:
+        query = query.where(User.email == query.email)
+
+    query = query.offset(query_schema.offset)
+
+    if query_schema.limit > 0:
+        query = query.limit(query_schema.limit)
+
+    return session.exec(query).all()
 
 
 @inject.params(streamer=Streamer)
-def delete(session: Session, user_id: int, context: Context, streamer: Streamer) -> User:
+def delete(session: Session, user_id: UUID, context: Context, streamer: Streamer) -> User:
     user = session.exec(select(User).where(User.id == user_id))
 
     if not user:
@@ -59,11 +74,11 @@ def delete(session: Session, user_id: int, context: Context, streamer: Streamer)
     return user
 
 
-def authenticate(session: Session, email: str, password: str, context: Context) -> User:
-    user = session.exec(select(User).where(User.email == email)).scalar()
+def authenticate(session: Session, email: EmailStr, password: str, context: Context) -> User:
+    user = session.exec(select(User).where(User.email == email)).first()
 
     if not user:
-        raise InvalidCredentialError('Usuário "{username}" não localizado!')
+        raise InvalidCredentialError(f'Usuário "{email}" não localizado!')
 
     if not verify_password(password, user.password_hash):
         raise InvalidCredentialError("Senha invalida")

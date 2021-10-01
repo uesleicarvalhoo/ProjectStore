@@ -1,4 +1,5 @@
 from typing import List
+from uuid import UUID
 
 from fastapi import APIRouter
 from fastapi.param_functions import Depends
@@ -6,7 +7,7 @@ from sqlmodel import Session
 from starlette.status import HTTP_201_CREATED
 
 from src.core.controller import user
-from src.core.database import make_session
+from src.core.helpers.database import make_session
 from src.core.models import Context, CreateUser, GetUser, User
 
 router = APIRouter()
@@ -18,7 +19,7 @@ async def get(query: GetUser = Depends(), session: Session = Depends(make_sessio
 
 
 @router.get("/{user_id}", response_model=User, response_model_exclude={"password_hash"})
-async def get_by_id(user_id: int, session: Session = Depends(make_session)):
+async def get_by_id(user_id: UUID, session: Session = Depends(make_session)):
     return user.get_by_id(session, user_id, context=Context.API)
 
 

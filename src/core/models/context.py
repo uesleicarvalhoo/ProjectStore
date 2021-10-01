@@ -13,7 +13,7 @@ class Message(BaseModel):
 
 class Context(BaseModel):
     context: ContextEnum
-    user_id: Union[UUID, int, str]
+    user_id: Union[UUID, int, str, None]
     method: str
     authenticated: bool = False
     message: Optional[Message]

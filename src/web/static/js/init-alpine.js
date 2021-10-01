@@ -237,7 +237,7 @@ function orderForm() {
         }, )
       })
         .then((response) => {
-          // window.location.reload()
+          window.location.reload()
         })
         .catch(() => {
           this.openModal('Ops!', 'Alguma coisa deu errado! x.x')

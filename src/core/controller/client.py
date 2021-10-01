@@ -1,21 +1,21 @@
 from typing import List
+from uuid import UUID
 
 import inject
 from sqlmodel import Session, select
 
 from src.core.events import EventCode
-from src.core.exceptions import DatabaseError, NotFoundError
+from src.core.helpers.exceptions import DatabaseError, NotFoundError
 from src.core.models import Client, Context, CreateClient, GetClient, UpdateClient
 from src.core.services import Streamer
 
 
 @inject.params(streamer=Streamer)
 def create(session: Session, schema: CreateClient, context: Context, streamer: Streamer) -> Client:
-
-    if session.exec(select(Client).where(Client.email == schema.email)).scalar():
+    if session.exec(select(Client).where(Client.email == schema.email)).first():
         raise DatabaseError("Já existe um cliente cadastrado com o email: %s" % schema.email)
 
-    if session.exec(select(Client).where(Client.phone == schema.phone)).scalar():
+    if session.exec(select(Client).where(Client.phone == schema.phone)).first():
         raise DatabaseError("Já existe um cliente cadastrado com o telefone: %s" % schema.phone)
 
     client = Client(**schema.dict())
@@ -26,12 +26,17 @@ def create(session: Session, schema: CreateClient, context: Context, streamer: S
     return client
 
 
-def get_all(session: Session, query: GetClient, context: Context) -> List[Client]:
-    return session.exec(select(Client)).scalars()
+def get_all(session: Session, query_schema: GetClient, context: Context) -> List[Client]:
+    query = select(Client).offset(query_schema.offset)
+
+    if query_schema.limit > 0:
+        query = query.limit(query_schema.limit)
+
+    return session.exec(query).all()
 
 
-def get_by_id(session: Session, client_id: int, context: Context) -> Client:
-    client = session.exec(select(Client).where(Client.id == client_id))
+def get_by_id(session: Session, client_id: UUID, context: Context) -> Client:
+    client = session.exec(select(Client).where(Client.id == client_id)).first()
 
     if not client:
         raise NotFoundError(f"Não foi possível localizar o Client com ID: {client_id}")
@@ -40,8 +45,8 @@ def get_by_id(session: Session, client_id: int, context: Context) -> Client:
 
 
 @inject.params(streamer=Streamer)
-def delete(session: Session, client_id: int, context: Context, streamer: Streamer) -> Client:
-    client = session.exec(select(Client).where(Client.id == client_id)).scalar()
+def delete(session: Session, client_id: UUID, context: Context, streamer: Streamer) -> Client:
+    client = session.exec(select(Client).where(Client.id == client_id)).first()
 
     if not client:
         raise NotFoundError(f"Não foi possível localizar o Client com ID: {client_id}")
@@ -56,7 +61,7 @@ def delete(session: Session, client_id: int, context: Context, streamer: Streame
 
 @inject.params(streamer=Streamer)
 def update(session: Session, data: UpdateClient, context: Context, streamer: Streamer) -> Client:
-    client = session.exec(select(Client).where(Client.id == data.id)).scalar()
+    client = session.exec(select(Client).where(Client.id == data.id)).first()
 
     if not client:
         raise NotFoundError(f"Não foi possível localizar o Client com ID: {data.id}")

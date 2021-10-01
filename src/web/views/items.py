@@ -1,4 +1,5 @@
 from base64 import b64encode
+from uuid import UUID
 
 from fastapi import APIRouter, File, Request, UploadFile, status
 from fastapi.params import Depends, Form
@@ -6,7 +7,7 @@ from sqlmodel import Session
 from starlette.responses import RedirectResponse
 
 from src.core import controller
-from src.core.database import make_session
+from src.core.helpers.database import make_session
 from src.core.models import Context, CreateItem
 from src.core.models.item import GetItem
 
@@ -23,7 +24,7 @@ async def items_view(
     session: Session = Depends(make_session),
     context: Context = Depends(context_manager),
 ):
-    items = controller.item.get_all(session, query=query, context=context)
+    items = controller.item.get_all(session, query, context=context)
     return templates.TemplateResponse(
         "items/view.html", context={"request": request, "context": context, "items": items}
     )
@@ -32,7 +33,7 @@ async def items_view(
 @router.get("/{item_id}")
 async def item_by_id(
     request: Request,
-    item_id: int,
+    item_id: UUID,
     session: Session = Depends(make_session),
     context: Context = Depends(context_manager),
 ):
@@ -46,7 +47,7 @@ async def item_by_id(
 @router.get("/cadastro/{fiscal_note_id}")
 async def items_create(
     request: Request,
-    fiscal_note_id: int,
+    fiscal_note_id: UUID,
     context: Context = Depends(context_manager),
 ):
     return templates.TemplateResponse(
@@ -58,7 +59,7 @@ async def items_create(
 @router.post("/cadastro/{fiscal_note_id}", status_code=status.HTTP_201_CREATED)
 async def items_create_post(
     request: Request,
-    fiscal_note_id: int,
+    fiscal_note_id: UUID,
     code: str = Form(...),
     name: str = Form(...),
     avaliable: bool = Form(...),

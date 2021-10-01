@@ -1,15 +1,17 @@
 from base64 import b64decode
 from datetime import date
 from typing import List
+from uuid import UUID, uuid4
 
 from pydantic import validator
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Column, Field, Relationship, SQLModel
 
 from src.apm import apm
 
-from .base import BaseQuerySchema, common_relationship_kwargs
+from .base import BaseQuerySchema
 from .file import File
 from .item import CreateItem, Item
+from .types import GUID
 
 
 class BaseFiscalNote(SQLModel):
@@ -43,8 +45,14 @@ class GetFiscalNote(BaseQuerySchema):
 class FiscalNote(BaseFiscalNote, table=True):
     __tablename__ = "fiscal_notes"
 
-    id: int = Field(..., description="ID da nota fiscal", primary_key=True)
-    file_id: str = Field(..., description="ID do arquivo da nota fiscal", foreign_key="files.bucket_key")
+    id: UUID = Field(
+        default_factory=uuid4,
+        description="ID da nota fiscal",
+        sa_column=Column("id", GUID(), default=uuid4(), primary_key=True),
+    )
+    file_id: UUID = Field(..., description="ID do arquivo da nota fiscal", foreign_key="files.bucket_key")
 
-    file: File = Relationship(sa_relationship_kwargs=common_relationship_kwargs)
-    items: List[Item] = Relationship(sa_relationship_kwargs=common_relationship_kwargs)
+    file: File = Relationship()
+    items: List[Item] = Relationship(
+        sa_relationship_kwargs={"cascade": "all,delete", "lazy": "selectin", "passive_deletes": True}
+    )

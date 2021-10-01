@@ -4,12 +4,12 @@ import inject
 from fastapi import Request
 from fastapi.param_functions import Depends
 from fastapi.params import Cookie
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from src.core.config import settings
 from src.core.constants import ContextEnum
-from src.core.database import make_session
-from src.core.exceptions import NotAuthorizedError
+from src.core.helpers.database import make_session
+from src.core.helpers.exceptions import NotAuthorizedError
 from src.core.models import Context, Message, Token, User
 from src.core.security import load_jwt_token, validate_access_token
 from src.core.services import CacheClient
@@ -84,7 +84,7 @@ async def login_required(token: Token = Depends(get_token)) -> None:
 
 
 async def get_current_user(session: Session = Depends(make_session), token: Token = Depends(get_parsed_token)) -> User:
-    user = User.get(session, token.sub)
+    user = session.exec(select(User).where(User.id == token.sub)).first()
 
     if not user:
         raise NotAuthorizedError("Usuário não localizado")

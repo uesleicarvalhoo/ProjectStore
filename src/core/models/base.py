@@ -6,7 +6,6 @@ from pydantic.types import PositiveInt
 Schema = TypeVar("Schema", bound=BaseModel)
 QuerySchema = TypeVar("QuerySchema", bound="BaseQuerySchema")
 GetAllOutputSchema = TypeVar("GetAllOutputSchema", bound="BaseGetAllOutputSchema")
-common_relationship_kwargs = {"cascade": "all,delete", "lazy": "selectin", "passive_deletes": True}
 
 
 class BaseQuerySchema(BaseModel):

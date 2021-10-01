@@ -1,5 +1,5 @@
 from pydantic import AnyHttpUrl, BaseSettings, Field, PositiveInt, validator
-from pydantic.networks import RedisDsn
+from pydantic.networks import EmailStr, RedisDsn
 
 from src.core.constants import EnvironmentEnum
 
@@ -58,6 +58,11 @@ class Settings(BaseSettings):
 
     # Cache
     CACHE: RedisDsn = Field(...)
+
+    # First Super user
+    FIRST_SUPERUSER_NAME: str = Field(...)
+    FIRST_SUPERUSER_EMAIL: EmailStr = Field(...)
+    FIRST_SUPERUSER_PASSWORD: str = Field(...)
 
     class Config:
         env_file: str = ENV_FILE

@@ -1,12 +1,14 @@
 from base64 import b64decode
 from typing import TYPE_CHECKING
+from uuid import UUID, uuid4
 
 from pydantic import PositiveFloat, validator
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Column, Field, Relationship, SQLModel
 
 from src.apm import apm
 
-from .base import BaseQuerySchema, common_relationship_kwargs
+from .base import BaseQuerySchema
+from .types import GUID
 
 if TYPE_CHECKING:
     from .file import File
@@ -40,15 +42,23 @@ class CreateItem(BaseItem):
 
 
 class GetItem(BaseQuerySchema):
-    id: int = Field(None, description="ID do item")
+    id: UUID = Field(None, description="ID do item")
     avaliable: bool = Field(None, description="Items disponíveis/indisponíveis (None será ignorado)")
 
 
 class Item(BaseItem, table=True):
     __tablename__ = "items"
-    id: int = Field(..., description="ID do item", primary_key=True)
-    fiscal_note_id: int = Field(..., description="ID da nota fiscal", foreign_key="fiscal_notes.id")
-    file_id: str = Field(..., description="ID do arquivo no banco de dados", foreign_key="files.bucket_key")
 
-    file: "File" = Relationship(sa_relationship_kwargs=common_relationship_kwargs)
-    fiscal_note: "FiscalNote" = Relationship(back_populates="items", sa_relationship_kwargs=common_relationship_kwargs)
+    id: UUID = Field(
+        default_factory=uuid4,
+        description="ID do item",
+        sa_column=Column("id", GUID(), default=uuid4(), primary_key=True),
+    )
+    fiscal_note_id: UUID = Field(..., description="ID da nota fiscal", foreign_key="fiscal_notes.id")
+    file_id: UUID = Field(..., description="ID do arquivo no banco de dados", foreign_key="files.bucket_key")
+
+    file: "File" = Relationship()
+    fiscal_note: "FiscalNote" = Relationship(
+        back_populates="items",
+        sa_relationship_kwargs={"cascade": "all,delete", "lazy": "selectin", "passive_deletes": True},
+    )

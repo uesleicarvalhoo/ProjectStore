@@ -20,6 +20,7 @@ class ContextEnum(str, Enum):
     API: str = "api"
     WEB: str = "web"
     TEST: str = "test"
+    APPLICATION: str = "application"
 
 
 @unique

@@ -5,7 +5,7 @@ from fastapi.responses import UJSONResponse
 
 from src.apm import apm
 from src.core.config import settings
-from src.core.exceptions import DatabaseError, NotFoundError
+from src.core.helpers.exceptions import DatabaseError, NotFoundError
 
 from . import health_check, v1
 

@@ -2,8 +2,7 @@ from typing import Any, Dict
 from uuid import UUID, uuid4
 
 from pydantic import EmailStr, validator
-from sqlalchemy import Column
-from sqlmodel import Field, SQLModel
+from sqlmodel import Column, Field, SQLModel
 
 from .base import BaseQuerySchema
 from .types import GUID

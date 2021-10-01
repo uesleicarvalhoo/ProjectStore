@@ -1,11 +1,11 @@
 from typing import List
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import inject
 from sqlmodel import Session, select
 
 from src.core.events import EventCode
-from src.core.exceptions import NotFoundError
+from src.core.helpers.exceptions import NotFoundError
 from src.core.models import Context, CreateItem, File, FiscalNote, GetItem, Item
 from src.core.services import Storage, Streamer
 from src.utils.miscellaneous import get_file_hash
@@ -13,14 +13,14 @@ from src.utils.miscellaneous import get_file_hash
 
 @inject.params(streamer=Streamer, storage=Storage)
 def create(
-    session: Session, schema: CreateItem, fiscal_note_id: int, context: Context, streamer: Streamer, storage: Storage
+    session: Session, schema: CreateItem, fiscal_note_id: UUID, context: Context, streamer: Streamer, storage: Storage
 ) -> Item:
 
-    if not session.exec(select(FiscalNote).where(FiscalNote.id == fiscal_note_id)).scalar():
+    if not session.exec(select(FiscalNote).where(FiscalNote.id == fiscal_note_id)).first():
         raise NotFoundError(f"Não foi possível localizar a nota fiscal com id: {fiscal_note_id}.")
 
     file_hash = get_file_hash(schema.image)
-    file = session.exec(select(File).where(File.hash == file_hash)).scalar()
+    file = session.exec(select(File).where(File.hash == file_hash)).first()
 
     if not file:
         streamer.send_event(
@@ -36,26 +36,31 @@ def create(
             file={"filename": schema.filename, "hash": file_hash, "bucket_key": file.bucket_key},
         )
 
-    item_obj = Item(**schema.dict(exclude={"image", "filename"}), fiscal_note_id=fiscal_note_id, file=file)
+    item_obj = Item(**schema.dict(exclude={"image": ..., "filename": ...}), fiscal_note_id=fiscal_note_id, file=file)
+    session.add(item_obj)
+    session.commit()
 
     streamer.send_event(event_code=EventCode.CREATE_ITEM, context=context, item=item_obj.dict())
 
     return item_obj
 
 
-def get_all(session: Session, query: GetItem, context: Context) -> List[Item]:
-    query_args = []
-    if query.id:
-        query_args.append(Item.id == query.id)
+def get_all(session: Session, query_schema: GetItem, context: Context) -> List[Item]:
+    query = select(Item)
 
-    elif query.avaliable is not None:
-        query_args.append(Item.avaliable == query.avaliable)
+    if query_schema.avaliable is not None:
+        query = query.where(Item.avaliable == query_schema.avaliable)
 
-    return session.exec(select(Item).where(*query_args)).scalars()
+    query = query.offset(query_schema.offset)
+
+    if query_schema.limit > 0:
+        query = query.limit(query_schema.limit)
+
+    return session.exec(query).all()
 
 
-def get_by_id(session: Session, item_id: int, context: Context) -> Item:
-    item = session.exec(select(Item).where(Item.id == item_id)).scalar()
+def get_by_id(session: Session, item_id: UUID, context: Context) -> Item:
+    item = session.exec(select(Item).where(Item.id == item_id)).first()
 
     if not item:
         raise NotFoundError("Não foi possível localizar o Item com ID: %s" % item_id)
@@ -64,8 +69,8 @@ def get_by_id(session: Session, item_id: int, context: Context) -> Item:
 
 
 @inject.params(streamer=Streamer)
-def delete(session: Session, item_id: int, context: Context, streamer: Streamer) -> Item:
-    item = session.exec(select(Item).where(Item.id == item_id)).scalar()
+def delete(session: Session, item_id: UUID, context: Context, streamer: Streamer) -> Item:
+    item = session.exec(select(Item).where(Item.id == item_id)).first()
 
     if not item:
         raise NotFoundError(f"Não foi possível localizar o item com ID {item_id}")

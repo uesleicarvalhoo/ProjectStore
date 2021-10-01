@@ -1,4 +1,4 @@
-from src.core.database import engine
+from src.core.helpers.database import engine
 from src.core.models.base import BaseModel
 
 

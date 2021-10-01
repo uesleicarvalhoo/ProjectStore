@@ -1,9 +1,11 @@
 from typing import TYPE_CHECKING, Optional
+from uuid import UUID, uuid4
 
 from pydantic import PositiveFloat
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Column, Field, Relationship, SQLModel
 
-from .base import BaseQuerySchema, common_relationship_kwargs
+from .base import BaseQuerySchema
+from .types import GUID
 
 if TYPE_CHECKING:
     from .item import Item
@@ -11,7 +13,7 @@ if TYPE_CHECKING:
 
 
 class BaseOrderDetail(SQLModel):
-    item_id: int = Field(foreign_key="items.id", description="ID do cliente que realizou a compra")
+    item_id: UUID = Field(foreign_key="items.id", description="ID do cliente que realizou a compra")
     buy_value: PositiveFloat = Field(description="Valor de compra do Item")
     sell_value: PositiveFloat = Field(description="Valor de venda do item")
 
@@ -21,17 +23,23 @@ class CreateOrderDetail(BaseOrderDetail):
 
 
 class GetOrderDetail(BaseQuerySchema):
-    order_id: int = Field(None, description="ID da ordem de compra")
+    order_id: UUID = Field(None, description="ID da ordem de compra")
 
 
 class OrderDetail(BaseOrderDetail, table=True):
     __tablename__ = "order_details"
 
-    id: int = Field(description="ID da compra", primary_key=True)
-    order_id: Optional[int] = Field(description="ID da ordem de compra", foreign_key="orders.id")
+    id: UUID = Field(
+        default_factory=uuid4,
+        description="ID do detalhamento",
+        sa_column=Column("id", GUID(), default=uuid4(), primary_key=True),
+    )
+    order_id: Optional[UUID] = Field(description="ID da ordem de compra", foreign_key="orders.id")
 
-    order: "Order" = Relationship(sa_relationship_kwargs=common_relationship_kwargs)
-    item: "Item" = Relationship(sa_relationship_kwargs=common_relationship_kwargs)
+    order: "Order" = Relationship(
+        sa_relationship_kwargs={"cascade": "all,delete", "lazy": "selectin", "passive_deletes": True}
+    )
+    item: "Item" = Relationship()
 
     @property
     def profit(self) -> float:

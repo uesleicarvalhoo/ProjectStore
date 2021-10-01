@@ -8,5 +8,3 @@ from .item import CreateItem, GetItem, Item
 from .order import CreateOrder, GetOrder, Order, UpdateOrderStatus
 from .order_detail import CreateOrderDetail, GetOrderDetail, OrderDetail
 from .user import CreateUser, GetUser, User
-
-# TODO: Organizar e validar o funcionamento dos models

@@ -11,7 +11,7 @@ from starlette.responses import RedirectResponse
 
 from src.apm import apm
 from src.core.config import AppSettings, settings
-from src.core.exceptions import NotAuthorizedError, ValidationError
+from src.core.helpers.exceptions import InvalidCredentialError, NotAuthorizedError, ValidationError
 from src.core.models import Context
 from src.core.security import refresh_access_token, validate_access_token
 
@@ -80,13 +80,23 @@ async def not_authorized(request: Request, exc: NotAuthorizedError):
     return RedirectResponse(request.url_for("web:login"), status_code=status.HTTP_303_SEE_OTHER)
 
 
+@app.exception_handler(InvalidCredentialError)
+async def not_authorized(request: Request, exc: InvalidCredentialError):
+    send_message(
+        request,
+        "Acesso não autorizado",
+        exc.detail,
+    )
+
+    return RedirectResponse(request.url_for("web:login"), status_code=status.HTTP_303_SEE_OTHER)
+
+
 @app.exception_handler(RequestValidationError)
 async def schema_validation_error(
     request: Request,
     exc: RequestValidationError,
     context: Context = Depends(context_manager),
 ):
-    await request.json()
     apm.capture_exception()
 
     return templates.TemplateResponse(

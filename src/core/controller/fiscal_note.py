@@ -1,11 +1,11 @@
 from typing import List, Union
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import inject
 from sqlmodel import Session, select
 
 from src.core.events import EventCode
-from src.core.exceptions import NotFoundError
+from src.core.helpers.exceptions import NotFoundError
 from src.core.models import Context, CreateFiscalNote
 from src.core.models import File as File
 from src.core.models import FiscalNote as FiscalNote
@@ -19,7 +19,7 @@ from src.utils.miscellaneous import get_file_hash
 def create(session: Session, schema: CreateFiscalNote, context: Context, streamer: Streamer, storage: Storage):
     def get_or_create_file(file: Union[str, bytes], preffix: str, extension: str) -> File:
         file_hash = get_file_hash(file)
-        file = session.exec(select(File).where(File.hash == file_hash)).scalar()
+        file = session.exec(select(File).where(File.hash == file_hash)).first()
 
         if not file:
             file = File(bucket_key=f"{preffix}-{uuid4()}.{extension}", hash=file_hash)
@@ -28,7 +28,7 @@ def create(session: Session, schema: CreateFiscalNote, context: Context, streame
 
         return file
 
-    file = get_or_create_file(schema.image, "fiscal-note", schema, schema.file_extension)
+    file = get_or_create_file(schema.image, "fiscal-note", schema.file_extension)
 
     if not storage.check_file_exists(file.bucket_key):
         storage.upload_file(schema.image, key=file.bucket_key)
@@ -36,7 +36,9 @@ def create(session: Session, schema: CreateFiscalNote, context: Context, streame
             EventCode.UPLOAD_FILE, context=context, file={"filename": schema.filename, "hash": file.hash}
         )
 
-    fiscal_note = FiscalNote(**schema.dict(exclude={"image", "filename"}), file=file)
+    fiscal_note = FiscalNote(**schema.dict(exclude={"image": ..., "filename": ...}), file=file)
+    session.add(fiscal_note)
+    session.commit()
 
     for item in schema.items:
         file = get_or_create_file(item.image, "item", item.file_extension)
@@ -49,13 +51,18 @@ def create(session: Session, schema: CreateFiscalNote, context: Context, streame
     return fiscal_note
 
 
-def get_all(session: Session, query: GetFiscalNote, context: Context) -> List[FiscalNote]:
-    return session.exec(select(FiscalNote)).scalars()
+def get_all(session: Session, query_schema: GetFiscalNote, context: Context) -> List[FiscalNote]:
+    query = select(FiscalNote).offset(query_schema.offset)
+
+    if query_schema.limit > 0:
+        query = query.limit(query_schema.limit)
+
+    return session.exec(query).all()
 
 
 @inject.params(storage=Storage)
-def get_by_id(session: Session, fiscal_note_id: int, context: Context, storage: Storage) -> FiscalNote:
-    fiscal_note = session.exec(select(FiscalNote).where(FiscalNote.id == fiscal_note_id)).scalar()
+def get_by_id(session: Session, fiscal_note_id: UUID, context: Context, storage: Storage) -> FiscalNote:
+    fiscal_note = session.exec(select(FiscalNote).where(FiscalNote.id == fiscal_note_id)).first()
 
     if not fiscal_note:
         raise NotFoundError(f"Não foi possível localizar a nota fiscal com ID {fiscal_note_id}")
@@ -67,8 +74,8 @@ def get_by_id(session: Session, fiscal_note_id: int, context: Context, storage: 
 
 
 @inject.params(streamer=Streamer)
-def delete(session: Session, fiscal_note_id: int, context: Context, streamer: Streamer) -> FiscalNote:
-    fiscal_note = session.exec(select(FiscalNote).where(FiscalNote.id == fiscal_note_id)).scalar()
+def delete(session: Session, fiscal_note_id: UUID, context: Context, streamer: Streamer) -> FiscalNote:
+    fiscal_note = session.exec(select(FiscalNote).where(FiscalNote.id == fiscal_note_id)).first()
 
     if not fiscal_note:
         raise NotFoundError(f"Não foi possível localizar a nota fiscal com ID: {fiscal_note_id}")

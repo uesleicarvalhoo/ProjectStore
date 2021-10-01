@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import APIRouter, Request, status
 from fastapi.params import Depends, Form
 from pydantic import EmailStr
@@ -5,7 +7,7 @@ from sqlmodel import Session
 from starlette.responses import RedirectResponse
 
 from src.core import controller
-from src.core.database import make_session
+from src.core.helpers.database import make_session
 from src.core.models import Context, CreateClient, GetClient, UpdateClient
 
 from ..dependencies import context_manager
@@ -64,9 +66,23 @@ async def clients_delete(
 
 
 @router.get("/{client_id}")
+async def client_detail(
+    request: Request,
+    client_id: UUID,
+    session: Session = Depends(make_session),
+    context: Context = Depends(context_manager),
+):
+    client = controller.client.get_by_id(session, client_id, context=context)
+
+    return templates.TemplateResponse(
+        "clients/view_detail.html", context={"request": request, "context": context, "client": client}
+    )
+
+
+@router.get("/update/{client_id}")
 async def clients_update(
     request: Request,
-    client_id: int,
+    client_id: UUID,
     session: Session = Depends(make_session),
     context: Context = Depends(context_manager),
 ):
@@ -83,10 +99,10 @@ async def clients_update(
     )
 
 
-@router.post("/{client_id}")
+@router.post("/update/{client_id}")
 async def clients_update_post(
     request: Request,
-    client_id: int,
+    client_id: UUID,
     name: str = Form(...),
     email: EmailStr = Form(...),
     phone: int = Form(...),
