@@ -22,7 +22,7 @@ Sistema de controle de estoque e registro de vendas
 
 ### Database
 
-- [ ] Incluir um campo Detalhes nas vendas
+- [X] Incluir um campo de descrição nas vendas
 
 #### Core
 
@@ -42,8 +42,7 @@ Sistema de controle de estoque e registro de vendas
 ### Outros
 
 - [ ] Aprovar a PR automaticamente de acordo com os testes e linters
-- [ ] Adicionar o prospector ao projeto
-- [ ] Implementar o git pre-commit no projeto
+- [X] Implementar o git pre-commit no projeto
 - [ ] Refatorar o projeto para utilizar micro-serviços (back e front)
 - [ ] Criar um serviço para o envio de E-mails ao realizar novas vendas
 - [ ] Montar o read-me do projeto

@@ -206,6 +206,7 @@ function orderForm() {
     clients: [],
     orderItems: [],
     selectedItem: null,
+    description: null,
     selectedClient: { "phone": "-", "email": "-" },
     clientData: { "id": "-", "phone": "-", "email": "-" },
 
@@ -233,7 +234,8 @@ function orderForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           client: this.selectedClient,
-          items: this.orderItems
+          items: this.orderItems,
+          description: this.description
         }, )
       })
         .then((response) => {

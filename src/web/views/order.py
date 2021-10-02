@@ -12,8 +12,17 @@ from starlette.status import HTTP_201_CREATED, HTTP_202_ACCEPTED
 
 from src.core import controller
 from src.core.constants import OrderEnum
-from src.core.models import (Client, Context, CreateOrder, CreateOrderDetail, GetClient, GetItem, GetOrder,
-                             UpdateOrderStatus, User)
+from src.core.models import (
+    Client,
+    Context,
+    CreateOrder,
+    CreateOrderDetail,
+    GetClient,
+    GetItem,
+    GetOrder,
+    UpdateOrderStatus,
+    User,
+)
 
 from ..dependencies import context_manager, get_current_user, make_session
 from ..utils import send_message, templates
@@ -68,14 +77,14 @@ async def order_create_post(
 ):
     items = []
     data = await request.json()
-
+    description = data["description"]
     client = Client(**json.loads(data.get("client", {})))
 
     for item in data.get("items", ["{}"]):
-        data = json.loads(item)
-        data["sell_value"] = data.get("sugested_sell_value")
-        data["item_id"] = data.get("id")
-        items.append(data)
+        item_data = json.loads(item)
+        item_data["sell_value"] = item_data.get("sugested_sell_value")
+        item_data["item_id"] = item_data.get("id")
+        items.append(item_data)
 
     order = controller.order.create(
         session,
@@ -83,6 +92,7 @@ async def order_create_post(
             client_id=client.id,
             date=date.today(),
             status=OrderEnum.COMPLETED,
+            description=description,
             details=[CreateOrderDetail(**detail) for detail in items],
         ),
         context=context,

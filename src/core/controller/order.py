@@ -53,6 +53,12 @@ def create(session: Session, schema: CreateOrder, context: Context, streamer: St
 
     session.commit()
 
+    for item in [order.item for order in order.details]:
+        item.avaliable = False
+        session.add(item)
+
+    session.commit()
+
     streamer.send_event(event_code=EventCode.CREATE_ORDER, context=context, order=order.dict())
 
     return order
@@ -64,6 +70,10 @@ def delete_by_id(session: Session, order_id: UUID, context: Context, streamer: S
 
     if not order:
         raise NotFoundError(f"Não foi possível localizar a venda com o ID: {order_id}")
+
+    for item in [order.item for order in order.details]:
+        item.avaliable = True
+        session.add(item)
 
     session.delete(order)
     session.commit()

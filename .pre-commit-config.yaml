@@ -1,13 +1,10 @@
 repos:
--   repo: local
-    rev: meta
+  - repo: https://github.com/ambv/black
+    rev: 21.9b0
     hooks:
-    -   id: black
-        language: python
-        name: Run black
-        description: Check code format
-        entry: poetry run black --check src tests
-        always_run: true
-        stages:
-          - commit
-#TODO: Fixar, incluir o Flake8 e testes
+    - id: black
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v2.0.0
+    hooks:
+    - id: flake8

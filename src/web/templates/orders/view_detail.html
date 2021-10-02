@@ -51,6 +51,14 @@
                 </span>
             </label>
         </div>
+        <div class="text mt-4">
+            <label class="block">
+                <span class="text-gray-700 dark:text-gray-400">Descrição da venda</span>
+                <textarea disabled
+                    class="rounded-lg border block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"
+                    >{{ order.description }}</textarea>
+            </label>
+        </div>
     </div>
     <table class="w-full border-cool-gray-400 mt-6 whitespace-no-wrap">
         <thead>
@@ -62,7 +70,6 @@
                 <th class="px-4 py-3">Preço de venda</th>
                 <th class="px-4 py-3">Lucro</th>
                 <th class="px-4 py-3"></th>
-
             </tr>
         </thead>
         {% for detail in order.details %}
