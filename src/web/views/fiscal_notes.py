@@ -18,7 +18,7 @@ from ..utils import send_message, templates
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("")
 async def fiscal_notes_view(
     request: Request,
     query: GetFiscalNote = Depends(),
@@ -28,7 +28,14 @@ async def fiscal_notes_view(
     fiscal_notes = controller.fiscal_note.get_all(session, query, context=context)
     return templates.TemplateResponse(
         "fiscal_notes/view.html",
-        context={"request": request, "context": context, "fiscal_notes": fiscal_notes},
+        context={
+            "request": request,
+            "context": context,
+            "fiscal_notes": fiscal_notes,
+            "current_page": query.page,
+            "items_per_page": query.limit,
+            "total_items": len(fiscal_notes),
+        },
     )
 
 
@@ -84,7 +91,7 @@ async def fiscal_note_by_id(
 @router.post("/delete")
 async def fiscal_notes_delete(
     request: Request,
-    id: int = Form(...),
+    id: UUID = Form(...),
     session: Session = Depends(make_session),
     context: Context = Depends(context_manager),
 ):

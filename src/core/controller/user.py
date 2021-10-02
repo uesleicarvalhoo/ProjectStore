@@ -14,7 +14,7 @@ from src.core.services import Streamer
 
 @inject.params(streamer=Streamer)
 def create(session: Session, schema: CreateUser, context: Context, streamer: Streamer) -> User:
-    if session.exec(select(User)).first():
+    if session.exec(select(User).where(User.email == schema.email)).first():
         raise DatabaseError("Já existe um usuário cadastrado com o email: %s" % schema.email)
 
     data = schema.dict(exclude={"confirm_password": ...})

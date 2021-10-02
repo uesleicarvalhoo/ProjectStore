@@ -14,22 +14,24 @@ from .types import GUID
 
 
 class BaseOrder(SQLModel):
-    client_id: UUID = Field(..., foreign_key="clients.id", description="ID do cliente que realizou a compra")
-    date: date_ = Field(..., description="Data da venda")
-    status: OrderEnum = Field(..., description="Status da venda", sa_column=Column(Enum(OrderEnum)))
+    client_id: UUID = Field(
+        ..., foreign_key="clients.id", description="Identification of the customer who made purchase"
+    )
+    date: date_ = Field(..., description="Purchase date")
+    status: OrderEnum = Field(..., description="Purchase Status", sa_column=Column(Enum(OrderEnum)))
 
 
 class CreateOrder(BaseOrder):
-    details: List["CreateOrderDetail"] = Field(..., description="Detalhes da venda")
+    details: List["CreateOrderDetail"] = Field(..., description="Details of purchase")
 
 
 class GetOrder(BaseQuerySchema):
-    client_id: UUID = Field(None, description="ID do cliente")
+    client_id: UUID = Field(None, description="Identification of the customer who made purchase")
 
 
 class UpdateOrderStatus(BaseModel):
-    order_id: UUID = Field(..., description="ID da venda")
-    status: OrderEnum = Field(..., description="Status da venda")
+    order_id: UUID = Field(..., description="Identification of Purchase")
+    status: OrderEnum = Field(..., description="Purchase Status")
 
 
 class Order(BaseOrder, table=True):
@@ -37,8 +39,8 @@ class Order(BaseOrder, table=True):
 
     id: UUID = Field(
         default_factory=uuid4,
-        description="ID da venda",
-        sa_column=Column("id", GUID(), default=uuid4(), primary_key=True),
+        description="Identification of Purchase",
+        sa_column=Column("id", GUID(), primary_key=True),
     )
     client: "Client" = Relationship(back_populates="orders")
     details: List["OrderDetail"] = Relationship(

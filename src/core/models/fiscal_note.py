@@ -15,14 +15,14 @@ from .types import GUID
 
 
 class BaseFiscalNote(SQLModel):
-    description: str = Field(..., description="Descrição da nota fiscal")
-    purchase_date: date = Field(..., description="Data da compra")
+    description: str = Field(..., description="Description of fiscal note")
+    purchase_date: date = Field(..., description="Date of purchase")
 
 
 class CreateFiscalNote(BaseFiscalNote):
-    image: bytes = Field(..., description="String contendo o Base64 da imagem")
-    filename: str = Field(..., description="Nome do arquivo da imagem")
-    items: List[CreateItem] = Field([], description="Lista de items da nota fiscal")
+    image: bytes = Field(..., description="Content base64 of the image")
+    filename: str = Field(..., description="Image filename")
+    items: List[CreateItem] = Field([], description="List of items in the fiscal note")
 
     @validator("image", pre=True)
     def validate_image(cls, value: str) -> bytes:
@@ -31,7 +31,7 @@ class CreateFiscalNote(BaseFiscalNote):
 
         except Exception:
             apm.capture_exception()
-            raise ValueError("Não foi possível decodificar o arquivo!")
+            raise ValueError("Couldn't decode the file!")
 
     @property
     def file_extension(self) -> str:
@@ -39,7 +39,7 @@ class CreateFiscalNote(BaseFiscalNote):
 
 
 class GetFiscalNote(BaseQuerySchema):
-    id: int = Field(None, description="ID da nota fiscal")
+    id: UUID = Field(None, description="Fiscal note ID")
 
 
 class FiscalNote(BaseFiscalNote, table=True):
@@ -47,10 +47,10 @@ class FiscalNote(BaseFiscalNote, table=True):
 
     id: UUID = Field(
         default_factory=uuid4,
-        description="ID da nota fiscal",
-        sa_column=Column("id", GUID(), default=uuid4(), primary_key=True),
+        description="Fiscal note ID",
+        sa_column=Column("id", GUID(), primary_key=True),
     )
-    file_id: UUID = Field(..., description="ID do arquivo da nota fiscal", foreign_key="files.bucket_key")
+    file_id: str = Field(..., description="Identation of file in storage service", foreign_key="files.bucket_key")
 
     file: File = Relationship()
     items: List[Item] = Relationship(

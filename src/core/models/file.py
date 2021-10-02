@@ -9,8 +9,8 @@ from .base import BaseQuerySchema
 
 
 class BaseFile(SQLModel):
-    bucket_key: str = Field(..., description="Key do Bucket que o arquivo ficará guardado no Storage", primary_key=True)
-    hash: str = Field(..., description="Hash do arquivo")
+    bucket_key: str = Field(..., description="Identation of file in storage service", primary_key=True)
+    hash: str = Field(..., description="Hash of file")
 
 
 class CreateFile(BaseFile):
@@ -18,17 +18,17 @@ class CreateFile(BaseFile):
 
 
 class GetFile(BaseQuerySchema):
-    bucket_key: str = Field(..., description="Key do Bucket que o arquivo ficará guardado no Storage")
+    bucket_key: str = Field(..., description="Identation of file in storage service")
 
 
 class DeleteFile(BaseModel):
-    bucket_key: str = Field(..., description="Key do Bucket que o arquivo ficará guardado no Storage")
+    bucket_key: str = Field(..., description="Identation of file in storage service")
 
 
 class File(BaseFile, table=True):
     __tablename__ = "files"
 
-    uploaded_at: datetime = Field(default_factory=now_datetime, description="Data e hora de atualização do arquivo")
+    uploaded_at: datetime = Field(default_factory=now_datetime, description="Datetime of the file update")
 
     @property
     def src_url(self) -> str:

@@ -14,9 +14,9 @@ if TYPE_CHECKING:
 
 
 class BaseClient(SQLModel):
-    name: str = Field(..., description="Nome completo do cliente")
-    email: EmailStr = Field(..., description="Email do cliente")
-    phone: constr(regex=r"^\d{2}9\d{8}$") = Field(..., description="Telefone do cliente")  # noqa
+    name: str = Field(..., description="Client name")
+    email: EmailStr = Field(..., description="Client email")
+    phone: constr(regex=r"^\d{2}9\d{8}$") = Field(..., description="Client cellphone")  # noqa
 
     @validator("name")
     def validate_name(cls, value: str) -> str:
@@ -28,22 +28,18 @@ class CreateClient(BaseClient):
 
 
 class UpdateClient(BaseClient):
-    id: UUID = Field(..., description="ID do Cliente")
+    id: UUID = Field(..., description="Client ID")
 
 
 class GetClient(BaseQuerySchema):
-    id: UUID = Field(None, description="Id do cliente")
-    name: str = Field(None, description="Nome do cliente")
+    id: UUID = Field(None, description="Client ID")
+    name: str = Field(None, description="Client Name")
 
 
 class Client(BaseClient, table=True):
     __tablename__ = "clients"
 
-    id: UUID = Field(
-        default_factory=uuid4,
-        description="ID do Cliente",
-        sa_column=Column("id", GUID(), default=uuid4(), primary_key=True),
-    )
+    id: UUID = Field(default_factory=uuid4, description="Client ID", sa_column=Column("id", GUID(), primary_key=True))
     created_at: datetime = Field(default_factory=now_datetime)
 
     orders: List["Order"] = Relationship(

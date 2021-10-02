@@ -20,7 +20,7 @@ async def login(
     request: Request,
     context: Context = Depends(context_manager),
 ):
-    return templates.TemplateResponse("login.html", {"request": request, "context": context})
+    return templates.TemplateResponse("login.html", context={"request": request, "context": context})
 
 
 @router.get("/logout")

@@ -19,7 +19,7 @@
             <thead>
                 <tr
                     class="text-xs font-semibold tracking-wide text-center text-white uppercase border-b dark:border-gray-700 bg-purple-500 dark:text-gray-400 dark:bg-gray-800">
-                    <th class="px-4 py-3"></th>
+                    <th class="px-4 py-3">Nota Fiscal</th>
                     <th class="px-4 py-3">Nome do produto</th>
                     <th class="px-4 py-3">Preço de compra</th>
                     <th class="px-4 py-3">Preço Sugerido</th>
@@ -29,27 +29,26 @@
             </thead>
             <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
                 {% for item in items %}
-                <tr class="text-gray-700 dark:text-gray-400">
+                <tr class="text-gray-700 text-center dark:text-gray-400">
                     <td class=" px-4 py-3">
-                    <div class="flex items-center text-sm">
-                        <img src="{{ item.file.src_url }}" alt="item image" width="50"
-                            height="50">
-                    </div>
+                        <div class="flex justify-center items-center text-sm">
+                            <img src="{{ item.file.src_url }}" alt="item image" width="50" height="50">
+                        </div>
                     </td>
                     <td class="px-4 py-3 text-sm">
                         {{ item.name }}
                     </td>
-                    <td class="px-4 py-3 text-center text-xs">
+                    <td class="px-4 py-3 text-xs">
                         <span class="px-4 py-3 text-sm">
                             R$ {{ '%0.2f' % item.buy_value }}
                         </span>
                     </td>
-                    <td class="px-4 py-3 text-center text-xs">
+                    <td class="px-4 py-3 text-xs">
                         <span class="px-4 py-3 text-sm">
                             R$ {{ '%0.2f' % item.sugested_sell_value }}
                         </span>
                     </td>
-                    <td class="px-4 py-3 text-center text-xs">
+                    <td class="px-4 py-3 text-xs">
                         <span class="px-4 py-3 text-sm">
                             {% if item.avaliable %}
                             {{ render_green_tag("Disponível") }}
@@ -59,7 +58,7 @@
                         </span>
                     </td>
                     <td class="px-4 py-3">
-                        <div class="flex items-center space-x-4 text-sm">
+                        <div class="flex justify-center items-center space-x-4 text-sm">
                             <a href="{{request.url_for('web:item_by_id', item_id=item.id)}}"
                                 class="flex items-center justify-between px-0.5 py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
                                 aria-label="View">
@@ -97,6 +96,7 @@
             </tbody>
         </table>
     </div>
-    {{ render_pagination(current_page=1, items_per_page=20, total_items=100, endpoint="web:item_view") }}
+    {{ render_pagination(request, current_page=current_page, items_per_page=items_per_page, total_items=total_items,
+    endpoint="web:items_view") }}
 </div>
 {% endblock content %}

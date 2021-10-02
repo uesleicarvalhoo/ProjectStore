@@ -7,7 +7,7 @@ Sistema de controle de estoque e registro de vendas
 ### Web
 
 - [X] Exibir uma mensagem de erro quando levantar as exceções
-- [ ] Dashboard
+- [X] Dashboard
 - [X] View de Clientes
 - [X] View de Estoque
 - [X] View de Vendas
@@ -15,7 +15,8 @@ Sistema de controle de estoque e registro de vendas
 - [X] Colocar a borda roxa para destacar todas as views
 - [X] Destacar em negrito sempre a view atual
 - [X] Na view de clientes, colocar lá os detalhes das compras
-- [ ] Implementar o rodapé de paginação
+- [X] Implementar o rodapé de paginação
+- [X] Pagina para criação de novos usuários
 
 ### API
 
@@ -29,7 +30,7 @@ Sistema de controle de estoque e registro de vendas
 - [ ] Gerar uma nota fiscal para as ordens de compra
 - [ ] Acrescentar os detalhes do pagamento ao pedido
 - [X] Trocar todos os IDs para UUID
-- [ ] Colocar as descrições em Ingles
+- [X] Colocar as descrições em Ingles
 
 ### Testes
 

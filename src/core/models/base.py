@@ -9,8 +9,8 @@ GetAllOutputSchema = TypeVar("GetAllOutputSchema", bound="BaseGetAllOutputSchema
 
 
 class BaseQuerySchema(BaseModel):
-    page: PositiveInt = Field(1, description="Pagina da consulta")
-    limit: PositiveInt = Field(50, description="Limite de items na consulta")
+    page: PositiveInt = Field(1, description="Page of consult")
+    limit: PositiveInt = Field(50, description="Max items of query")
 
     @property
     def offset(self) -> int:
@@ -18,6 +18,6 @@ class BaseQuerySchema(BaseModel):
 
 
 class BaseGetAllOutputSchema(BaseModel):
-    total: int = Field(..., description="Total de items disponíveis para consulta")
-    pages: int = Field(..., description="Total de paginas disponíveis para consulta")
-    page_total: int = Field(..., description="Total de items na pagina")
+    total: int = Field(..., description="Total of items in the query statments")
+    pages: int = Field(..., description="Total of pages in the query statments")
+    page_total: int = Field(..., description="Total of items in the current page")

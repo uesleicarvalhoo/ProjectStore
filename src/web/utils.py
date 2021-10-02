@@ -1,19 +1,23 @@
+import math
+
 import inject
 from fastapi import Request
 from fastapi.templating import Jinja2Templates
 
 from src.core.config import AppSettings, settings
 from src.core.constants import OrderEnum
-from src.core.models import Message
+from src.core.models import Message, User
 from src.core.services import CacheClient
+
+anonimous_user = User(
+    name="Anonimous User",
+    email="anonimous@email.com",
+    admin=False,
+)
 
 templates = Jinja2Templates(directory="src/web/templates")
 templates.env.globals.update(
-    {
-        "settings": AppSettings(),
-        "round": round,
-        "OrderEnum": OrderEnum,
-    }
+    {"math": math, "settings": AppSettings(), "round": round, "OrderEnum": OrderEnum, "current_user": anonimous_user}
 )
 
 

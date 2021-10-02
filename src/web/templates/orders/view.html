@@ -22,7 +22,7 @@
         <table class="w-full whitespace-no-wrap">
             <thead>
                 <tr
-                    class="text-xs font-semibold tracking-wide text-left text-white uppercase border-b dark:border-gray-700 bg-purple-500 dark:text-gray-400 dark:bg-gray-800">
+                    class="text-xs font-semibold tracking-wide text-center text-white uppercase border-b dark:border-gray-700 bg-purple-500 dark:text-gray-400 dark:bg-gray-800">
                     <th class="px-4 py-3">Cliente</th>
                     <th class="px-4 py-3">Total</th>
                     <th class="px-4 py-3">Status</th>
@@ -30,11 +30,21 @@
                     <th class="px-4 py-3">Ações</th>
                 </tr>
             </thead>
-            <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+            <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800 text-center">
                 {% for order in orders %}
-                <tr class="text-gray-700 dark:text-gray-400">
+                <tr class="text-gray-700 text-center dark:text-gray-400">
                     <td class="px-4 py-3 text-sm">
-                        {{ order.client.name }}
+                        <div class="flex items-center text-sm">
+                            <!-- Avatar with inset shadow -->
+                            <div class="relative hidden w-8 h-8 mr-3 rounded-full md:block">
+                                <img class="object-cover w-full h-full rounded-full"
+                                    src="{{ url_for('web:static', path='img/user.png')}}" alt="" loading="lazy" />
+                                <div class="absolute inset-0 rounded-full shadow-inner" aria-hidden="true"></div>
+                            </div>
+                            <div>
+                                <p class="font-semibold">{{order.client.name}}</p>
+                            </div>
+                        </div>
                     </td>
                     <td class="px-4 py-3 text-xs">
                         <span class="px-4 py-3 text-sm">
@@ -50,7 +60,7 @@
                         {{ order.date.strftime("%d/%m/%Y") }}
                     </td>
                     <td class="px-4 py-3">
-                        <div class="flex items-center space-x-4 text-sm">
+                        <div class="flex justify-center items-center space-x-4 text-sm">
                             <a href="{{ request.url_for('web:order_detail', order_id=order.id)}}"
                                 class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
                                 aria-label="Edit">
@@ -68,7 +78,7 @@
                                 @click="openModal('Cancelar Venda: {{ order.id }}', 'Tem certeza que deseja cancelar a venda {{ order.id }}?', () => cancelOrder('{{order.id}}'))">
                                 <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 -4 20 20">
                                     <path fill-rule="evenodd"
-                                    d="M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z"
+                                        d="M1.293 1.293a1 1 0 0 1 1.414 0L8 6.586l5.293-5.293a1 1 0 1 1 1.414 1.414L9.414 8l5.293 5.293a1 1 0 0 1-1.414 1.414L8 9.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L6.586 8 1.293 2.707a1 1 0 0 1 0-1.414z"
                                         clip-rule="evenodd"></path>
                                 </svg>
                             </button>
@@ -79,7 +89,7 @@
                                 @click="openModal('Confirmar Venda: {{ order.id }}', 'Tem certeza que deseja confirmar o pagamento da venda {{ order.id }}?', () => confirmOrder('{{order.id}}'))">
                                 <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 -4 20 20">
                                     <path fill-rule="evenodd"
-                                    d="M13.485 1.431a1.473 1.473 0 0 1 2.104 2.062l-7.84 9.801a1.473 1.473 0 0 1-2.12.04L.431 8.138a1.473 1.473 0 0 1 2.084-2.083l4.111 4.112 6.82-8.69a.486.486 0 0 1 .04-.045z"
+                                        d="M13.485 1.431a1.473 1.473 0 0 1 2.104 2.062l-7.84 9.801a1.473 1.473 0 0 1-2.12.04L.431 8.138a1.473 1.473 0 0 1 2.084-2.083l4.111 4.112 6.82-8.69a.486.486 0 0 1 .04-.045z"
                                         clip-rule="evenodd"></path>
                                 </svg>
                             </button>
@@ -103,6 +113,7 @@
             </tbody>
         </table>
     </div>
-    {{ render_pagination(current_page=1, items_per_page=20, total_items=100, endpoint="web:item_view") }}
+    {{ render_pagination(request, current_page=current_page, items_per_page=items_per_page, total_items=total_items,
+    endpoint="web:order_view") }}
 </div>
 {% endblock content %}

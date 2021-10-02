@@ -92,7 +92,7 @@ async def get_current_user(session: Session = Depends(make_session), token: Toke
     return user
 
 
-async def validate_user_admin(user: User = Depends(get_current_user)) -> None:
+async def validate_super_user(user: User = Depends(get_current_user)) -> None:
     if not user.admin:
         raise NotAuthorizedError("Essa página só está disponível para administradores")
 

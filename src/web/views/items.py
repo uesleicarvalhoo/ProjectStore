@@ -17,7 +17,7 @@ from ..utils import send_message, templates
 router = APIRouter()
 
 
-@router.get("/")
+@router.get("")
 async def items_view(
     request: Request,
     query: GetItem = Depends(),
@@ -26,7 +26,15 @@ async def items_view(
 ):
     items = controller.item.get_all(session, query, context=context)
     return templates.TemplateResponse(
-        "items/view.html", context={"request": request, "context": context, "items": items}
+        "items/view.html",
+        context={
+            "request": request,
+            "context": context,
+            "items": items,
+            "current_page": query.page,
+            "items_per_page": query.limit,
+            "total_items": len(items),
+        },
     )
 
 
@@ -95,7 +103,7 @@ async def items_create_post(
 @router.post("/delete")
 async def items_delete(
     request: Request,
-    id: int = Form(...),
+    id: UUID = Form(...),
     session: Session = Depends(make_session),
     context: Context = Depends(context_manager),
 ):
