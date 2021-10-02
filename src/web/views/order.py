@@ -86,7 +86,7 @@ async def order_create_post(
         item_data["item_id"] = item_data.get("id")
         items.append(item_data)
 
-    order = controller.order.create(
+    order = controller.order.register_sale(
         session,
         CreateOrder(
             client_id=client.id,

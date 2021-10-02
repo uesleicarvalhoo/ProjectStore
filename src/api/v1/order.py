@@ -25,4 +25,4 @@ async def get(order_id: UUID, session: Session = Depends(make_session)):
 
 @router.post("/", response_model=Order, status_code=HTTP_201_CREATED)
 async def create(schema: CreateOrder, session: Session = Depends(make_session)):
-    return order.create(session, schema, context=Context.API)
+    return order.register_sale(session, schema, context=Context.API)

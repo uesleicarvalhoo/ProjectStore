@@ -30,7 +30,7 @@ def get_by_id(session: Session, order_id: UUID, context: Context) -> Order:
 
 
 @inject.params(streamer=Streamer)
-def create(session: Session, schema: CreateOrder, context: Context, streamer: Streamer) -> Order:
+def register_sale(session: Session, schema: CreateOrder, context: Context, streamer: Streamer) -> Order:
     for detail in schema.details:
         item = session.exec(select(Item).where(Item.id == detail.item_id)).first()
 
