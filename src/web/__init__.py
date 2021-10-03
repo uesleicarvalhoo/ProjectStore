@@ -13,10 +13,9 @@ from src.apm import apm
 from src.core.config import AppSettings, settings
 from src.core.helpers.exceptions import InvalidCredentialError, NotAuthorizedError, ValidationError
 from src.core.models import Context
-from src.core.security import refresh_access_token, validate_access_token
 
 from . import views
-from .dependencies import context_manager
+from .dependencies import context_manager, refresh_access_token, validate_access_token
 from .utils import send_message, templates
 
 __version__ = "0.0.0"

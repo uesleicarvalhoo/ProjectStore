@@ -73,24 +73,6 @@ async def invalidate_access_token(jwt_token: str, cache: CacheClient, response: 
         response.delete_cookie(settings.ACCESS_TOKEN_NAME)
 
 
-async def refresh_access_token(response: Response, token: str, expires_delta: Union[int, timedelta] = None) -> None:
-    parsed_token = load_jwt_token(token)
-
-    if not validate_access_token(token):
-        return None
-
-    if parsed_token.created_at + (settings.ACESS_TOKEN_REFRESH_MINUTES * 60) > time():
-        return None
-
-    await invalidate_access_token(jwt_token=token, response=response)
-    await set_token_on_response(response, token=create_access_token(str(parsed_token.sub), expires_delta))
-
-
-async def set_token_on_response(response: Response, token: str) -> None:
-    parsed_token = load_jwt_token(token)
-    response.set_cookie(settings.ACCESS_TOKEN_NAME, token, max_age=parsed_token.exp)
-
-
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 

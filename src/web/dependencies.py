@@ -1,7 +1,9 @@
+from datetime import timedelta
+from time import time
 from typing import Union
 
 import inject
-from fastapi import Request
+from fastapi import Request, Response
 from fastapi.param_functions import Depends
 from fastapi.params import Cookie
 from sqlmodel import Session, select
@@ -11,7 +13,7 @@ from src.core.constants import ContextEnum
 from src.core.helpers.database import make_session
 from src.core.helpers.exceptions import NotAuthorizedError
 from src.core.models import Context, Message, Token, User
-from src.core.security import load_jwt_token, validate_access_token
+from src.core.security import create_access_token, invalidate_access_token, load_jwt_token, validate_access_token
 from src.core.services import CacheClient
 
 
@@ -95,6 +97,24 @@ async def get_current_user(session: Session = Depends(make_session), token: Toke
 async def validate_super_user(user: User = Depends(get_current_user)) -> None:
     if not user.admin:
         raise NotAuthorizedError("Essa página só está disponível para administradores")
+
+
+async def refresh_access_token(response: Response, token: str, expires_delta: Union[int, timedelta] = None) -> None:
+    parsed_token = load_jwt_token(token)
+
+    if not validate_access_token(token):
+        return None
+
+    if parsed_token.created_at + (settings.ACESS_TOKEN_REFRESH_MINUTES * 60) > time():
+        return None
+
+    await invalidate_access_token(jwt_token=token, response=response)
+    await set_token_on_response(response, token=create_access_token(str(parsed_token.sub), expires_delta))
+
+
+async def set_token_on_response(response: Response, token: str) -> None:
+    parsed_token = load_jwt_token(token)
+    response.set_cookie(settings.ACCESS_TOKEN_NAME, token, max_age=parsed_token.exp)
 
 
 context_manager = ContextManager(ContextEnum.WEB)

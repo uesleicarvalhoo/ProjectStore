@@ -7,9 +7,9 @@ from starlette.status import HTTP_303_SEE_OTHER
 
 from src.core import controller
 from src.core.models import Context, Token
-from src.core.security import create_access_token, invalidate_access_token, set_token_on_response
+from src.core.security import create_access_token, invalidate_access_token
 
-from ..dependencies import context_manager, get_token, make_session
+from ..dependencies import context_manager, get_token, make_session, set_token_on_response
 from ..utils import templates
 
 router = APIRouter()
