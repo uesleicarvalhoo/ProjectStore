@@ -1,7 +1,8 @@
 from fastapi import APIRouter
 from fastapi.params import Depends
 
-from ..dependencies import login_required, validate_super_user
+from src.utils.dependencies import login_required, validate_super_user
+
 from . import access, clients, fiscal_notes, index, items, order, users
 
 endpoints = APIRouter()

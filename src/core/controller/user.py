@@ -7,7 +7,7 @@ from sqlmodel import Session, select
 
 from src.core.events import EventCode
 from src.core.helpers.exceptions import DatabaseError, InvalidCredentialError, NotFoundError
-from src.core.models import Context, CreateUser, GetUser, User
+from src.core.models import Context, CreateUser, QueryUser, User
 from src.core.security import get_password_hash, verify_password
 from src.core.services import Streamer
 
@@ -47,11 +47,8 @@ def get_by_email(session: Session, email: EmailStr, context: Context) -> User:
     return user
 
 
-def get_all(session: Session, query_schema: GetUser, context: Context) -> List[User]:
+def get_all(session: Session, query_schema: QueryUser, context: Context) -> List[User]:
     query = select(User)
-
-    if query_schema.email:
-        query = query.where(User.email == query.email)
 
     query = query.offset(query_schema.offset)
 

@@ -5,7 +5,7 @@ from pydantic import ValidationError
 from sqlmodel import Session
 
 from src.core import controller
-from src.core.constants import OrderEnum
+from src.core.constants import OrderStatus
 from src.core.helpers.exceptions import NotFoundError
 from src.core.models.context import Context
 from src.core.models.order import UpdateOrderStatus
@@ -85,21 +85,21 @@ def test_update_order_status_success(session: Session, context: Context) -> None
 
     order_schema = CreateOrderFactory(client_id=client.id, details=[order_detail])
     order = controller.order.register_sale(session, order_schema, context=context)
-    pending_schema = UpdateOrderStatus(order_id=order.id, status=OrderEnum.PENDING)
-    completed_schema = UpdateOrderStatus(order_id=order.id, status=OrderEnum.COMPLETED)
-    canceled_schema = UpdateOrderStatus(order_id=order.id, status=OrderEnum.CANCELED)
+    pending_schema = UpdateOrderStatus(order_id=order.id, status=OrderStatus.PENDING)
+    completed_schema = UpdateOrderStatus(order_id=order.id, status=OrderStatus.COMPLETED)
+    canceled_schema = UpdateOrderStatus(order_id=order.id, status=OrderStatus.CANCELED)
 
     # assert Pending
     controller.order.update_status(session, pending_schema, context=context)
-    assert order.status == OrderEnum.PENDING
+    assert order.status == OrderStatus.PENDING
 
     # assert Completed
     controller.order.update_status(session, completed_schema, context=context)
-    assert order.status == OrderEnum.COMPLETED
+    assert order.status == OrderStatus.COMPLETED
 
     # assert Canceled
     controller.order.update_status(session, canceled_schema, context=context)
-    assert order.status == OrderEnum.CANCELED
+    assert order.status == OrderStatus.CANCELED
 
 
 def test_update_order_status_fail(session: Session, context: Context) -> None:
@@ -122,7 +122,7 @@ def test_update_order_status_fail(session: Session, context: Context) -> None:
     # assert
     with pytest.raises(NotFoundError):
         controller.order.update_status(
-            session, UpdateOrderStatus(order_id=uuid4(), status=OrderEnum.COMPLETED), context=context
+            session, UpdateOrderStatus(order_id=uuid4(), status=OrderStatus.COMPLETED), context=context
         )
 
     with pytest.raises(ValidationError):

@@ -6,7 +6,7 @@ from sqlmodel import Session, select
 
 from src.core.events import EventCode
 from src.core.helpers.exceptions import NotFoundError
-from src.core.models import Context, CreateFiscalNote, File, FiscalNote, GetFiscalNote, Item
+from src.core.models import Context, CreateFiscalNote, File, FiscalNote, Item, QueryFiscalNote
 from src.core.services import Storage, Streamer
 from src.utils.miscellaneous import get_file_hash
 
@@ -49,7 +49,7 @@ def create(session: Session, schema: CreateFiscalNote, context: Context, streame
     return fiscal_note
 
 
-def get_all(session: Session, query_schema: GetFiscalNote, context: Context) -> List[FiscalNote]:
+def get_all(session: Session, query_schema: QueryFiscalNote, context: Context) -> List[FiscalNote]:
     query = select(FiscalNote).offset(query_schema.offset)
 
     if query_schema.limit > 0:

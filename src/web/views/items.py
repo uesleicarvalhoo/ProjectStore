@@ -9,9 +9,9 @@ from starlette.responses import RedirectResponse
 from src.core import controller
 from src.core.helpers.database import make_session
 from src.core.models import Context, CreateItem
-from src.core.models.item import GetItem
+from src.core.models.item import QueryItem
+from src.utils.dependencies import web_context_manager
 
-from ..dependencies import context_manager
 from ..utils import send_message, templates
 
 router = APIRouter()
@@ -20,9 +20,9 @@ router = APIRouter()
 @router.get("")
 async def items_view(
     request: Request,
-    query: GetItem = Depends(),
+    query: QueryItem = Depends(),
     session: Session = Depends(make_session),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     items = controller.item.get_all(session, query, context=context)
     return templates.TemplateResponse(
@@ -43,7 +43,7 @@ async def item_by_id(
     request: Request,
     item_id: UUID,
     session: Session = Depends(make_session),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     item = controller.item.get_by_id(session, item_id, context)
 
@@ -56,7 +56,7 @@ async def item_by_id(
 async def items_create(
     request: Request,
     fiscal_note_id: UUID,
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     return templates.TemplateResponse(
         "items/create.html",
@@ -75,7 +75,7 @@ async def items_create_post(
     buy_value: float = Form(...),
     sugested_sell_value: float = Form(...),
     session: Session = Depends(make_session),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
 
     item = controller.item.create(
@@ -105,7 +105,7 @@ async def items_delete(
     request: Request,
     id: UUID = Form(...),
     session: Session = Depends(make_session),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     item = controller.item.delete(session, item_id=id, context=context)
 

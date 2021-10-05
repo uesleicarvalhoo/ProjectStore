@@ -4,17 +4,16 @@ from typing import Union
 
 import inject
 from fastapi import Request, Response
-from fastapi.param_functions import Depends
-from fastapi.params import Cookie
+from fastapi.param_functions import Cookie, Depends, Header
 from sqlmodel import Session, select
 
-from src.core.config import settings
-from src.core.constants import ContextEnum
-from src.core.helpers.database import make_session
-from src.core.helpers.exceptions import NotAuthorizedError
-from src.core.models import Context, Message, Token, User
-from src.core.security import create_access_token, invalidate_access_token, load_jwt_token, validate_access_token
-from src.core.services import CacheClient
+from ..core.config import settings
+from ..core.constants import ContextEnum
+from ..core.helpers.database import make_session
+from ..core.helpers.exceptions import NotAuthorizedError
+from ..core.models import Context, Message, Token, User
+from ..core.security import create_access_token, invalidate_access_token, load_jwt_token, validate_access_token
+from ..core.services import CacheClient
 
 
 class ContextManager:
@@ -67,7 +66,11 @@ class ContextManager:
         cache.set("messages", session_id, {"header": header, "text": text}, expiration=5 * 60)
 
 
-def get_token(access_token: str = Cookie(None)) -> str:
+def get_token(
+    cookie_token: str = Cookie(None, alias="access_token"), header_token: str = Header(None, alias="access_token")
+) -> str:
+    access_token = header_token or cookie_token
+
     if not access_token:
         raise NotAuthorizedError("Você precisa fazer login antes de continuar")
 
@@ -118,4 +121,5 @@ async def set_token_on_response(response: Response, token: str) -> None:
     response.set_cookie(settings.ACCESS_TOKEN_NAME, token, max_age=parsed_token.exp)
 
 
-context_manager = ContextManager(ContextEnum.WEB)
+web_context_manager = ContextManager(ContextEnum.WEB)
+api_context_manager = ContextManager(ContextEnum.API)

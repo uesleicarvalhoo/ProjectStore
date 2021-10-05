@@ -13,9 +13,9 @@ from src.apm import apm
 from src.core.config import AppSettings, settings
 from src.core.helpers.exceptions import DataValidationError, InvalidCredentialError, NotAuthorizedError
 from src.core.models import Context
+from src.utils.dependencies import refresh_access_token, validate_access_token, web_context_manager
 
 from . import views
-from .dependencies import context_manager, refresh_access_token, validate_access_token
 from .utils import send_message, templates
 
 __version__ = "0.0.0"
@@ -60,7 +60,7 @@ async def http_404_not_found(
     request: Request,
     exc: Exception,
     settings: AppSettings = Depends(),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     return templates.TemplateResponse(
         "not_found.html",
@@ -94,7 +94,7 @@ async def not_authorized(request: Request, exc: InvalidCredentialError):
 async def schema_validation_error(
     request: Request,
     exc: RequestValidationError,
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     apm.capture_exception()
 
@@ -114,7 +114,7 @@ async def schema_validation_error(
 async def validation_error(
     request: Request,
     exc: DataValidationError,
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     return templates.TemplateResponse(
         "error.html",
@@ -133,7 +133,7 @@ async def error(
     request: Request,
     exc: Exception,
     settings: AppSettings = Depends(),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
 
     apm.capture_exception()

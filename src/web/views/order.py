@@ -11,20 +11,20 @@ from starlette.responses import RedirectResponse
 from starlette.status import HTTP_201_CREATED, HTTP_202_ACCEPTED
 
 from src.core import controller
-from src.core.constants import OrderEnum
+from src.core.constants import OrderStatus
 from src.core.models import (
     Client,
     Context,
     CreateOrder,
     CreateOrderDetail,
-    GetClient,
-    GetItem,
-    GetOrder,
+    QueryClient,
+    QueryItem,
+    QueryOrder,
     UpdateOrderStatus,
     User,
 )
+from src.utils.dependencies import get_current_user, make_session, web_context_manager
 
-from ..dependencies import context_manager, get_current_user, make_session
 from ..utils import send_message, templates
 
 router = APIRouter()
@@ -33,10 +33,10 @@ router = APIRouter()
 @router.get("")
 async def order_view(
     request: Request,
-    query: GetOrder = Depends(),
+    query: QueryOrder = Depends(),
     session: Session = Depends(make_session),
     current_user: User = Depends(get_current_user),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     orders = controller.order.get_all(session, query, context)
     return templates.TemplateResponse(
@@ -55,10 +55,10 @@ async def order_view(
 
 @router.get("/create")
 async def order_create(
-    request: Request, session: Session = Depends(make_session), context: Context = Depends(context_manager)
+    request: Request, session: Session = Depends(make_session), context: Context = Depends(web_context_manager)
 ):
-    clients = controller.client.get_all(session, GetClient(), context=context)
-    items = controller.item.get_all(session, GetItem(avaliable=True), context=context)
+    clients = controller.client.get_all(session, QueryClient(), context=context)
+    items = controller.item.get_all(session, QueryItem(avaliable=True), context=context)
 
     return templates.TemplateResponse(
         "orders/create.html",
@@ -73,7 +73,7 @@ async def order_create(
 
 @router.post("/create", status_code=HTTP_201_CREATED)
 async def order_create_post(
-    request: Request, session: Session = Depends(make_session), context: Context = Depends(context_manager)
+    request: Request, session: Session = Depends(make_session), context: Context = Depends(web_context_manager)
 ):
     items = []
     data = await request.json()
@@ -91,7 +91,7 @@ async def order_create_post(
         CreateOrder(
             client_id=client.id,
             date=date.today(),
-            status=OrderEnum.COMPLETED,
+            status=OrderStatus.COMPLETED,
             description=description,
             details=[CreateOrderDetail(**detail) for detail in items],
         ),
@@ -107,7 +107,7 @@ async def order_detail(
     request: Request,
     order_id: UUID,
     session: Session = Depends(make_session),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     order = controller.order.get_by_id(session, order_id, context=context)
 
@@ -120,7 +120,7 @@ async def order_detail(
 async def order_update_status(
     schema: UpdateOrderStatus,
     session: Session = Depends(make_session),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     controller.order.update_status(session, schema, context=context)
 
@@ -130,7 +130,7 @@ async def order_delete(
     request: Request,
     id: UUID = Form(...),
     session: Session = Depends(make_session),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     controller.order.delete_by_id(session, order_id=id, context=context)
 

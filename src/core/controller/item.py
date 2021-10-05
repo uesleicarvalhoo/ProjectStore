@@ -6,7 +6,7 @@ from sqlmodel import Session, select
 
 from src.core.events import EventCode
 from src.core.helpers.exceptions import NotFoundError
-from src.core.models import Context, CreateItem, File, FiscalNote, GetItem, Item
+from src.core.models import Context, CreateItem, File, FiscalNote, Item, QueryItem
 from src.core.services import Storage, Streamer
 from src.utils.miscellaneous import get_file_hash
 
@@ -45,7 +45,7 @@ def create(
     return item_obj
 
 
-def get_all(session: Session, query_schema: GetItem, context: Context) -> List[Item]:
+def get_all(session: Session, query_schema: QueryItem, context: Context) -> List[Item]:
     query = select(Item)
 
     if query_schema.avaliable is not None:

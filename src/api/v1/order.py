@@ -8,13 +8,13 @@ from starlette.status import HTTP_201_CREATED
 
 from src.core.controller import order
 from src.core.helpers.database import make_session
-from src.core.models import Context, CreateOrder, GetOrder, Order
+from src.core.models import Context, CreateOrder, Order, QueryOrder
 
 router = APIRouter()
 
 
 @router.get("/", response_model=List[Order])
-async def get_all(query: GetOrder = Depends(), session: Session = Depends(make_session)):
+async def get_all(query: QueryOrder = Depends(), session: Session = Depends(make_session)):
     return order.get_all(session, query, context=Context.API)
 
 

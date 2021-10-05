@@ -6,12 +6,15 @@ from sqlmodel import Session, select
 
 from src.core.events import EventCode
 from src.core.helpers.exceptions import DataValidationError, NotFoundError
-from src.core.models import Client, Context, CreateOrder, GetOrder, Item, Order, OrderDetail, UpdateOrderStatus
+from src.core.models import Client, Context, CreateOrder, Item, Order, OrderDetail, QueryOrder, UpdateOrderStatus
 from src.core.services import Streamer
 
 
-def get_all(session: Session, query_schema: GetOrder, context: Context) -> List[Order]:
+def get_all(session: Session, query_schema: QueryOrder, context: Context) -> List[Order]:
     query = select(Order).offset(query_schema.offset)
+
+    if query_schema.status is not None:
+        query = query.where(Order.status == query_schema.status)
 
     if query_schema.limit > 0:
         query = query.limit(query_schema.limit)

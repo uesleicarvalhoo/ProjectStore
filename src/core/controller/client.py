@@ -6,7 +6,7 @@ from sqlmodel import Session, select
 
 from src.core.events import EventCode
 from src.core.helpers.exceptions import DatabaseError, NotFoundError
-from src.core.models import Client, Context, CreateClient, GetClient, UpdateClient
+from src.core.models import Client, Context, CreateClient, QueryClient, UpdateClient
 from src.core.services import Streamer
 
 
@@ -26,7 +26,7 @@ def create(session: Session, schema: CreateClient, context: Context, streamer: S
     return client
 
 
-def get_all(session: Session, query_schema: GetClient, context: Context) -> List[Client]:
+def get_all(session: Session, query_schema: QueryClient, context: Context) -> List[Client]:
     query = select(Client).offset(query_schema.offset)
 
     if query_schema.limit > 0:

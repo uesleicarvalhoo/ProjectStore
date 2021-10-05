@@ -8,13 +8,13 @@ from starlette.status import HTTP_201_CREATED
 
 from src.core.controller import user
 from src.core.helpers.database import make_session
-from src.core.models import Context, CreateUser, GetUser, User
+from src.core.models import Context, CreateUser, QueryUser, User
 
 router = APIRouter()
 
 
 @router.get("/", response_model=List[User], response_model_exclude={"password_hash"})
-async def get(query: GetUser = Depends(), session: Session = Depends(make_session)):
+async def get(query: QueryUser = Depends(), session: Session = Depends(make_session)):
     return user.get_all(session, query, context=Context.API)
 
 

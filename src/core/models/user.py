@@ -3,9 +3,9 @@ from uuid import UUID, uuid4
 
 from pydantic import EmailStr, validator
 from sqlmodel import Column, Field, SQLModel
+from sqlmodel.sql.sqltypes import GUID
 
 from .base import BaseQuerySchema
-from .types import GUID
 
 
 class BaseUser(SQLModel):
@@ -36,10 +36,8 @@ class CreateUser(BaseUser):
         raise ValueError("The password and confirmation must be equal!")
 
 
-class GetUser(BaseQuerySchema):
-    id: UUID = Field(None, description="Identification of User")
-    name: str = Field(None, description="Name of user")
-    email: EmailStr = Field(None, description="Email of User")
+class QueryUser(BaseQuerySchema):
+    pass
 
 
 class User(BaseUser, table=True):

@@ -1,7 +1,7 @@
 from typing import Any
 
 from pydantic import AnyHttpUrl, BaseSettings, Field, PositiveInt, validator
-from pydantic.networks import EmailStr, RedisDsn
+from pydantic.networks import EmailStr, PostgresDsn, RedisDsn
 
 from src.core.constants import EnvironmentEnum
 
@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     LOG_LEVEL: str = Field("info")
 
     # Database
-    SQLALCHEMY_DB_URI: str = Field(...)
+    SQLALCHEMY_DB_URI: PostgresDsn = Field(...)
 
     # Security
     SECRET_KEY: str = Field(...)

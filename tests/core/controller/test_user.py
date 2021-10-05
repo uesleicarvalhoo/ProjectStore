@@ -9,7 +9,7 @@ from src.core import controller
 from src.core.config import settings
 from src.core.helpers.exceptions import NotFoundError
 from src.core.models.context import Context
-from src.core.models.user import CreateUser, GetUser, User
+from src.core.models.user import CreateUser, QueryUser, User
 from src.core.security import verify_password
 from tests.factories.user import CreateUserFactory
 
@@ -120,8 +120,8 @@ def test_get_by_email_fail(session: Session, context: Context) -> None:
 
 def test_get_all_success(session: Session, context: Context) -> None:
     # prepare
-    query = GetUser(limit=10, page=1)
-    query2 = GetUser(limit=5, page=2)
+    query = QueryUser(limit=10, page=1)
+    query2 = QueryUser(limit=5, page=2)
 
     # create
     for _ in range(10):

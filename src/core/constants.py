@@ -24,7 +24,7 @@ class ContextEnum(str, Enum):
 
 
 @unique
-class OrderEnum(IntEnum):
+class OrderStatus(IntEnum):
     PENDING: int = 1
     COMPLETED: int = 2
     CANCELED: int = 3

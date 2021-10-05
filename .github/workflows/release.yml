@@ -38,20 +38,5 @@ jobs:
           push: true
 
           tags: |
-            docker.pkg.github.com/${{ env.IMAGE_REPOSITORY }}/test-image:latest
-            docker.pkg.github.com/${{ env.IMAGE_REPOSITORY }}/test-image:${{ env.RELEASE_VERSION }}
-
-      - name: Deploy to Docker swarm
-        uses: wshihadeh/docker-deployment-action@v2
-
-        with:
-          remote_docker_host: ${{ secrets.DOCKER_REMOTE_HOST }}
-          ssh_private_key: ${{ secrets.DOCKER_SSH_PRIVATE_KEY }}
-          ssh_public_key: ${{ secrets.DOCKER_SSH_PUBLIC_KEY }}
-          copy_stack_file: true
-          pull_images_first: true
-          keep_files: 5
-          deployment_mode: docker-swarm
-          deploy_path: ${{ secrets.DOCKER_DEPLOY_PATH }}
-          stack_file_name: docker-compose.yaml
-          args: testegithubactions
+            docker.pkg.github.com/${{ env.IMAGE_REPOSITORY }}/${{ env.IMAGE_REPOSITORY }}:latest
+            docker.pkg.github.com/${{ env.IMAGE_REPOSITORY }}/${{ env.IMAGE_REPOSITORY }}:${{ env.RELEASE_VERSION }}

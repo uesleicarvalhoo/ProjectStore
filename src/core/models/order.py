@@ -5,12 +5,12 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel
 from sqlalchemy import Column, Enum
 from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel.sql.sqltypes import GUID
 
-from ..constants import OrderEnum
+from ..constants import OrderStatus
 from .base import BaseQuerySchema
 from .client import Client
 from .order_detail import CreateOrderDetail, OrderDetail
-from .types import GUID
 
 
 class BaseOrder(SQLModel):
@@ -19,7 +19,7 @@ class BaseOrder(SQLModel):
     )
 
     date: date_ = Field(..., description="Purchase date")
-    status: OrderEnum = Field(..., description="Purchase Status", sa_column=Column(Enum(OrderEnum)))
+    status: OrderStatus = Field(..., description="Purchase Status", sa_column=Column(Enum(OrderStatus)))
     description: str = Field(None, description="Description of sale")
 
 
@@ -27,14 +27,14 @@ class CreateOrder(BaseOrder):
     details: List["CreateOrderDetail"] = Field(..., description="Details of purchase")
 
 
-class GetOrder(BaseQuerySchema):
+class QueryOrder(BaseQuerySchema):
     client_id: UUID = Field(None, description="Identification of the customer who made purchase")
-    # TODO: Filtrar pelos status
+    status: OrderStatus = Field(None, description="Purchase Status")
 
 
 class UpdateOrderStatus(BaseModel):
     order_id: UUID = Field(..., description="Identification of Purchase")
-    status: OrderEnum = Field(..., description="Purchase Status")
+    status: OrderStatus = Field(..., description="Purchase Status")
 
 
 class Order(BaseOrder, table=True):

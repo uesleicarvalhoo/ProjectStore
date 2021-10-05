@@ -17,7 +17,7 @@ class CreateFile(BaseFile):
     pass
 
 
-class GetFile(BaseQuerySchema):
+class QueryFile(BaseQuerySchema):
     bucket_key: str = Field(..., description="Identation of file in storage service")
 
 

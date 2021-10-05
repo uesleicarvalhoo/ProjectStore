@@ -1,11 +1,6 @@
 import hashlib
 from typing import Union
 
-from src.core.config import settings
-from src.core.services import RedisClient
-
-cache = RedisClient(settings.CACHE)
-
 
 def get_file_hash(file: Union[str, bytes]) -> Union[None, str]:
     file_data = file

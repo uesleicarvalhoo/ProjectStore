@@ -9,13 +9,13 @@ from starlette.status import HTTP_201_CREATED
 from src.core.constants import ContextEnum
 from src.core.controller import client
 from src.core.helpers.database import make_session
-from src.core.models import Client, CreateClient, GetClient
+from src.core.models import Client, CreateClient, QueryClient
 
 router = APIRouter()
 
 
 @router.get("/", response_model=List[Client], response_model_exclude={"password_hash"})
-async def get(query: GetClient = Depends(), session: Session = Depends(make_session)):
+async def get(query: QueryClient = Depends(), session: Session = Depends(make_session)):
     return client.get_all(session, query, context=ContextEnum.API)
 
 

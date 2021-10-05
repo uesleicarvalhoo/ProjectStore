@@ -4,11 +4,11 @@ from uuid import UUID, uuid4
 
 from pydantic import PositiveFloat, validator
 from sqlmodel import Column, Field, Relationship, SQLModel
+from sqlmodel.sql.sqltypes import GUID
 
 from src.apm import apm
 
 from .base import BaseQuerySchema
-from .types import GUID
 
 if TYPE_CHECKING:
     from .file import File
@@ -54,8 +54,7 @@ class CreateItem(BaseItem):
         return self.filename.split(".")[-1]
 
 
-class GetItem(BaseQuerySchema):
-    id: UUID = Field(None, description="Item ID")
+class QueryItem(BaseQuerySchema):
     avaliable: bool = Field(None, description="Flag to identify if the item is avaliable")
 
 

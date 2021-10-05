@@ -32,11 +32,11 @@
 {% endmacro %}
 
 {% macro render_tag_by_orderenum(order_enum) %}
-{% if order_enum == OrderEnum.COMPLETED %}
+{% if order_enum == OrderStatus.COMPLETED %}
 {{ render_green_tag("Concluido")}}
-{% elif order_enum == OrderEnum.PENDING %}
+{% elif order_enum == OrderStatus.PENDING %}
 {{ render_orange_tag("Pendente") }}
-{% elif order_enum == OrderEnum.CANCELED %}
+{% elif order_enum == OrderStatus.CANCELED %}
 {{ render_red_tag("Cancelado") }}
 {% endif %}
 {% endmacro %}

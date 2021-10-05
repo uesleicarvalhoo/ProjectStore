@@ -8,9 +8,9 @@ from starlette.responses import RedirectResponse
 
 from src.core import controller
 from src.core.helpers.database import make_session
-from src.core.models import Context, CreateClient, GetClient, UpdateClient
+from src.core.models import Context, CreateClient, QueryClient, UpdateClient
+from src.utils.dependencies import web_context_manager
 
-from ..dependencies import context_manager
 from ..utils import send_message, templates
 
 router = APIRouter()
@@ -19,9 +19,9 @@ router = APIRouter()
 @router.get("")
 async def clients_view(
     request: Request,
-    query: GetClient = Depends(),
+    query: QueryClient = Depends(),
     session: Session = Depends(make_session),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     clients = controller.client.get_all(session, query, context=context)
     return templates.TemplateResponse(
@@ -38,7 +38,7 @@ async def clients_view(
 
 
 @router.get("/cadastro")
-async def clients_create(request: Request, context: Context = Depends(context_manager)):
+async def clients_create(request: Request, context: Context = Depends(web_context_manager)):
     return templates.TemplateResponse("clients/create.html", context={"request": request, "context": context})
 
 
@@ -49,7 +49,7 @@ async def clients_create_post(
     email: EmailStr = Form(...),
     phone: int = Form(...),
     session: Session = Depends(make_session),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
 
     client = controller.client.create(
@@ -65,7 +65,7 @@ async def clients_delete(
     request: Request,
     id: UUID = Form(...),
     session: Session = Depends(make_session),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     client = controller.client.delete(session, client_id=id, context=context)
     send_message(request, "Client excluido!", f"Cliente: {client.name} excluido com sucesso!")
@@ -78,7 +78,7 @@ async def client_detail(
     request: Request,
     client_id: UUID,
     session: Session = Depends(make_session),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     client = controller.client.get_by_id(session, client_id, context=context)
 
@@ -92,7 +92,7 @@ async def clients_update(
     request: Request,
     client_id: UUID,
     session: Session = Depends(make_session),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     client = controller.client.get_by_id(session, client_id, context=context)
 
@@ -115,7 +115,7 @@ async def clients_update_post(
     email: EmailStr = Form(...),
     phone: int = Form(...),
     session: Session = Depends(make_session),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     client = controller.client.update(
         session, UpdateClient(id=client_id, name=name, email=email, phone=phone), context=context

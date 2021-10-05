@@ -5,7 +5,7 @@ from fastapi import Request
 from fastapi.templating import Jinja2Templates
 
 from src.core.config import AppSettings, settings
-from src.core.constants import OrderEnum
+from src.core.constants import OrderStatus
 from src.core.models import Message, User
 from src.core.services import CacheClient
 
@@ -17,7 +17,13 @@ anonimous_user = User(
 
 templates = Jinja2Templates(directory="src/web/templates")
 templates.env.globals.update(
-    {"math": math, "settings": AppSettings(), "round": round, "OrderEnum": OrderEnum, "current_user": anonimous_user}
+    {
+        "math": math,
+        "settings": AppSettings(),
+        "round": round,
+        "OrderStatus": OrderStatus,
+        "current_user": anonimous_user,
+    }
 )
 
 

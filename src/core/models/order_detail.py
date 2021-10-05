@@ -3,9 +3,9 @@ from uuid import UUID, uuid4
 
 from pydantic import PositiveFloat
 from sqlmodel import Column, Field, Relationship, SQLModel
+from sqlmodel.sql.sqltypes import GUID
 
 from .base import BaseQuerySchema
-from .types import GUID
 
 if TYPE_CHECKING:
     from .item import Item
@@ -22,8 +22,8 @@ class CreateOrderDetail(BaseOrderDetail):
     pass
 
 
-class GetOrderDetail(BaseQuerySchema):
-    order_id: UUID = Field(None, description="ID of the order")
+class QueryOrderDetail(BaseQuerySchema):
+    pass
 
 
 class OrderDetail(BaseOrderDetail, table=True):

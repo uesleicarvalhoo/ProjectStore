@@ -46,3 +46,7 @@ def init_database() -> None:
                 admin=True,
             )
             controller.user.create(session, schema=schema, context=context)
+
+
+def drop_database() -> None:
+    SQLModel.metadata.drop_all(engine)

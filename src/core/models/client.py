@@ -4,10 +4,10 @@ from uuid import UUID, uuid4
 
 from pydantic import EmailStr, constr, validator
 from sqlmodel import Column, Field, Relationship, SQLModel
+from sqlmodel.sql.sqltypes import GUID
 
 from ...utils.date import now_datetime
 from .base import BaseQuerySchema
-from .types import GUID
 
 if TYPE_CHECKING:
     from .order import Order
@@ -31,9 +31,8 @@ class UpdateClient(BaseClient):
     id: UUID = Field(..., description="Client ID")
 
 
-class GetClient(BaseQuerySchema):
-    id: UUID = Field(None, description="Client ID")
-    name: str = Field(None, description="Client Name")
+class QueryClient(BaseQuerySchema):
+    pass
 
 
 class Client(BaseClient, table=True):

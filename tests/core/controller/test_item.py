@@ -7,7 +7,7 @@ from sqlmodel import Session
 from src.core import controller
 from src.core.helpers.exceptions import NotFoundError
 from src.core.models.context import Context
-from src.core.models.item import GetItem, Item
+from src.core.models.item import Item, QueryItem
 from tests.factories.fiscal_note import CreateFiscalNoteFactory
 from tests.factories.item import CreateItemFactory
 
@@ -75,10 +75,10 @@ def test_get_item_by_id_fail(session: Session, context: Context) -> None:
 
 
 def test_get_all_item_success(session: Session, context: Context) -> None:
-    query = GetItem(limit=10, page=1)
-    query2 = GetItem(limit=5, page=2)
-    query_avaliable = GetItem(avaliable=True)
-    query_not_avaliable = GetItem(avaliable=False)
+    query = QueryItem(limit=10, page=1)
+    query2 = QueryItem(limit=5, page=2)
+    query_avaliable = QueryItem(avaliable=True)
+    query_not_avaliable = QueryItem(avaliable=False)
 
     # create
     fiscal_note = controller.fiscal_note.create(session, CreateFiscalNoteFactory(), context=context)

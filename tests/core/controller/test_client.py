@@ -7,7 +7,7 @@ from sqlmodel import Session
 
 from src.core import controller
 from src.core.helpers.exceptions import NotFoundError
-from src.core.models.client import Client, CreateClient, GetClient, UpdateClient
+from src.core.models.client import Client, CreateClient, QueryClient, UpdateClient
 from src.core.models.context import Context
 from tests.factories.client import CreateClientFactory
 
@@ -44,8 +44,8 @@ def test_create_client_fail(session: Session, context: Context) -> None:
 
 def test_get_all_success(session: Session, context: Context) -> None:
     # prepare
-    query = GetClient(limit=10, page=1)
-    query2 = GetClient(limit=5, page=2)
+    query = QueryClient(limit=10, page=1)
+    query2 = QueryClient(limit=5, page=2)
 
     # create
     for _ in range(10):

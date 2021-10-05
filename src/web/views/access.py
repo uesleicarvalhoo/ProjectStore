@@ -8,8 +8,8 @@ from starlette.status import HTTP_303_SEE_OTHER
 from src.core import controller
 from src.core.models import Context, Token
 from src.core.security import create_access_token, invalidate_access_token
+from src.utils.dependencies import get_token, make_session, set_token_on_response, web_context_manager
 
-from ..dependencies import context_manager, get_token, make_session, set_token_on_response
 from ..utils import templates
 
 router = APIRouter()
@@ -18,7 +18,7 @@ router = APIRouter()
 @router.get("/login")
 async def login(
     request: Request,
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     return templates.TemplateResponse("login.html", context={"request": request, "context": context})
 
@@ -35,7 +35,7 @@ async def auth(
     request: Request,
     session: Session = Depends(make_session),
     credentials: OAuth2PasswordRequestForm = Depends(),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     user = controller.user.authenticate(session, credentials.username, credentials.password, context=context)
 

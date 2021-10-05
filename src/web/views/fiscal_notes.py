@@ -10,9 +10,9 @@ from starlette.responses import RedirectResponse
 
 from src.core import controller
 from src.core.helpers.database import make_session
-from src.core.models import Context, CreateFiscalNote, GetFiscalNote
+from src.core.models import Context, CreateFiscalNote, QueryFiscalNote
+from src.utils.dependencies import web_context_manager
 
-from ..dependencies import context_manager
 from ..utils import send_message, templates
 
 router = APIRouter()
@@ -21,9 +21,9 @@ router = APIRouter()
 @router.get("")
 async def fiscal_notes_view(
     request: Request,
-    query: GetFiscalNote = Depends(),
+    query: QueryFiscalNote = Depends(),
     session: Session = Depends(make_session),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     fiscal_notes = controller.fiscal_note.get_all(session, query, context=context)
     return templates.TemplateResponse(
@@ -40,7 +40,7 @@ async def fiscal_notes_view(
 
 
 @router.get("/cadastro")
-async def fiscal_notes_create(request: Request, context: Context = Depends(context_manager)):
+async def fiscal_notes_create(request: Request, context: Context = Depends(web_context_manager)):
     return templates.TemplateResponse("fiscal_notes/create.html", context={"request": request, "context": context})
 
 
@@ -51,7 +51,7 @@ async def fiscal_notes_create_post(
     purchase_date: date = Form(...),
     file: UploadFile = File(...),
     session: Session = Depends(make_session),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
 
     fiscal_note = controller.fiscal_note.create(
@@ -76,7 +76,7 @@ async def fiscal_note_by_id(
     request: Request,
     fiscal_note_id: UUID,
     session: Session = Depends(make_session),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     return templates.TemplateResponse(
         "fiscal_notes/view_detail.html",
@@ -93,7 +93,7 @@ async def fiscal_notes_delete(
     request: Request,
     id: UUID = Form(...),
     session: Session = Depends(make_session),
-    context: Context = Depends(context_manager),
+    context: Context = Depends(web_context_manager),
 ):
     fiscal_note = controller.fiscal_note.delete(session, fiscal_note_id=id, context=context)
     send_message(request, "Nota fiscal excluida!", f"Nota fiscal: {fiscal_note.id} excluida com sucesso!")

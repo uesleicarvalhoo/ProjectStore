@@ -5,13 +5,13 @@ from uuid import UUID, uuid4
 
 from pydantic import validator
 from sqlmodel import Column, Field, Relationship, SQLModel
+from sqlmodel.sql.sqltypes import GUID
 
 from src.apm import apm
 
 from .base import BaseQuerySchema
 from .file import File
 from .item import CreateItem, Item
-from .types import GUID
 
 
 class BaseFiscalNote(SQLModel):
@@ -41,8 +41,8 @@ class CreateFiscalNote(BaseFiscalNote):
         return self.filename.split(".")[-1]
 
 
-class GetFiscalNote(BaseQuerySchema):
-    id: UUID = Field(None, description="Fiscal note ID")
+class QueryFiscalNote(BaseQuerySchema):
+    pass
 
 
 class FiscalNote(BaseFiscalNote, table=True):
