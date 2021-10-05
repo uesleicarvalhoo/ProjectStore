@@ -11,7 +11,7 @@ from starlette.responses import RedirectResponse
 
 from src.apm import apm
 from src.core.config import AppSettings, settings
-from src.core.helpers.exceptions import InvalidCredentialError, NotAuthorizedError, ValidationError
+from src.core.helpers.exceptions import DataValidationError, InvalidCredentialError, NotAuthorizedError
 from src.core.models import Context
 
 from . import views
@@ -110,10 +110,10 @@ async def schema_validation_error(
     )
 
 
-@app.exception_handler(ValidationError)
+@app.exception_handler(DataValidationError)
 async def validation_error(
     request: Request,
-    exc: ValidationError,
+    exc: DataValidationError,
     context: Context = Depends(context_manager),
 ):
     return templates.TemplateResponse(

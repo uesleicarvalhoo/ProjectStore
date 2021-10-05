@@ -24,6 +24,9 @@ ALGORITHM = "HS256"
 
 
 def create_access_token(subject: str, expires_delta: Union[int, timedelta] = None) -> str:
+    if not subject:
+        raise ValueError("Subject can't be null!")
+
     if expires_delta is None:
         expires_delta = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 

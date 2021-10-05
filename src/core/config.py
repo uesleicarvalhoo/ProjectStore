@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import AnyHttpUrl, BaseSettings, Field, PositiveInt, validator
 from pydantic.networks import EmailStr, RedisDsn
 
@@ -9,6 +11,9 @@ class Environment(BaseSettings):
 
     def __str__(self) -> str:
         return self.ENVIRONMENT
+
+    def __eq__(self, other: Any) -> bool:
+        return self.ENVIRONMENT.__eq__(other)
 
     class Config:
         env_file: str = ".env"
@@ -62,7 +67,7 @@ class Settings(BaseSettings):
     # First Super user
     FIRST_SUPERUSER_NAME: str = Field(...)
     FIRST_SUPERUSER_EMAIL: EmailStr = Field(...)
-    FIRST_SUPERUSER_PASSWORD: str = Field(...)
+    FIRST_SUPERUSER_PASSWORD: str = Field(..., min_length=5)
 
     class Config:
         env_file: str = ENV_FILE

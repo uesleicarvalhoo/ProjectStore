@@ -1,17 +1,14 @@
 from typing import Generator
+from uuid import uuid4
 
 import pytest
 from _pytest.config import Config
-from sqlalchemy import create_engine
-from sqlmodel import Session, sessionmaker
+from sqlmodel import Session
 
-from src.core.config import Settings
-from src.core.constants import EnvironmentEnum
-from src.core.models.base import BaseModel
-
-settings = Settings(_env_file=".env.test", ENVIRONMENT="test")
-engine = create_engine(settings.SQLALCHEMY_DB_URI)
-SessionLocal = sessionmaker(bind=engine, autocommit=False)
+from src.core.config import settings
+from src.core.constants import ContextEnum, EnvironmentEnum
+from src.core.helpers.database import init_database, make_session
+from src.core.models.context import Context
 
 
 def pytest_configure(config: Config):
@@ -20,10 +17,21 @@ def pytest_configure(config: Config):
             f"You should run tests only in testing environment! Current environment: {settings.ENVIRONMENT.name}"
         )
 
+    init_database()
+
 
 @pytest.fixture(scope="session")
-def session() -> Generator[Session, None, None]:
-    BaseModel.metadata.drop_all(engine)
-    BaseModel.metadata.create_all(engine)
+def session() -> Session:
+    yield next(make_session())
 
-    yield SessionLocal()
+
+@pytest.fixture(scope="session")
+def context() -> Generator[Context, None, None]:
+    _context = Context(
+        context=ContextEnum.TEST,
+        method="test",
+        authenticated=True,
+        user_id=uuid4(),
+    )
+
+    yield _context

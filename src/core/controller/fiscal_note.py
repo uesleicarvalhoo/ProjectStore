@@ -6,11 +6,7 @@ from sqlmodel import Session, select
 
 from src.core.events import EventCode
 from src.core.helpers.exceptions import NotFoundError
-from src.core.models import Context, CreateFiscalNote
-from src.core.models import File as File
-from src.core.models import FiscalNote as FiscalNote
-from src.core.models import GetFiscalNote
-from src.core.models import Item as Item
+from src.core.models import Context, CreateFiscalNote, File, FiscalNote, GetFiscalNote, Item
 from src.core.services import Storage, Streamer
 from src.utils.miscellaneous import get_file_hash
 
@@ -24,7 +20,6 @@ def create(session: Session, schema: CreateFiscalNote, context: Context, streame
         if not file:
             file = File(bucket_key=f"{preffix}-{uuid4()}.{extension}", hash=file_hash)
             session.add(file)
-            session.commit()
 
         return file
 
@@ -36,13 +31,16 @@ def create(session: Session, schema: CreateFiscalNote, context: Context, streame
             EventCode.UPLOAD_FILE, context=context, file={"filename": schema.filename, "hash": file.hash}
         )
 
-    fiscal_note = FiscalNote(**schema.dict(exclude={"image": ..., "filename": ...}), file=file)
+    fiscal_note = FiscalNote(
+        **schema.dict(exclude={"image": ..., "filename": ..., "items": ...}), file_id=file.bucket_key
+    )
     session.add(fiscal_note)
-    session.commit()
 
     for item in schema.items:
         file = get_or_create_file(item.image, "item", item.file_extension)
-        item_obj = Item(**schema.dict(exclude={"image", "filename"}), fiscal_note_id=fiscal_note.id, file=file)
+        item_obj = Item(
+            **item.dict(exclude={"image": ..., "filename": ...}), fiscal_note_id=fiscal_note.id, file_id=file.bucket_key
+        )
         session.add(item_obj)
 
     session.commit()

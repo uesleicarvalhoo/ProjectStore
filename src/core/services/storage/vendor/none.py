@@ -9,11 +9,11 @@ class NoneStorage(Storage):
     conforme o design pattern: https://sourcemaking.com/design_patterns/null_object
     """
 
-    def upload_file(self, file: Union[str, bytes], key: str, bucket: str) -> str:
+    def upload_file(self, file: Union[str, bytes], key: str, bucket: str = None) -> str:
         pass
 
-    def check_file_exists(self, key: str, bucket: str) -> bool:
-        pass
+    def check_file_exists(self, key: str, bucket: str = None) -> bool:
+        return True
 
-    def delete_file(self, key: str, bucket: str) -> None:
+    def delete_file(self, key: str, bucket: str = None) -> None:
         pass

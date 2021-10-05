@@ -77,6 +77,7 @@ def get_token(access_token: str = Cookie(None)) -> str:
 def get_parsed_token(token: str = Depends(get_token)) -> Token:
     if not token:
         raise NotAuthorizedError("Você precisa fazer login antes de continuar")
+
     return load_jwt_token(token)
 
 

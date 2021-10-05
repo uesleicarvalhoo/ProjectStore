@@ -1,5 +1,5 @@
 from base64 import b64decode
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, Union
 from uuid import UUID, uuid4
 
 from pydantic import PositiveFloat, validator
@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 
 
 class BaseItem(SQLModel):
-    code: str = Field(..., description="Item code")
-    name: str = Field(..., description="Item Name")
+    code: str = Field(..., description="Item code", min_length=1)
+    name: str = Field(..., description="Item Name", min_length=1)
     avaliable: bool = Field(..., description="Flag to identify if the item is avaliable")
     buy_value: PositiveFloat = Field(..., description="Buy value of item")
     sugested_sell_value: PositiveFloat = Field(..., description="Sugested sell value of item")
@@ -25,16 +25,29 @@ class BaseItem(SQLModel):
 
 class CreateItem(BaseItem):
     image: bytes = Field(..., description="Content base64 of the image")
-    filename: str = Field(..., description="Image filename")
+    filename: str = Field(..., description="Image filename", min_length=1)
 
     @validator("image", pre=True)
-    def validate_image(cls, value: str) -> bytes:
+    def validate_image(cls, value: Union[str, bytes]) -> bytes:
+        if isinstance(value, bytes):
+            return value
+
         try:
             return b64decode(value)
 
         except Exception:
             apm.capture_exception()
             raise ValueError("Couldn't decode the file!")
+
+    @validator("sugested_sell_value")
+    def validate_sell_value(cls, value: Union[str, float], values: Dict[str, Any]) -> float:
+        if isinstance(value, str):
+            value = float(value)
+
+        if values.get("buy_value", 0) >= value:
+            raise ValueError("The sugested sell value must be higher then buy value!")
+
+        return value
 
     @property
     def file_extension(self) -> str:
@@ -56,5 +69,5 @@ class Item(BaseItem, table=True):
     file: "File" = Relationship()
     fiscal_note: "FiscalNote" = Relationship(
         back_populates="items",
-        sa_relationship_kwargs={"cascade": "all,delete", "lazy": "selectin", "passive_deletes": True},
+        sa_relationship_kwargs={"lazy": "selectin", "passive_deletes": True},
     )

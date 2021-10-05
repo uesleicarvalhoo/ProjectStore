@@ -60,7 +60,7 @@ def delete(session: Session, client_id: UUID, context: Context, streamer: Stream
 
 
 @inject.params(streamer=Streamer)
-def update(session: Session, data: UpdateClient, context: Context, streamer: Streamer) -> Client:
+def update(session: Session, data: UpdateClient, context: Context, streamer: Streamer) -> None:
     client = session.exec(select(Client).where(Client.id == data.id)).first()
 
     if not client:
@@ -68,11 +68,14 @@ def update(session: Session, data: UpdateClient, context: Context, streamer: Str
 
     columns = client.__table__.columns.keys()
 
-    for key, value in data.items():
+    for key, value in data:
         if key not in columns:
             continue
 
         setattr(client, key, value)
+
+    session.add(client)
+    session.commit()
 
     streamer.send_event(
         event_code=EventCode.UPDATE_CLIENT,

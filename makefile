@@ -10,7 +10,7 @@ test:
 docker:
 	@docker rm -f store || true
 	@docker build -t store .
-	@docker run --name=store --network=mysql-server-network -p 8000:80 -d store
+	@docker run --name=store --network=global-default -p 8000:80 -d store
 
 format:
 	@black src tests migration

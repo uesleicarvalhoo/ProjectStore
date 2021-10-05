@@ -1,6 +1,6 @@
 from typing import Generator
 
-from sqlmodel import Session, create_engine
+from sqlmodel import Session, SQLModel, create_engine
 
 from src.apm import apm
 
@@ -30,6 +30,8 @@ def init_database() -> None:
         context=ContextEnum.APPLICATION,
         method="init_database",
     )
+
+    SQLModel.metadata.create_all(engine)
 
     with Session(engine) as session:
         try:

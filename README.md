@@ -23,6 +23,8 @@ Sistema de controle de estoque e registro de vendas
 ### Database
 
 - [X] Incluir um campo de descrição nas vendas
+- [ ] Trocar o nome dos Schemas de "GetModel" para "QueryModel"
+- [ ] Remover a consulta por ID dos Schemas
 
 #### Core
 
@@ -46,3 +48,5 @@ Sistema de controle de estoque e registro de vendas
 - [ ] Refatorar o projeto para utilizar micro-serviços (back e front)
 - [ ] Criar um serviço para o envio de E-mails ao realizar novas vendas
 - [ ] Montar o read-me do projeto
+- [ ] Checar se a imagem do Dockerfile é a ideal pra PRD
+- [ ] Mover os SGV para a pasta statics

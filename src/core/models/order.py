@@ -17,6 +17,7 @@ class BaseOrder(SQLModel):
     client_id: UUID = Field(
         ..., foreign_key="clients.id", description="Identification of the customer who made purchase"
     )
+
     date: date_ = Field(..., description="Purchase date")
     status: OrderEnum = Field(..., description="Purchase Status", sa_column=Column(Enum(OrderEnum)))
     description: str = Field(None, description="Description of sale")
@@ -28,6 +29,7 @@ class CreateOrder(BaseOrder):
 
 class GetOrder(BaseQuerySchema):
     client_id: UUID = Field(None, description="Identification of the customer who made purchase")
+    # TODO: Filtrar pelos status
 
 
 class UpdateOrderStatus(BaseModel):

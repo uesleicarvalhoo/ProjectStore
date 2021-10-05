@@ -25,12 +25,12 @@ class BaseUser(SQLModel):
 
 
 class CreateUser(BaseUser):
-    password: str = Field(..., description="User password")
+    password: str = Field(..., description="User password", min_length=5)
     confirm_password: str = Field(..., description="Password confirmation")
 
     @validator("confirm_password")
     def validate_password(cls, value: str, values: Dict[str, Any]) -> str:
-        if value == values["password"]:
+        if value == values.get("password"):
             return value
 
         raise ValueError("The password and confirmation must be equal!")

@@ -2,8 +2,8 @@ from elasticsearch import Elasticsearch
 
 from src.apm import apm
 from src.core.events import EventCode
+from src.core.helpers.logger import log_error
 from src.core.models import Context, Event
-from src.utils.logger import log_error
 
 from .. import Streamer
 
@@ -17,7 +17,7 @@ class ElasticStreamer(Streamer):
             event = Event(event_code=event_code, context=context, data=data)
 
             cls.client.create(
-                "events-store",
+                index="events-store",
                 id=event.id,
                 document=event.json(by_alias=True, exclude={"context": {"message"}}),
             )

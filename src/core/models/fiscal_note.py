@@ -1,6 +1,6 @@
 from base64 import b64decode
 from datetime import date
-from typing import List
+from typing import List, Union
 from uuid import UUID, uuid4
 
 from pydantic import validator
@@ -15,17 +15,20 @@ from .types import GUID
 
 
 class BaseFiscalNote(SQLModel):
-    description: str = Field(..., description="Description of fiscal note")
+    description: str = Field(..., description="Description of fiscal note", min_length=1)
     purchase_date: date = Field(..., description="Date of purchase")
 
 
 class CreateFiscalNote(BaseFiscalNote):
     image: bytes = Field(..., description="Content base64 of the image")
-    filename: str = Field(..., description="Image filename")
+    filename: str = Field(..., description="Image filename", min_length=1)
     items: List[CreateItem] = Field([], description="List of items in the fiscal note")
 
     @validator("image", pre=True)
-    def validate_image(cls, value: str) -> bytes:
+    def validate_image(cls, value: Union[str, bytes]) -> bytes:
+        if isinstance(value, bytes):
+            return value
+
         try:
             return b64decode(value)
 

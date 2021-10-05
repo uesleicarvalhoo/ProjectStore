@@ -63,7 +63,7 @@ def get_all(session: Session, query_schema: GetUser, context: Context) -> List[U
 
 @inject.params(streamer=Streamer)
 def delete(session: Session, user_id: UUID, context: Context, streamer: Streamer) -> User:
-    user = session.exec(select(User).where(User.id == user_id))
+    user = session.exec(select(User).where(User.id == user_id)).first()
 
     if not user:
         raise NotFoundError(f"Não foi possível localiazar o usuário com ID: {user_id}")
