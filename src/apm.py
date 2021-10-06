@@ -9,12 +9,11 @@ apm = make_apm_client(
         "SERVICE_VERSION": settings.VERSION,
         "ENVIRONMENT": settings.ENVIRONMENT,
         "SERVER_URL": settings.APM_SERVER_URL,
-        "TRANSACTION_IGNORE_PATTERNS": [],
         "SANITIZE_FIELD_NAMES": APM_SANITIZE_FIELDS,
-        "COLLECT_LOCAL_VARIABLES": "all",
+        "COLLECT_LOCAL_VARIABLES": "errors",
         "CAPTURE_HEADERS": "true",
-        "CAPTURE_BODY": "off",
-        "ELASTIC_APM_USE_ELASTIC_EXCEPTHOOK": True,
-        "NEW_RELIC_MONITOR_MODE": settings.ENVIRONMENT != EnvironmentEnum.testing,
+        "CAPTURE_BODY": "errors",
+        "USE_ELASTIC_EXCEPTHOOK": True,
+        "ACTIVE": settings.ENVIRONMENT != EnvironmentEnum.testing,
     }
 )
