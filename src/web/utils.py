@@ -5,14 +5,14 @@ from fastapi import Request
 from fastapi.templating import Jinja2Templates
 
 from src.core.config import AppSettings, settings
-from src.core.constants import OrderStatus
+from src.core.constants import AccessLevel, OrderStatus
 from src.core.models import Message, User
 from src.core.services import CacheClient
 
 anonimous_user = User(
     name="Anonimous User",
     email="anonimous@email.com",
-    admin=False,
+    access_level=AccessLevel.ANONIMOUS,
 )
 
 templates = Jinja2Templates(directory="src/web/templates")

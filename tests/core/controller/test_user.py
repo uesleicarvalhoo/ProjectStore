@@ -7,6 +7,7 @@ from sqlmodel import Session
 
 from src.core import controller
 from src.core.config import settings
+from src.core.constants import AccessLevel
 from src.core.helpers.exceptions import NotFoundError
 from src.core.models.context import Context
 from src.core.models.user import CreateUser, QueryUser, User
@@ -17,7 +18,7 @@ from tests.factories.user import CreateUserFactory
 def test_create_user_success(session: Session, context: Context) -> None:
     # prepare
     schema = CreateUserFactory(admin=False)
-    admin_schema = CreateUserFactory(admin=True)
+    admin_schema = CreateUserFactory(access_level=AccessLevel.SUPER_USER)
 
     # create
     user = controller.user.create(session, schema, context=context)
@@ -27,13 +28,13 @@ def test_create_user_success(session: Session, context: Context) -> None:
     assert user.id is not None
     assert user.name == schema.name
     assert user.email == schema.email
-    assert user.admin == schema.admin
+    assert user.access_level == schema.access_level
     assert not user.is_super_user
 
     assert user_admin.id is not None
     assert user_admin.name == admin_schema.name
     assert user_admin.email == admin_schema.email
-    assert user_admin.admin == admin_schema.admin
+    assert user_admin.access_level == admin_schema.access_level
     assert user_admin.is_super_user
 
     assert len(user.first_name.split(" ")) == 1
@@ -51,7 +52,7 @@ def test_create_user_fail(session: Session, context: Context) -> None:
         controller.user.create(session, schema=CreateUserFactory(name=""), context=Context)
 
     with pytest.raises(ValidationError):
-        controller.user.create(session, schema=CreateUserFactory(admin=None), context=Context)
+        controller.user.create(session, schema=CreateUserFactory(access_level=None), context=Context)
 
     with pytest.raises(ValidationError):
         controller.user.create(session, schema=CreateUserFactory(email=""), context=Context)
@@ -77,7 +78,7 @@ def test_get_by_id_success(session: Session, context: Context) -> None:
     assert user.id == user2.id
     assert user.name == user2.name
     assert user.email == user2.email
-    assert user.admin == user2.admin
+    assert user.is_super_user == user2.is_super_user
     assert user.password_hash == user2.password_hash
     assert user == user2
 
@@ -108,8 +109,9 @@ def test_get_by_email_success(session: Session, context: Context) -> None:
     assert user.id == user2.id
     assert user.name == user2.name
     assert user.email == user2.email
-    assert user.admin == user2.admin
+    assert user.access_level == user2.access_level
     assert user.password_hash == user2.password_hash
+    assert user.is_super_user == user2.is_super_user
     assert user == user2
 
 

@@ -11,6 +11,7 @@ from ..constants import OrderStatus
 from .base import BaseQuerySchema
 from .client import Client
 from .order_detail import CreateOrderDetail, OrderDetail
+from .user import User
 
 
 class BaseOrder(SQLModel):
@@ -45,6 +46,8 @@ class Order(BaseOrder, table=True):
         description="Identification of Purchase",
         sa_column=Column("id", GUID(), primary_key=True),
     )
+    owner_id: UUID = Field(default_factory=uuid4, description="User ID that owns the order", foreign_key="users.id")
+    owner: User = Relationship()
     client: "Client" = Relationship(back_populates="orders")
     details: List["OrderDetail"] = Relationship(
         back_populates="order",

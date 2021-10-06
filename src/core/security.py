@@ -10,6 +10,7 @@ from pydantic.error_wrappers import ValidationError
 from starlette.responses import Response
 
 from src.apm import apm
+from src.core.constants import AccessLevel
 from src.core.helpers.exceptions import NotAuthorizedError
 from src.core.services import CacheClient
 from src.utils.date import now_datetime
@@ -23,7 +24,7 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
 
 
-def create_access_token(subject: str, expires_delta: Union[int, timedelta] = None) -> str:
+def create_access_token(subject: str, access_level: AccessLevel, expires_delta: Union[int, timedelta] = None) -> str:
     if not subject:
         raise ValueError("Subject can't be null!")
 
@@ -36,7 +37,7 @@ def create_access_token(subject: str, expires_delta: Union[int, timedelta] = Non
     now = now_datetime()
     expire = now + expires_delta
 
-    to_encode = {"exp": expire, "sub": subject, "created_at": time()}
+    to_encode = {"exp": expire, "sub": subject, "created_at": time(), "access_level": access_level}
 
     token = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
 

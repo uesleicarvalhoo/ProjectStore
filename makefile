@@ -5,7 +5,7 @@ run:
 	@uvicorn "src.app:app" --port 5000 --reload
 
 test:
-	ENV=test pytest tests
+	@ENVIRONMENT=test pytest tests
 
 docker:
 	@docker rm -f store || true

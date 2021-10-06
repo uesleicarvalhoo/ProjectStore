@@ -28,3 +28,10 @@ class OrderStatus(IntEnum):
     PENDING: int = 1
     COMPLETED: int = 2
     CANCELED: int = 3
+
+
+@unique
+class AccessLevel(IntEnum):
+    ANONIMOUS: int = 0
+    USER: int = 1
+    SUPER_USER: int = 2

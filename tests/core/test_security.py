@@ -2,6 +2,8 @@ from uuid import uuid4
 
 import pytest
 
+from src.core.constants import AccessLevel
+from src.core.models.user import User
 from src.core.security import (
     create_access_token,
     get_password_hash,
@@ -11,9 +13,9 @@ from src.core.security import (
 )
 
 
-def test_test_create_acess_token_success():
-    sub = str(uuid4())
-    encoded_token = create_access_token(sub)
+def test_test_create_acess_token_success(current_user: User):
+    sub = str(current_user.id)
+    encoded_token = create_access_token(sub, access_level=current_user.access_level)
     token = load_jwt_token(encoded_token)
 
     assert encoded_token is not None
@@ -23,16 +25,16 @@ def test_test_create_acess_token_success():
 
 def test_create_access_token_fail():
     with pytest.raises(ValueError):
-        create_access_token("")
+        create_access_token("", access_level=AccessLevel.USER)
 
 
-def test_validate_access_token_success():
-    token = create_access_token(str(uuid4()))
+def test_validate_access_token_success(current_user: User):
+    token = create_access_token(str(current_user.id), access_level=current_user.access_level)
     assert validate_access_token(token)
 
 
-def test_validate_access_token_fail():
-    token = create_access_token(str(uuid4()), expires_delta=-1)
+def test_validate_access_token_fail(current_user: User):
+    token = create_access_token(str(uuid4()), expires_delta=-1, access_level=current_user.access_level)
     assert not validate_access_token(token)
 
 

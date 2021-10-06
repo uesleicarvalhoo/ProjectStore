@@ -1,17 +1,26 @@
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict, List
 from uuid import UUID, uuid4
 
 from pydantic import EmailStr, validator
-from sqlmodel import Column, Field, SQLModel
+from sqlmodel import Column, Field, Relationship, SQLModel
 from sqlmodel.sql.sqltypes import GUID
 
+from src.core.constants import AccessLevel
+
 from .base import BaseQuerySchema
+
+if TYPE_CHECKING:
+    from .client import Client
+    from .fiscal_note import FiscalNote
+    from .item import Item
+    from .order import Order
 
 
 class BaseUser(SQLModel):
     name: str = Field(..., description="Username")
     email: EmailStr = Field(..., description="Email of the user")
-    admin: bool = Field(False, description="Flag to identify super user")
+    access_level: AccessLevel = Field(AccessLevel.USER, description="Level of access access permission of that user")
+    active: bool = Field(True, description="Flag to identify if user is active")
 
     @validator("name")
     def normalize_name(cls, value: str) -> str:
@@ -48,9 +57,33 @@ class User(BaseUser, table=True):
     )
     password_hash: str = Field(..., description="Hash of password")
 
+    items: List["Item"] = Relationship(
+        back_populates="owner",
+        sa_relationship_kwargs={"cascade": "all,delete", "lazy": "selectin", "passive_deletes": True},
+    )
+
+    fiscal_notes: List["FiscalNote"] = Relationship(
+        back_populates="owner",
+        sa_relationship_kwargs={"cascade": "all,delete", "lazy": "selectin", "passive_deletes": True},
+    )
+
+    clients: List["Client"] = Relationship(
+        back_populates="owner",
+        sa_relationship_kwargs={"cascade": "all,delete", "lazy": "selectin", "passive_deletes": True},
+    )
+
+    orders: List["Order"] = Relationship(
+        back_populates="owner",
+        sa_relationship_kwargs={"cascade": "all,delete", "lazy": "selectin", "passive_deletes": True},
+    )
+
     @property
     def is_super_user(self) -> bool:
-        return self.admin
+        return self.access_level == AccessLevel.SUPER_USER
+
+    @property
+    def is_active(self) -> bool:
+        return self.active
 
     @property
     def first_name(self) -> str:

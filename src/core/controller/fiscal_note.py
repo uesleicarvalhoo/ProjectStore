@@ -5,7 +5,7 @@ import inject
 from sqlmodel import Session, select
 
 from src.core.events import EventCode
-from src.core.helpers.exceptions import NotFoundError
+from src.core.helpers.exceptions import NotAuthorizedError, NotFoundError
 from src.core.models import Context, CreateFiscalNote, File, FiscalNote, Item, QueryFiscalNote
 from src.core.services import Storage, Streamer
 from src.utils.miscellaneous import get_file_hash
@@ -32,14 +32,19 @@ def create(session: Session, schema: CreateFiscalNote, context: Context, streame
         )
 
     fiscal_note = FiscalNote(
-        **schema.dict(exclude={"image": ..., "filename": ..., "items": ...}), file_id=file.bucket_key
+        **schema.dict(exclude={"image": ..., "filename": ..., "items": ...}),
+        file_id=file.bucket_key,
+        owner_id=context.user_id,
     )
     session.add(fiscal_note)
 
     for item in schema.items:
         file = get_or_create_file(item.image, "item", item.file_extension)
         item_obj = Item(
-            **item.dict(exclude={"image": ..., "filename": ...}), fiscal_note_id=fiscal_note.id, file_id=file.bucket_key
+            **item.dict(exclude={"image": ..., "filename": ...}),
+            fiscal_note_id=fiscal_note.id,
+            file_id=file.bucket_key,
+            owner_id=context.user_id,
         )
         session.add(item_obj)
 
@@ -51,6 +56,9 @@ def create(session: Session, schema: CreateFiscalNote, context: Context, streame
 
 def get_all(session: Session, query_schema: QueryFiscalNote, context: Context) -> List[FiscalNote]:
     query = select(FiscalNote).offset(query_schema.offset)
+
+    if not context.current_user_is_super_user:
+        query = query.where(FiscalNote.owner_id.id == context.user_id)
 
     if query_schema.limit > 0:
         query = query.limit(query_schema.limit)
@@ -65,6 +73,9 @@ def get_by_id(session: Session, fiscal_note_id: UUID, context: Context, storage:
     if not fiscal_note:
         raise NotFoundError(f"Não foi possível localizar a nota fiscal com ID {fiscal_note_id}")
 
+    if not context.current_user_is_super_user and fiscal_note.owner_id != context.user_id:
+        raise NotAuthorizedError(f"Você não possui perimssão para consultar os dados da Nota Fiscal {fiscal_note_id}!")
+
     if not fiscal_note.file or not storage.check_file_exists(fiscal_note.file.bucket_key):
         raise NotFoundError(f"Não foi possível localizar o arquivo da nota fiscal {fiscal_note_id}")
 
@@ -76,7 +87,10 @@ def delete(session: Session, fiscal_note_id: UUID, context: Context, streamer: S
     fiscal_note = session.exec(select(FiscalNote).where(FiscalNote.id == fiscal_note_id)).first()
 
     if not fiscal_note:
-        raise NotFoundError(f"Não foi possível localizar a nota fiscal com ID: {fiscal_note_id}")
+        raise NotFoundError(f"Não foi possível localizar a Nota Fiscal com ID: {fiscal_note_id}")
+
+    if not context.current_user_is_super_user and fiscal_note.owner_id != context.user_id:
+        raise NotAuthorizedError(f"Você não possui permissão para exlcuir a Nota Fiscal {fiscal_note_id}!")
 
     session.delete(fiscal_note)
     session.commit()

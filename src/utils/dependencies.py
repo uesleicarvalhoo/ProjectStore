@@ -8,7 +8,7 @@ from fastapi.param_functions import Cookie, Depends, Header
 from sqlmodel import Session, select
 
 from ..core.config import settings
-from ..core.constants import ContextEnum
+from ..core.constants import AccessLevel, ContextEnum
 from ..core.helpers.database import make_session
 from ..core.helpers.exceptions import NotAuthorizedError
 from ..core.models import Context, Message, Token, User
@@ -26,18 +26,22 @@ class ContextManager:
         token = request.cookies.get(settings.ACCESS_TOKEN_NAME)
 
         try:
-            user_id = get_parsed_token(token=token).sub
+            parsed_token = get_parsed_token(token=token)
+            user_id = parsed_token.sub
+            access_level = parsed_token.access_level
             authenticated = validate_access_token(token)
 
         except NotAuthorizedError:
             user_id = "anonymous"
             authenticated = False
+            access_level = AccessLevel.ANONIMOUS
 
         return Context(
             context=self.context,
             user_id=user_id,
             method=request.url.path,
             authenticated=authenticated,
+            access_level=access_level,
             message=self.load_message(request),
         )
 
@@ -84,11 +88,6 @@ def get_parsed_token(token: str = Depends(get_token)) -> Token:
     return load_jwt_token(token)
 
 
-async def login_required(token: Token = Depends(get_token)) -> None:
-    if not validate_access_token(token):
-        raise NotAuthorizedError("Sessão expirada!")
-
-
 async def get_current_user(session: Session = Depends(make_session), token: Token = Depends(get_parsed_token)) -> User:
     user = session.exec(select(User).where(User.id == token.sub)).first()
 
@@ -96,6 +95,14 @@ async def get_current_user(session: Session = Depends(make_session), token: Toke
         raise NotAuthorizedError("Usuário não localizado")
 
     return user
+
+
+async def login_required(token: Token = Depends(get_token), current_user: User = Depends(get_current_user)) -> None:
+    if not validate_access_token(token):
+        raise NotAuthorizedError("Sessão expirada!")
+
+    if not current_user.is_active:
+        raise NotAuthorizedError("Sua licença expirou! Entre em contato com um administrador.")
 
 
 async def validate_super_user(user: User = Depends(get_current_user)) -> None:
@@ -113,7 +120,12 @@ async def refresh_access_token(response: Response, token: str, expires_delta: Un
         return None
 
     await invalidate_access_token(jwt_token=token, response=response)
-    await set_token_on_response(response, token=create_access_token(str(parsed_token.sub), expires_delta))
+    await set_token_on_response(
+        response,
+        token=create_access_token(
+            str(parsed_token.sub), access_level=parsed_token.access_level, expires_delta=expires_delta
+        ),
+    )
 
 
 async def set_token_on_response(response: Response, token: str) -> None:

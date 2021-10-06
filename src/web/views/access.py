@@ -40,6 +40,8 @@ async def auth(
     user = controller.user.authenticate(session, credentials.username, credentials.password, context=context)
 
     response = RedirectResponse(request.url_for("web:index"), status_code=HTTP_303_SEE_OTHER)
-    await set_token_on_response(response=response, token=create_access_token(str(user.id)))
+    await set_token_on_response(
+        response=response, token=create_access_token(str(user.id), access_level=user.access_level)
+    )
 
     return response

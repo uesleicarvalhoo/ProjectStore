@@ -5,7 +5,7 @@ import inject
 from sqlmodel import Session, select
 
 from src.core.events import EventCode
-from src.core.helpers.exceptions import NotFoundError
+from src.core.helpers.exceptions import NotAuthorizedError, NotFoundError
 from src.core.models import Context, CreateItem, File, FiscalNote, Item, QueryItem
 from src.core.services import Storage, Streamer
 from src.utils.miscellaneous import get_file_hash
@@ -36,7 +36,12 @@ def create(
             file={"filename": schema.filename, "hash": file_hash, "bucket_key": file.bucket_key},
         )
 
-    item_obj = Item(**schema.dict(exclude={"image": ..., "filename": ...}), fiscal_note_id=fiscal_note_id, file=file)
+    item_obj = Item(
+        **schema.dict(exclude={"image": ..., "filename": ...}),
+        fiscal_note_id=fiscal_note_id,
+        file=file,
+        owner_id=context.user_id,
+    )
     session.add(item_obj)
     session.commit()
 
@@ -46,12 +51,15 @@ def create(
 
 
 def get_all(session: Session, query_schema: QueryItem, context: Context) -> List[Item]:
-    query = select(Item)
+    args = []
+
+    if not context.current_user_is_super_user:
+        args.append(Item.owner_id == context.user_id)
 
     if query_schema.avaliable is not None:
-        query = query.where(Item.avaliable == query_schema.avaliable)
+        args.append(Item.avaliable == query_schema.avaliable)
 
-    query = query.offset(query_schema.offset)
+    query = select(Item).where(*args).offset(query_schema.offset)
 
     if query_schema.limit > 0:
         query = query.limit(query_schema.limit)
@@ -65,6 +73,9 @@ def get_by_id(session: Session, item_id: UUID, context: Context) -> Item:
     if not item:
         raise NotFoundError("Não foi possível localizar o Item com ID: %s" % item_id)
 
+    if not context.current_user_is_super_user and item.owner_id != context.user_id:
+        raise NotAuthorizedError(f"Você não possui permissão para consultar o Item {item_id}")
+
     return item
 
 
@@ -74,6 +85,9 @@ def delete(session: Session, item_id: UUID, context: Context, streamer: Streamer
 
     if not item:
         raise NotFoundError(f"Não foi possível localizar o item com ID {item_id}")
+
+    if not context.current_user_is_super_user and item.owner_id != context.user_id:
+        raise NotAuthorizedError(f"Você não possui permissão para excluir o Item {item_id}")
 
     session.delete(item)
     session.commit()

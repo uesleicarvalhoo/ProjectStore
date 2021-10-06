@@ -11,6 +11,7 @@ from .base import BaseQuerySchema
 
 if TYPE_CHECKING:
     from .order import Order
+    from .user import User
 
 
 class BaseClient(SQLModel):
@@ -39,8 +40,10 @@ class Client(BaseClient, table=True):
     __tablename__ = "clients"
 
     id: UUID = Field(default_factory=uuid4, description="Client ID", sa_column=Column("id", GUID(), primary_key=True))
+    owner_id: UUID = Field(default_factory=uuid4, description="User ID that owns the client", foreign_key="users.id")
     created_at: datetime = Field(default_factory=now_datetime)
 
+    owner: "User" = Relationship()
     orders: List["Order"] = Relationship(
         back_populates="client",
         sa_relationship_kwargs={"cascade": "all,delete", "lazy": "selectin", "passive_deletes": True},

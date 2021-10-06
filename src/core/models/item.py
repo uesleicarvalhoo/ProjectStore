@@ -13,6 +13,7 @@ from .base import BaseQuerySchema
 if TYPE_CHECKING:
     from .file import File
     from .fiscal_note import FiscalNote
+    from .user import User
 
 
 class BaseItem(SQLModel):
@@ -64,7 +65,9 @@ class Item(BaseItem, table=True):
     id: UUID = Field(default_factory=uuid4, description="ID do item", sa_column=Column("id", GUID(), primary_key=True))
     fiscal_note_id: UUID = Field(..., description="Fiscal Note ID", foreign_key="fiscal_notes.id")
     file_id: str = Field(..., description="Identation of file in storage service", foreign_key="files.bucket_key")
+    owner_id: UUID = Field(default_factory=uuid4, description="User ID that owns the file", foreign_key="users.id")
 
+    owner: "User" = Relationship()
     file: "File" = Relationship()
     fiscal_note: "FiscalNote" = Relationship(
         back_populates="items",

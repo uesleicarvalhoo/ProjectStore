@@ -12,6 +12,7 @@ from src.apm import apm
 from .base import BaseQuerySchema
 from .file import File
 from .item import CreateItem, Item
+from .user import User
 
 
 class BaseFiscalNote(SQLModel):
@@ -53,9 +54,13 @@ class FiscalNote(BaseFiscalNote, table=True):
         description="Fiscal note ID",
         sa_column=Column("id", GUID(), primary_key=True),
     )
+    owner_id: UUID = Field(
+        default_factory=uuid4, description="User ID that owns the fiscal note", foreign_key="users.id"
+    )
     file_id: str = Field(..., description="Identation of file in storage service", foreign_key="files.bucket_key")
 
     file: File = Relationship()
+    owner: User = Relationship()
     items: List[Item] = Relationship(
         sa_relationship_kwargs={"cascade": "all,delete", "lazy": "selectin", "passive_deletes": True}
     )

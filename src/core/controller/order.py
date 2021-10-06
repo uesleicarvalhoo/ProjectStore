@@ -5,16 +5,21 @@ import inject
 from sqlmodel import Session, select
 
 from src.core.events import EventCode
-from src.core.helpers.exceptions import DataValidationError, NotFoundError
+from src.core.helpers.exceptions import DataValidationError, NotAuthorizedError, NotFoundError
 from src.core.models import Client, Context, CreateOrder, Item, Order, OrderDetail, QueryOrder, UpdateOrderStatus
 from src.core.services import Streamer
 
 
 def get_all(session: Session, query_schema: QueryOrder, context: Context) -> List[Order]:
-    query = select(Order).offset(query_schema.offset)
+    args = []
 
     if query_schema.status is not None:
-        query = query.where(Order.status == query_schema.status)
+        args.append(Order.status == query_schema.status)
+
+    if not context.current_user_is_super_user:
+        args.append(Order.owner_id == context.user_id)
+
+    query = select(Order).where(*args).offset(query_schema.offset)
 
     if query_schema.limit > 0:
         query = query.limit(query_schema.limit)
@@ -27,6 +32,9 @@ def get_by_id(session: Session, order_id: UUID, context: Context) -> Order:
 
     if not order:
         raise NotFoundError("Não foi possível localizar a venda com ID: %s" % order_id)
+
+    if not context.current_user_is_super_user and order.owner_id != context.user_id:
+        raise NotAuthorizedError(f"Você não possui permissão para consultar a Venda {order_id}")
 
     return order
 
@@ -51,7 +59,7 @@ def register_sale(session: Session, schema: CreateOrder, context: Context, strea
         if not item.avaliable:
             raise DataValidationError(f"O item {item.name} de ID {item.id} não está disponível!")
 
-    order = Order(**schema.dict(exclude={"details": ...}))
+    order = Order(**schema.dict(exclude={"details": ...}), owner_id=context.user_id)
     session.add(order)
 
     for detail in schema.details:
@@ -76,6 +84,9 @@ def delete_by_id(session: Session, order_id: UUID, context: Context, streamer: S
     if not order:
         raise NotFoundError(f"Não foi possível localizar a venda com o ID: {order_id}")
 
+    if not context.current_user_is_super_user and not order.owner_id != context.user_id:
+        raise NotAuthorizedError(f"Você não possui permissão para excluir a Venda {order_id}")
+
     for item in [order.item for order in order.details]:
         item.avaliable = True
         session.add(item)
@@ -94,6 +105,9 @@ def update_status(session: Session, schema: UpdateOrderStatus, context: Context,
 
     if not order:
         raise NotFoundError(f"Não foi possível localizar a venda com o ID: {schema.order_id}")
+
+    if not context.current_user_is_super_user and order.owner_id != context.user_id:
+        raise NotAuthorizedError(f"Você não possui permissão para alterar o status da venda {schema.order_id}")
 
     order.status = schema.status
     session.add(order)

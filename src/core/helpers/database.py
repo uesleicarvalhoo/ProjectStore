@@ -6,7 +6,7 @@ from src.apm import apm
 
 from .. import controller
 from ..config import settings
-from ..constants import ContextEnum
+from ..constants import AccessLevel, ContextEnum
 from ..helpers.exceptions import NotFoundError
 from ..models import Context, CreateUser
 
@@ -43,7 +43,7 @@ def init_database() -> None:
                 email=settings.FIRST_SUPERUSER_EMAIL,
                 password=settings.FIRST_SUPERUSER_PASSWORD,
                 confirm_password=settings.FIRST_SUPERUSER_PASSWORD,
-                admin=True,
+                access_level=AccessLevel.SUPER_USER,
             )
             controller.user.create(session, schema=schema, context=context)
 
