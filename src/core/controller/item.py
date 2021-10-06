@@ -53,7 +53,7 @@ def create(
 def get_all(session: Session, query_schema: QueryItem, context: Context) -> List[Item]:
     args = []
 
-    if not context.current_user_is_super_user:
+    if not context.user_is_super_user:
         args.append(Item.owner_id == context.user_id)
 
     if query_schema.avaliable is not None:
@@ -73,7 +73,7 @@ def get_by_id(session: Session, item_id: UUID, context: Context) -> Item:
     if not item:
         raise NotFoundError("Não foi possível localizar o Item com ID: %s" % item_id)
 
-    if not context.current_user_is_super_user and item.owner_id != context.user_id:
+    if not context.user_is_super_user and item.owner_id != context.user_id:
         raise NotAuthorizedError(f"Você não possui permissão para consultar o Item {item_id}")
 
     return item
@@ -86,7 +86,7 @@ def delete(session: Session, item_id: UUID, context: Context, streamer: Streamer
     if not item:
         raise NotFoundError(f"Não foi possível localizar o item com ID {item_id}")
 
-    if not context.current_user_is_super_user and item.owner_id != context.user_id:
+    if not context.user_is_super_user and item.owner_id != context.user_id:
         raise NotAuthorizedError(f"Você não possui permissão para excluir o Item {item_id}")
 
     session.delete(item)

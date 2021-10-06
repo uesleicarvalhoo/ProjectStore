@@ -125,6 +125,4 @@ venv.bak/
 
 # Others
 node_modules
-
-versions_old
-old_*
+./data

@@ -14,7 +14,7 @@ class Message(BaseModel):
 class Context(BaseModel):
     context: ContextEnum
     user_id: Union[UUID, int, str, None]
-    current_user_access_level: bool = False
+    user_access_level: bool = False
     method: str
     authenticated: bool = False
     message: Optional[Message]
@@ -23,5 +23,5 @@ class Context(BaseModel):
         self.message = Message(header=header, text=text)
 
     @property
-    def current_user_is_super_user(self) -> bool:
-        return self.current_user_access_level == AccessLevel.SUPER_USER
+    def user_is_super_user(self) -> bool:
+        return self.user_access_level == AccessLevel.SUPER_USER

@@ -30,7 +30,6 @@ app = FastAPI(
     default_response_class=HTMLResponse,
 )
 
-# TODO: Tentar servir as imagens do S3
 app.mount("/static", StaticFiles(directory="src/web/static"), name="static")
 app.include_router(views.endpoints)
 

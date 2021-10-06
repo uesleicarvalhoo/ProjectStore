@@ -29,7 +29,7 @@ def create(session: Session, schema: CreateClient, context: Context, streamer: S
 def get_all(session: Session, query_schema: QueryClient, context: Context) -> List[Client]:
     query = select(Client).offset(query_schema.offset)
 
-    if not context.current_user_is_super_user:
+    if not context.user_is_super_user:
         query = query.where(Client.owner_id == context.user_id)
 
     if query_schema.limit > 0:
@@ -44,7 +44,7 @@ def get_by_id(session: Session, client_id: UUID, context: Context) -> Client:
     if not client:
         raise NotFoundError(f"Não foi possível localizar o Client com ID: {client_id}")
 
-    if not context.current_user_is_super_user and client.owner_id != context.user_id:
+    if not context.user_is_super_user and client.owner_id != context.user_id:
         raise NotAuthorizedError(f"Você não possui perimssão para consultar os dados do cliente com ID {client_id}!")
 
     return client
@@ -57,7 +57,7 @@ def delete(session: Session, client_id: UUID, context: Context, streamer: Stream
     if not client:
         raise NotFoundError(f"Não foi possível localizar o Cliente com ID: {client_id}")
 
-    if not context.current_user_is_super_user and client.owner_id != context.user_id:
+    if not context.user_is_super_user and client.owner_id != context.user_id:
         raise NotAuthorizedError(f"Você não possui permissão para excluir o Cliente com ID: {client_id}")
 
     session.delete(client)
@@ -75,7 +75,7 @@ def update(session: Session, data: UpdateClient, context: Context, streamer: Str
     if not client:
         raise NotFoundError(f"Não foi possível localizar o Client com ID: {data.id}")
 
-    if not context.current_user_is_super_user and client.owner_id != context.user_id:
+    if not context.user_is_super_user and client.owner_id != context.user_id:
         raise NotAuthorizedError(f"Você não possui permissão para excluir o Cliente com ID: {data.id}")
 
     columns = client.__table__.columns.keys()

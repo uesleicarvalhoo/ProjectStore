@@ -16,7 +16,7 @@ def get_all(session: Session, query_schema: QueryOrder, context: Context) -> Lis
     if query_schema.status is not None:
         args.append(Order.status == query_schema.status)
 
-    if not context.current_user_is_super_user:
+    if not context.user_is_super_user:
         args.append(Order.owner_id == context.user_id)
 
     query = select(Order).where(*args).offset(query_schema.offset)
@@ -33,7 +33,7 @@ def get_by_id(session: Session, order_id: UUID, context: Context) -> Order:
     if not order:
         raise NotFoundError("Não foi possível localizar a venda com ID: %s" % order_id)
 
-    if not context.current_user_is_super_user and order.owner_id != context.user_id:
+    if not context.user_is_super_user and order.owner_id != context.user_id:
         raise NotAuthorizedError(f"Você não possui permissão para consultar a Venda {order_id}")
 
     return order
@@ -84,7 +84,7 @@ def delete_by_id(session: Session, order_id: UUID, context: Context, streamer: S
     if not order:
         raise NotFoundError(f"Não foi possível localizar a venda com o ID: {order_id}")
 
-    if not context.current_user_is_super_user and not order.owner_id != context.user_id:
+    if not context.user_is_super_user and not order.owner_id != context.user_id:
         raise NotAuthorizedError(f"Você não possui permissão para excluir a Venda {order_id}")
 
     for item in [order.item for order in order.details]:
@@ -106,7 +106,7 @@ def update_status(session: Session, schema: UpdateOrderStatus, context: Context,
     if not order:
         raise NotFoundError(f"Não foi possível localizar a venda com o ID: {schema.order_id}")
 
-    if not context.current_user_is_super_user and order.owner_id != context.user_id:
+    if not context.user_is_super_user and order.owner_id != context.user_id:
         raise NotAuthorizedError(f"Você não possui permissão para alterar o status da venda {schema.order_id}")
 
     order.status = schema.status
