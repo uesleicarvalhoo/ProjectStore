@@ -14,10 +14,10 @@
 <!--ts-->
 * [Instalação](#instalação)
 * [Testes](#testes)
+* [TODO's](#todo's)
 * [Tecnologias](#tecnologias)
 * [Licença](#licença)
 * [Contato](#contato)
-* [Todo's](#todo's)
 
 <!--te-->
 
