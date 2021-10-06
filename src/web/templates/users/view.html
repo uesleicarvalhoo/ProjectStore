@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "components/pagination.html" import render_pagination %}
+
+{% block content %}
+<div class="w-full overflow-hidden rounded-lg shadow-xs">
+  <div class="w-full overflow-x-auto">
+    <table class="w-full whitespace-no-wrap">
+      <thead>
+        <tr
+          class="text-xs font-semibold tracking-wide text-center text-white uppercase border-b dark:border-gray-700 bg-purple-500 dark:text-gray-400 dark:bg-gray-800">
+          <th class="px-4 py-3">Nome</th>
+          <th class="px-4 py-3">Email</th>
+          <th class="px-4 py-3">Administrador</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+        {% for user in users %}
+        <tr class="text-gray-700 text-center dark:text-gray-400">
+          <td class="px-4 py-3">
+            <div class="flex items-center text-sm">
+              <!-- Avatar with inset shadow -->
+              <div class="relative hidden w-8 h-8 mr-3 rounded-full md:block">
+                <img class="object-cover w-full h-full rounded-full"
+                  src="{{ url_for('web:static', path='img/user.png')}}" alt="" loading="lazy" />
+                <div class="absolute inset-0 rounded-full shadow-inner" aria-hidden="true"></div>
+              </div>
+              <div>
+                <p class="font-semibold">{{user.name}}</p>
+              </div>
+            </div>
+          </td>
+          <td class="px-4 py-3 text-sm">
+            {{ user.email }}
+          </td>
+          <td class="px-4 py-3 text-xs">
+            <span class="px-4 py-3 text-sm">
+              {{ user.is_super_user }}
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {{ render_pagination(request, current_page=current_page, items_per_page=items_per_page, total_items=total_items,
+  endpoint="web:users_view") }}
+</div>
+{% endblock content %}
