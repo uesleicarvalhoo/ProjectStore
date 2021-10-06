@@ -21,7 +21,7 @@ revision:
 	@PYTHONPATH="${PYTHONPATH}" alembic revision --autogenerate
 
 upgrade:
-	@PYTHONPATH="${PYTHONPATH}" alembic upgrade head
+	@PYTHONPATH="${PYTHONPATH}" poetry run alembic upgrade head
 
 downgrade:
 	@PYTHONPATH="${PYTHONPATH}" alembic downgrade head

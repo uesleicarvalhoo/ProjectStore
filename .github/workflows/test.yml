@@ -40,9 +40,6 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
-      - name: Start Poetry shell
-        run: poetry shell
-
       - name: Run migrations
         run: make upgrade
 
