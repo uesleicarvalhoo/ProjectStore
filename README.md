@@ -14,7 +14,7 @@ Tabela de conteúdos
 =================
 <!--ts-->
    * [Instalação](#instalação)
-   * [Tests](#testes)
+   * [Testes](#testes)
    * [Tecnologias](#tecnologias)
 <!--te-->
 
@@ -67,7 +67,7 @@ A aplicação possui testes automatizados, para roda-los é bem simples, apenas 
   $ make test
 ```
 
-### 🛠 Tecnologias
+### Tecnologias
 
 As seguintes ferramentas foram usadas na construção do projeto:
 
