@@ -9,9 +9,8 @@
 <img src="https://img.shields.io/static/v1?label=Version&message=0.0.0&color=7159c1&plastic"/>
 </p>
 
-Tabela de conteúdos
+## Tabela de conteúdos
 
-=================
 <!--ts-->
 * [Instalação](#instalação)
 * [Testes](#testes)
