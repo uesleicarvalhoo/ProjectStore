@@ -6,8 +6,8 @@
 </h4>
 
 <p align="center">
-<img src="https://img.shields.io/static/v1?label=License&message=MIT&color=7159c1&plastic&logo=ghost"/>
-<img src="https://img.shields.io/static/v1?label=Version&message=0.0.0&color=7159c1&plastic&logo=ghost"/>
+<img src="https://img.shields.io/static/v1?label=License&message=MIT&color=7159c1&plastic"/>
+<img src="https://img.shields.io/static/v1?label=Version&message=0.0.0&color=7159c1&plastic"/>
 </p>
 
 Tabela de conteúdos
@@ -16,6 +16,10 @@ Tabela de conteúdos
    * [Instalação](#instalação)
    * [Testes](#testes)
    * [Tecnologias](#tecnologias)
+   * [Licença](#licença)
+   * [Contato](#contato)
+   * [Todo's](#todo's)
+
 <!--te-->
 
 # Instalação
@@ -67,6 +71,15 @@ A aplicação possui testes automatizados, para roda-los é bem simples, apenas 
   $ make test
 ```
 
+### TODO's
+- [ ] Converter a aplicação em micro-serviços separando o back e o front
+- [ ] Implementar testes de integração para a API e WEB
+- [ ] Gerar notas fiscais para cada venda realizada
+- [ ] Adicionar o controle de estoque
+- [ ] Criar a função de recuperar a senha
+- [ ] Criar micro-serviço para envio de emails 
+
+
 ### Tecnologias
 
 As seguintes ferramentas foram usadas na construção do projeto:
@@ -75,3 +88,17 @@ As seguintes ferramentas foram usadas na construção do projeto:
 - [Node.js](https://nodejs.org/en/)
 - [TailwindCSS](https://tailwindcss.com/docs/height)
 
+
+### Licença
+
+Este projeto está licenciado nos termos da licença MIT, para mais detalhes consulte o arquivo LICENSE.
+
+
+### Contato
+Olá, sou Ueslei Carvalho 👋🏻 criador e mantenedor deste projeto. Caso queira entrar em contato comigo, fique a vontade para utilizar qualquer um dos canais abaixo! :)
+
+https://www.linkedin.com/in/uesleicarvalhoo/
+
+📧 uesleicdoliveira@gmail.com
+
+📷 https://www.instagram.com/uesleicarvalhoo/
