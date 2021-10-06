@@ -1,4 +1,5 @@
 # Variables
+include .env
 PYTHONPATH = $(shell pwd)
 
 run:
