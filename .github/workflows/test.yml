@@ -9,10 +9,11 @@ on:
 jobs:
   run_tests:
     runs-on: ubuntu-latest
+    environment: testing
 
     env:
       ENVIRONMENT: test
-      SQLALCHEMY_DB_URI: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_PORT }}:${{secrets.POSTGRES_PORT}}/${{ secrets.POSTGRES_DATABASE }}
+      SQLALCHEMY_DB_URI: postgresql://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@${{ secrets.POSTGRES_HOST }}:${{secrets.POSTGRES_PORT}}/${{ secrets.POSTGRES_DATABASE }}
       APPLICATION_NAME: test-store
       SECRET_KEY: ${{secrets.SECRET_KEY}}
       FIRST_SUPERUSER_NAME: ${{ secrets.FIRST_SUPERUSER_NAME }}
