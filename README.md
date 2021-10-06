@@ -79,6 +79,7 @@ A aplicação possui testes automatizados, para roda-los é bem simples, apenas 
 - [ ] Adicionar o controle de estoque
 - [ ] Criar a função de recuperar a senha
 - [ ] Criar micro-serviço para envio de emails
+- [ ] Action para deploy na AWS
 
 ### Tecnologias
 
