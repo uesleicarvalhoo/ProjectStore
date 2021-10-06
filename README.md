@@ -86,6 +86,7 @@ A aplicação possui testes automatizados, para roda-los é bem simples, apenas 
 As seguintes ferramentas foram usadas na construção do projeto:
 
 * [FastAPI](https://fastapi.tiangolo.com/)
+* [SQLModel](https://sqlmodel.tiangolo.com/)
 * [Node.js](https://nodejs.org/en/)
 * [TailwindCSS](https://tailwindcss.com/docs/height)
 
