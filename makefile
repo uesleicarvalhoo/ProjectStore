@@ -5,6 +5,9 @@ PYTHONPATH = $(shell pwd)
 run:
 	@uvicorn "src.app:app" --port 5000 --reload
 
+deploy: upgrade
+	@poetry run gunicorn src.app:app -c "./src/gunicorn.py"
+
 test:
 	@ENVIRONMENT=test pytest tests
 

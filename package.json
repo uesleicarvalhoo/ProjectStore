@@ -1,52 +1,23 @@
 {
   "name": "store",
-  "version": "0.0.0",
-  "description": "E-commerce",
+  "version": "1.0.0",
+  "description": "Aplicação para controle de vendas para micro e pequenas empresas 🚀",
+  "author": "Ueslei Carvalho de Oliveira <uesleicdoliveira@gmail.com>",
+  "license": "MIT",
   "scripts": {
     "tailwind": "tailwindcss build -i  src/web/static/base/css/main.css -o src/web/static/css/main.css",
-    "build": "env NODE_ENV=production postcss src/web/static/base/css/main.css -o src/web/static/css/main.css",
-    "cz": "git-cz",
-    "release": "release-it"
+    "build": "env NODE_ENV=production postcss src/web/static/base/css/main.css -o src/web/static/css/main.css"
   },
-  "author": "Estevan Maito <ejmaito@gmail.com>",
-  "license": "MIT",
   "devDependencies": {
-    "@release-it/conventional-changelog": "1.1.4",
-    "@tailwindcss/custom-forms": "0.2.1",
-    "autoprefixer": "9.8.0",
-    "color": "3.1.2",
-    "commitizen": "^4.2.4",
-    "cssnano": "4.1.10",
-    "cz-conventional-changelog": "3.2.0",
-    "postcss-cli": "7.1.1",
-    "release-it": "^13.7.2",
-    "tailwindcss": "^2.2.7",
-    "tailwindcss-multi-theme": "1.0.3"
-  },
-  "keywords": [
-    "tailwind",
-    "windmill",
-    "dashboard",
-    "template",
-    "admin"
-  ],
-  "release-it": {
-    "github": {
-      "release": true
-    },
-    "npm": {
-      "publish": false
-    },
-    "plugins": {
-      "@release-it/conventional-changelog": {
-        "preset": "angular",
-        "infile": "CHANGELOG.md"
-      }
-    }
-  },
-  "config": {
-    "commitizen": {
-      "path": "./node_modules/cz-conventional-changelog"
-    }
+    "@tailwindcss/custom-forms": "^0.2.1",
+    "@tailwindcss/forms": "^0.3.3",
+    "autoprefixer": "^10.2.6",
+    "cors": "^2.8.5",
+    "cssnano": "^5.0.8",
+    "jquery": "^3.6.0",
+    "postcss": "^8.3.5",
+    "postcss-cli": "^8.3.1",
+    "tailwindcss": "^2.0.4",
+    "tailwindcss-multi-theme": "^1.0.4"
   }
 }

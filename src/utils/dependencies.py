@@ -106,7 +106,7 @@ async def login_required(token: Token = Depends(get_token), current_user: User =
 
 
 async def validate_super_user(user: User = Depends(get_current_user)) -> None:
-    if not user.admin:
+    if not user.is_super_user:
         raise NotAuthorizedError("Essa página só está disponível para administradores")
 
 
