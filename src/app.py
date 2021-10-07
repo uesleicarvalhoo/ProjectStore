@@ -18,7 +18,7 @@ app.mount(path=f"{settings.BASE_PATH}/", app=web.app, name="web")
 
 
 @app.on_event("startup")
-async def create_first_super_user():
+async def app_init_database():
     logger.info("Starting database, creating initial data..")
     init_database()
     logger.info("Database started, initial data created.")

@@ -20,7 +20,7 @@ class BaseOrder(SQLModel):
     )
 
     date: date_ = Field(..., description="Purchase date")
-    status: OrderStatus = Field(..., description="Purchase Status", sa_column=Column(Enum(OrderStatus)))
+    status: OrderStatus = Field(..., description="Purchase Status", sa_column=Column(Enum(OrderStatus), nullable=False))
     description: str = Field(None, description="Description of sale")
 
 

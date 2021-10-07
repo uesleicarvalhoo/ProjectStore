@@ -2,7 +2,7 @@ from typing import TYPE_CHECKING, Any, Dict, List
 from uuid import UUID, uuid4
 
 from pydantic import EmailStr, validator
-from sqlmodel import Column, Field, Relationship, SQLModel
+from sqlmodel import Column, Enum, Field, Relationship, SQLModel
 from sqlmodel.sql.sqltypes import GUID
 
 from src.core.constants import AccessLevel
@@ -19,7 +19,11 @@ if TYPE_CHECKING:
 class BaseUser(SQLModel):
     name: str = Field(..., description="Username")
     email: EmailStr = Field(..., description="Email of the user")
-    access_level: AccessLevel = Field(AccessLevel.USER, description="Level of access access permission of that user")
+    access_level: AccessLevel = Field(
+        AccessLevel.USER,
+        description="Level of access access permission of that user",
+        sa_column=Column(Enum(AccessLevel), nullable=False),
+    )
     active: bool = Field(True, description="Flag to identify if user is active")
 
     @validator("name")
