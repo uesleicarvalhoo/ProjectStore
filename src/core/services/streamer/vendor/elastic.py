@@ -1,8 +1,8 @@
 from elasticsearch import Elasticsearch
 
-from src.apm import apm
+from src.core.config import settings
 from src.core.events import EventCode
-from src.core.helpers.logger import log_error
+from src.core.helpers.logger import capture_exception, log_error
 from src.core.models import Context, Event
 
 from .. import Streamer
@@ -17,11 +17,11 @@ class ElasticStreamer(Streamer):
             event = Event(event_code=event_code, context=context, data=data)
 
             cls.client.create(
-                index="events-store",
+                index=f"events-{settings.APPLICATION_NAME}",
                 id=event.id,
                 document=event.json(by_alias=True, exclude={"context": {"message"}}),
             )
 
         except Exception as exc:
-            apm.capture_exception()
+            capture_exception()
             log_error(f"Some error ocurred when send events: {str(exc)}")

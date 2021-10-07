@@ -7,11 +7,11 @@ from sqlmodel import Session, select
 from src.core.events import EventCode
 from src.core.helpers.exceptions import DatabaseError, NotAuthorizedError, NotFoundError
 from src.core.models import Client, Context, CreateClient, QueryClient, UpdateClient
-from src.core.services import Streamer
+from src.core.services import Broker
 
 
-@inject.params(streamer=Streamer)
-def create(session: Session, schema: CreateClient, context: Context, streamer: Streamer) -> Client:
+@inject.params(broker=Broker)
+def create(session: Session, schema: CreateClient, context: Context, broker: Broker) -> Client:
     if session.exec(select(Client).where(Client.email == schema.email)).first():
         raise DatabaseError("Já existe um cliente cadastrado com o email: %s" % schema.email)
 
@@ -21,7 +21,7 @@ def create(session: Session, schema: CreateClient, context: Context, streamer: S
     client = Client(**schema.dict(), owner_id=context.user_id)
     session.add(client)
     session.commit()
-    streamer.send_event(EventCode.CREATE_USER, context=context, client=client.dict())
+    broker.send_event(EventCode.CREATE_USER, context=context, client=client.dict())
 
     return client
 
@@ -50,8 +50,8 @@ def get_by_id(session: Session, client_id: UUID, context: Context) -> Client:
     return client
 
 
-@inject.params(streamer=Streamer)
-def delete(session: Session, client_id: UUID, context: Context, streamer: Streamer) -> Client:
+@inject.params(broker=Broker)
+def delete(session: Session, client_id: UUID, context: Context, broker: Broker) -> Client:
     client = session.exec(select(Client).where(Client.id == client_id)).first()
 
     if not client:
@@ -63,13 +63,13 @@ def delete(session: Session, client_id: UUID, context: Context, streamer: Stream
     session.delete(client)
     session.commit()
 
-    streamer.send_event(event_code=EventCode.DELETE_ITEM, context=context, client=client.dict())
+    broker.send_event(event_code=EventCode.DELETE_ITEM, context=context, client=client.dict())
 
     return client
 
 
-@inject.params(streamer=Streamer)
-def update(session: Session, data: UpdateClient, context: Context, streamer: Streamer) -> None:
+@inject.params(broker=Broker)
+def update(session: Session, data: UpdateClient, context: Context, broker: Broker) -> None:
     client = session.exec(select(Client).where(Client.id == data.id)).first()
 
     if not client:
@@ -89,7 +89,7 @@ def update(session: Session, data: UpdateClient, context: Context, streamer: Str
     session.add(client)
     session.commit()
 
-    streamer.send_event(
+    broker.send_event(
         event_code=EventCode.UPDATE_CLIENT,
         context=context,
         data={"client_data": client.dict(), "update_schema": data.dict()},

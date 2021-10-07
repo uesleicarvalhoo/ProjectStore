@@ -9,3 +9,7 @@ logger = logging.getLogger(__name__)
 def log_error(message: str, exc_info: Exception = None) -> None:
     logger.error(message, exc_info=exc_info)
     apm.capture_exception()
+
+
+def capture_exception(exc_info: Exception = None, handled: bool = True, **kwargs) -> None:
+    apm.capture_exception(exc_info=exc_info, handled=handled, **kwargs)

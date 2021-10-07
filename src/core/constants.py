@@ -31,7 +31,7 @@ class OrderStatus(IntEnum):
 
 
 @unique
-class AccessLevel(IntEnum):
-    ANONIMOUS: int = 0
-    USER: int = 1
-    SUPER_USER: int = 2
+class AccessLevel(str, Enum):
+    ANONIMOUS: str = "ANONIMOUS"
+    USER: str = "USER"
+    SUPER_USER: str = "SUPER_USER"

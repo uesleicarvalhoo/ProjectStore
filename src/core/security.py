@@ -9,9 +9,9 @@ from passlib.context import CryptContext
 from pydantic.error_wrappers import ValidationError
 from starlette.responses import Response
 
-from src.apm import apm
 from src.core.constants import AccessLevel
 from src.core.helpers.exceptions import NotAuthorizedError
+from src.core.helpers.logger import capture_exception
 from src.core.services import CacheClient
 from src.utils.date import now_datetime
 
@@ -49,11 +49,11 @@ def load_jwt_token(token: str) -> Token:
         return Token(**jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM]))
 
     except ExpiredSignatureError:
-        apm.capture_exception()
+        capture_exception()
         raise NotAuthorizedError("Sessão expirada")
 
     except (jwt.JWTError, ValidationError):
-        apm.capture_exception()
+        capture_exception()
         raise NotAuthorizedError("Não foi possível validar as suas credenciais")
 
 

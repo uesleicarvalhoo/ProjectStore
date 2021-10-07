@@ -2,7 +2,7 @@ from typing import Generator
 
 from sqlmodel import Session, SQLModel, create_engine
 
-from src.apm import apm
+from src.core.helpers.logger import capture_exception
 
 from .. import controller
 from ..config import settings
@@ -21,7 +21,7 @@ def make_session() -> Generator[None, Session, None]:
 
         except Exception as err:
             session.rollback()
-            apm.capture_exception()
+            capture_exception()
             raise err
 
 

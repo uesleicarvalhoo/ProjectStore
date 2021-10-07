@@ -19,8 +19,10 @@ jobs:
       FIRST_SUPERUSER_NAME: ${{ secrets.FIRST_SUPERUSER_NAME }}
       FIRST_SUPERUSER_EMAIL: ${{ secrets.FIRST_SUPERUSER_EMAIL }}
       FIRST_SUPERUSER_PASSWORD: ${{ secrets.FIRST_SUPERUSER_PASSWORD }}
-      CACHE: ${{ secrets.CACHE_HOST }}
-      STATIC_FILES_HOST: ${{ secrets.STATIC_FILES_HOST }}
+      CACHE_HOST: ${{ secrets.CACHE_HOST }}
+      STORAGE_URL: ${{ secrets.STORAGE_URL }}
+      STORAGE_BUCKET: ${{ secrets.STORAGE_BUCKET }}
+      EVENTS_SQS_QUEUE: ${{ secrets.EVENTS_SQS_QUEUE }}
       VERSION: 0.0.0
 
     services:

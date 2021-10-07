@@ -7,11 +7,11 @@ from src.core.config import settings
 
 from .. import Storage
 
-DEFAULT_BUCKET = settings.AWS_S3_BUCKET
+DEFAULT_BUCKET = settings.STORAGE_BUCKET
 
 
 class StorageS3(Storage):
-    __client = boto3.client("s3", endpoint_url=settings.AWS_S3_URL)
+    __client = boto3.client("s3", endpoint_url=settings.STORAGE_URL)
 
     def upload_file(self, file: Union[str, bytes], key: str, bucket: str = DEFAULT_BUCKET) -> str:
         binary = file
