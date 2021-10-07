@@ -6,4 +6,7 @@ module.exports = {
       preset: 'default',
     }),
   ],
+  purge: [
+    './src/**/*.html',
+  ]
 }
