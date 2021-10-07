@@ -32,4 +32,4 @@ class File(BaseFile, table=True):
 
     @property
     def src_url(self) -> str:
-        return f"{settings.STATIC_FILES_HOST}/{self.bucket_key}"
+        return f"{settings.STORAGE_URL}/{self.bucket_key}"

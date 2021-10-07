@@ -51,18 +51,19 @@ class Settings(BaseSettings):
         return value.lower().replace("-", "_")
 
     # Monitoring
-    APM_SERVER_URL: AnyHttpUrl = Field("http://localhost:8200/")
+    APM_SERVER_URL: AnyHttpUrl = Field("http://localhost:8200")
 
     # AWS
-    AWS_S3_URL: AnyHttpUrl = Field("http://localhost:4566")
-    AWS_S3_BUCKET: str = Field("storage")
-    AWS_REGION_NAME: str = "us-east-1"
+    AWS_URL: AnyHttpUrl = Field("http://localhost:4566")
+    AWS_REGION: str = Field("sa-east-1")
 
-    # Files
-    STATIC_FILES_HOST: str = Field(...)
+    # Services
+    STORAGE_URL: AnyHttpUrl = Field("http://localhost:4566")
+    STORAGE_BUCKET: str = Field("storage")
+    EVENTS_SQS_QUEUE: str = Field("http://localhost:4566")
 
     # Cache
-    CACHE: RedisDsn = Field(...)
+    CACHE_HOST: RedisDsn = Field(...)
 
     # First Super user
     FIRST_SUPERUSER_NAME: str = Field(...)
@@ -77,7 +78,7 @@ class AppSettings(BaseSettings):
     # Application
     VERSION: str
     APPLICATION_NAME: str = Field(...)
-    STATIC_FILES_HOST: str = Field(...)
+    STORAGE_URL: str = Field(...)
 
     @validator("APPLICATION_NAME")
     def normalize_application_name(cls, value: str) -> str:

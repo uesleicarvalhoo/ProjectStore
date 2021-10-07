@@ -23,7 +23,8 @@ def upgrade():
         sa.Column("id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
         sa.Column("name", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("email", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.Column("admin", sa.Boolean(), nullable=True),
+        sa.Column("access_level", sa.Enum("ANONIMOUS", "USER", "SUPER_USER", name="access_level"), nullable=True),
+        sa.Column("active", sa.Boolean(), nullable=True),
         sa.Column("password_hash", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
@@ -73,7 +74,7 @@ def upgrade():
     op.create_index(op.f("ix_fiscal_notes_purchase_date"), "fiscal_notes", ["purchase_date"], unique=False)
     op.create_table(
         "orders",
-        sa.Column("status", sa.Enum("PENDING", "COMPLETED", "CANCELED", name="orderstatus"), nullable=True),
+        sa.Column("status", sa.Enum("PENDING", "COMPLETED", "CANCELED", name="orderstatus"), nullable=False),
         sa.Column("id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
         sa.Column("client_id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
         sa.Column("date", sa.Date(), nullable=False),

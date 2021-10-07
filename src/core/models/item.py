@@ -6,7 +6,7 @@ from pydantic import PositiveFloat, validator
 from sqlmodel import Column, Field, Relationship, SQLModel
 from sqlmodel.sql.sqltypes import GUID
 
-from src.apm import apm
+from src.core.helpers.logger import capture_exception
 
 from .base import BaseQuerySchema
 
@@ -37,7 +37,7 @@ class CreateItem(BaseItem):
             return b64decode(value)
 
         except Exception:
-            apm.capture_exception()
+            capture_exception()
             raise ValueError("Couldn't decode the file!")
 
     @validator("sugested_sell_value")

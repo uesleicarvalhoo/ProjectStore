@@ -9,9 +9,9 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import RedirectResponse
 
-from src.apm import apm
 from src.core.config import AppSettings, settings
 from src.core.helpers.exceptions import DataValidationError, InvalidCredentialError, NotAuthorizedError
+from src.core.helpers.logger import capture_exception
 from src.core.models import Context
 from src.utils.dependencies import refresh_access_token, validate_access_token, web_context_manager
 
@@ -95,7 +95,7 @@ async def schema_validation_error(
     exc: RequestValidationError,
     context: Context = Depends(web_context_manager),
 ):
-    apm.capture_exception()
+    capture_exception()
 
     return templates.TemplateResponse(
         "error.html",
@@ -135,7 +135,7 @@ async def error(
     context: Context = Depends(web_context_manager),
 ):
 
-    apm.capture_exception()
+    capture_exception()
     return templates.TemplateResponse(
         "error.html",
         context={

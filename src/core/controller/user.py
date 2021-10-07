@@ -9,11 +9,11 @@ from src.core.events import EventCode
 from src.core.helpers.exceptions import DatabaseError, InvalidCredentialError, NotFoundError
 from src.core.models import Context, CreateUser, QueryUser, User
 from src.core.security import get_password_hash, verify_password
-from src.core.services import Streamer
+from src.core.services import Broker
 
 
-@inject.params(streamer=Streamer)
-def create(session: Session, schema: CreateUser, context: Context, streamer: Streamer) -> User:
+@inject.params(broker=Broker)
+def create(session: Session, schema: CreateUser, context: Context, broker: Broker) -> User:
     if session.exec(select(User).where(User.email == schema.email)).first():
         raise DatabaseError("Já existe um usuário cadastrado com o email: %s" % schema.email)
 
@@ -24,7 +24,7 @@ def create(session: Session, schema: CreateUser, context: Context, streamer: Str
     session.add(user)
     session.commit()
 
-    streamer.send_event(event_code=EventCode.CREATE_USER, context=context, **{"user": user.dict()})
+    broker.send_event(event_code=EventCode.CREATE_USER, context=context, **{"user": user.dict()})
 
     return user
 
@@ -58,15 +58,15 @@ def get_all(session: Session, query_schema: QueryUser, context: Context) -> List
     return session.exec(query).all()
 
 
-@inject.params(streamer=Streamer)
-def delete(session: Session, user_id: UUID, context: Context, streamer: Streamer) -> User:
+@inject.params(broker=Broker)
+def delete(session: Session, user_id: UUID, context: Context, broker: Broker) -> User:
     user = session.exec(select(User).where(User.id == user_id)).first()
 
     if not user:
         raise NotFoundError(f"Não foi possível localiazar o usuário com ID: {user_id}")
 
     session.delete(user)
-    streamer.send_event(EventCode.DELETE_USER, context=context, user=user.dict())
+    broker.send_event(EventCode.DELETE_USER, context=context, user=user.dict())
 
     return user
 
