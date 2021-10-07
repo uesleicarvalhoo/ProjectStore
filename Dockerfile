@@ -19,4 +19,4 @@ ADD . .
 
 EXPOSE 80
 
-ENTRYPOINT ["gunicorn", "src.app:app", "-c", "./src/gunicorn.py"]
+ENTRYPOINT ["make", "deploy"]
