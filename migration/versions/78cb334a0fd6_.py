@@ -23,7 +23,7 @@ def upgrade():
         sa.Column("id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
         sa.Column("name", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("email", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.Column("access_level", sa.Enum("ANONIMOUS", "USER", "SUPER_USER", name="access_level"), nullable=True),
+        sa.Column("access_level", sa.Enum("ANONIMOUS", "USER", "SUPER_USER", name="accesslevel"), nullable=False),
         sa.Column("active", sa.Boolean(), nullable=True),
         sa.Column("password_hash", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.PrimaryKeyConstraint("id"),

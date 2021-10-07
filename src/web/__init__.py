@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 from starlette.middleware.base import RequestResponseEndpoint
 from starlette.responses import RedirectResponse
 
-from src.core.config import AppSettings, settings
+from src.core.config import settings
 from src.core.helpers.exceptions import DataValidationError, InvalidCredentialError, NotAuthorizedError
 from src.core.helpers.logger import capture_exception
 from src.core.models import Context
@@ -58,12 +58,24 @@ async def refresh_session(request: Request, call_next: RequestResponseEndpoint):
 async def http_404_not_found(
     request: Request,
     exc: Exception,
-    settings: AppSettings = Depends(),
     context: Context = Depends(web_context_manager),
 ):
     return templates.TemplateResponse(
         "not_found.html",
-        context={"request": request, "error": exc, "settings": settings, "context": context},
+        context={"request": request, "error": exc, "context": context},
+        status_code=status.HTTP_404_NOT_FOUND,
+    )
+
+
+@app.exception_handler(status.HTTP_404_NOT_FOUND)
+async def not_found_error(
+    request: Request,
+    exc: Exception,
+    context: Context = Depends(web_context_manager),
+):
+    return templates.TemplateResponse(
+        "not_found.html",
+        context={"request": request, "error": exc, "context": context},
         status_code=status.HTTP_404_NOT_FOUND,
     )
 
@@ -79,7 +91,7 @@ async def not_authorized(request: Request, exc: NotAuthorizedError):
 
 
 @app.exception_handler(InvalidCredentialError)
-async def not_authorized(request: Request, exc: InvalidCredentialError):
+async def invalid_credentials(request: Request, exc: InvalidCredentialError):
     send_message(
         request,
         "Acesso não autorizado",
@@ -131,7 +143,6 @@ async def validation_error(
 async def error(
     request: Request,
     exc: Exception,
-    settings: AppSettings = Depends(),
     context: Context = Depends(web_context_manager),
 ):
 
@@ -141,7 +152,6 @@ async def error(
         context={
             "request": request,
             "error": exc,
-            "settings": settings,
             "context": context,
             "error_description": "400 - Erro interno",
         },
