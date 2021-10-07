@@ -11,7 +11,7 @@ DEFAULT_BUCKET = settings.STORAGE_BUCKET
 
 
 class StorageS3(Storage):
-    __client = boto3.client("s3", endpoint_url=settings.STORAGE_URL)
+    __client = boto3.client("s3", endpoint_url=settings.STORAGE_URL, region_name=settings.AWS_REGION)
 
     def upload_file(self, file: Union[str, bytes], key: str, bucket: str = DEFAULT_BUCKET) -> str:
         binary = file

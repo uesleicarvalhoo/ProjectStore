@@ -9,7 +9,7 @@ from .. import Broker
 
 
 class SQSBroker(Broker):
-    __client = boto3.client("sqs", endpoint_url=settings.AWS_URL)
+    __client = boto3.client("sqs", endpoint_url=settings.AWS_URL, region_name=settings.AWS_REGION)
 
     def send_event(self, event_code: EventCode, context: Context, **data) -> None:
         try:

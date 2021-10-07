@@ -54,8 +54,10 @@ class Settings(BaseSettings):
     APM_SERVER_URL: AnyHttpUrl = Field("http://localhost:8200")
 
     # AWS
-    AWS_URL: str = Field("http://localhost:4566")
+    AWS_URL: AnyHttpUrl = Field("http://localhost:4566")
+    AWS_REGION: str = Field("sa-east-1")
 
+    # Services
     STORAGE_URL: AnyHttpUrl = Field("http://localhost:4566")
     STORAGE_BUCKET: str = Field("storage")
     EVENTS_SQS_QUEUE: str = Field("http://localhost:4566")
