@@ -34,4 +34,4 @@ jobs:
         run: poetry run flake8 src tests migration
 
       - name: Run AutoFlake8
-        run: poetry run autoflake8 --remove-unused-variables --recursive src tests migration
+        run: poetry run autoflake8--remove-unused-variables --recursive --exclude=__init__.py src tests migration
