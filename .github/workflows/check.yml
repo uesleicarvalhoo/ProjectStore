@@ -25,10 +25,13 @@ jobs:
         run: poetry install
 
       - name: Run Black
-        run: poetry run black --check src tests
+        run: poetry run black --check src tests migration
 
       - name: Run Isort
-        run: poetry run isort --check src tests
+        run: poetry run isort --check src tests migration
 
       - name: Run Flake8
-        run: poetry run flake8 src tests
+        run: poetry run flake8 src tests migration
+
+      - name: Run AutoFlake8
+        run: poetry run autoflake8 --remove-unused-variables --recursive src tests migration

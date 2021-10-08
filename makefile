@@ -20,6 +20,7 @@ format:
 	@black src tests migration
 	@isort src tests migration
 	@flake8 src tests migration
+	@autoflake8 --remove-unused-variables --recursive --exclude=__init__.py --in-place src tests migration 
 
 revision:
 	@PYTHONPATH="${PYTHONPATH}" alembic revision --autogenerate

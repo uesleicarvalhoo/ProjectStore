@@ -8,3 +8,8 @@ repos:
     rev: 21.9b0
     hooks:
     - id: black
+
+  -   repo: https://github.com/fsouza/autoflake8
+      rev: v0.2.2
+      hooks:
+      -   id: autoflake8

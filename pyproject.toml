@@ -37,6 +37,7 @@ Faker = "^8.11.0"
 pytest-env = "^0.6.2"
 pre-commit = "^2.14.1"
 factory-boy = "^3.2.0"
+autoflake8 = "^0.2.2"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
