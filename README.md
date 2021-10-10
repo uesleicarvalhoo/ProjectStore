@@ -82,7 +82,7 @@ $ make test
 - [ ] Gerar notas fiscais para cada venda realizada
 - [ ] Adicionar o controle de estoque
 - [ ] Criar a função de recuperar a senha
-- [ ] Criar micro-serviço para envio de emails
+- [X] Criar micro-serviço para envio de emails
 - [ ] Action para deploy na AWS
 
 ### Tecnologias
