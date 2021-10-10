@@ -5,7 +5,7 @@ from fastapi.responses import UJSONResponse
 
 from src.core.config import settings
 from src.core.helpers.exceptions import DatabaseError, NotFoundError
-from src.core.helpers.logger import capture_exception
+from src.monitoring import capture_exception
 
 from . import health_check, v1
 

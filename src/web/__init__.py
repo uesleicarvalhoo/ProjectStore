@@ -11,8 +11,8 @@ from starlette.responses import RedirectResponse
 
 from src.core.config import settings
 from src.core.helpers.exceptions import DataValidationError, InvalidCredentialError, NotAuthorizedError
-from src.core.helpers.logger import capture_exception
 from src.core.models import Context
+from src.monitoring import capture_exception
 from src.utils.dependencies import refresh_access_token, validate_access_token, web_context_manager
 
 from . import views

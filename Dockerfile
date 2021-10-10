@@ -1,6 +1,6 @@
 FROM python:3.9-slim-buster
 
-WORKDIR /srv
+WORKDIR /app
 
 RUN apt update -y && apt upgrade -y && apt install -y make
 
@@ -14,7 +14,3 @@ ADD pyproject.toml poetry.lock ./
 RUN poetry install --no-root --no-dev --no-interaction --no-ansi
 
 ADD . .
-
-EXPOSE 80
-
-ENTRYPOINT ["make", "deploy"]

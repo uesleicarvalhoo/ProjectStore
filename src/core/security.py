@@ -11,8 +11,8 @@ from starlette.responses import Response
 
 from src.core.constants import AccessLevel
 from src.core.helpers.exceptions import NotAuthorizedError
-from src.core.helpers.logger import capture_exception
 from src.core.services import CacheClient
+from src.monitoring import capture_exception
 from src.utils.date import now_datetime
 
 from .config import settings
@@ -83,3 +83,24 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
 
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
+
+
+def generate_password_reset_token(email: str) -> str:
+    delta = timedelta(hours=settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS)
+    now = now_datetime()
+    expires = now + delta
+    exp = expires.timestamp()
+    encoded_jwt = jwt.encode(
+        {"exp": exp, "nbf": now, "sub": email},
+        settings.SECRET_KEY,
+        algorithm=ALGORITHM,
+    )
+    return encoded_jwt
+
+
+def verify_password_reset_token(token: str) -> Union[str, None]:
+    try:
+        decoded_token = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+        return decoded_token["sub"]
+    except jwt.JWTError:
+        return None

@@ -1,5 +1,5 @@
 # Variables
-include .env
+-include .env
 PYTHONPATH = $(shell pwd)
 
 run:
@@ -14,7 +14,7 @@ test:
 docker:
 	@docker rm -f store || true
 	@docker build -t store .
-	@docker run --name=store --network=global-default -p 8000:80 -d store
+	@docker run --expose 80 --env-file .env.docker --name=store --network=global-default -p 8000:80 -d store make deploy
 
 format:
 	@black src tests migration
@@ -23,13 +23,13 @@ format:
 	@autoflake8 --remove-unused-variables --recursive --exclude=__init__.py --in-place src tests migration
 
 revision:
-	@PYTHONPATH="${PYTHONPATH}" alembic revision --autogenerate
+	@PYTHONPATH="${PYTHONPATH}" poetry run alembic revision --autogenerate
 
 upgrade:
 	@PYTHONPATH="${PYTHONPATH}" poetry run alembic upgrade head
 
 downgrade:
-	@PYTHONPATH="${PYTHONPATH}" alembic downgrade head
+	@PYTHONPATH="${PYTHONPATH}" poetry run alembic downgrade head
 
 clean-pyc:
 	@find . -name "__pycache__" -exec rm -rf {} +

@@ -7,7 +7,7 @@ from pydantic import validator
 from sqlmodel import Column, Field, Relationship, SQLModel
 from sqlmodel.sql.sqltypes import GUID
 
-from src.core.helpers.logger import capture_exception
+from src.monitoring import capture_exception
 
 from .base import BaseQuerySchema
 from .file import File

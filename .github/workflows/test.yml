@@ -22,7 +22,7 @@ jobs:
       CACHE_HOST: ${{ secrets.CACHE_HOST }}
       STORAGE_URL: ${{ secrets.STORAGE_URL }}
       STORAGE_BUCKET: ${{ secrets.STORAGE_BUCKET }}
-      EVENTS_SQS_QUEUE: ${{ secrets.EVENTS_SQS_QUEUE }}
+      EVENTS_BROKER_URL: ${{ secrets.EVENTS_BROKER_URL }}
       VERSION: 0.0.0
 
     services:

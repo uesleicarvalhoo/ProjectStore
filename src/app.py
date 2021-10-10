@@ -3,14 +3,15 @@ from elasticapm.contrib.starlette import ElasticAPM
 from fastapi import FastAPI
 
 from . import api, web
-from .apm import apm
 from .core.config import settings
 from .core.helpers.database import init_database
 from .core.helpers.logger import logger
+from .monitoring import monitoring_client
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
-app.add_middleware(ElasticAPM, client=apm)
+if monitoring_client:
+    app.add_middleware(ElasticAPM, client=monitoring_client)
 
 
 app.mount(path=f"{settings.BASE_PATH}/api", app=api.app, name="api")

@@ -4,10 +4,10 @@ from uuid import UUID
 import inject
 from sqlmodel import Session, select
 
-from src.core.events import EventCode
+from src.core.events import EventEnum
 from src.core.helpers.exceptions import DataValidationError, NotAuthorizedError, NotFoundError
 from src.core.models import Client, Context, CreateOrder, Item, Order, OrderDetail, QueryOrder, UpdateOrderStatus
-from src.core.services import Broker
+from src.core.services import Streamer
 
 
 def get_all(session: Session, query_schema: QueryOrder, context: Context) -> List[Order]:
@@ -39,8 +39,8 @@ def get_by_id(session: Session, order_id: UUID, context: Context) -> Order:
     return order
 
 
-@inject.params(broker=Broker)
-def register_sale(session: Session, schema: CreateOrder, context: Context, broker: Broker) -> Order:
+@inject.params(streamer=Streamer)
+def register_sale(session: Session, schema: CreateOrder, context: Context, streamer: Streamer) -> Order:
     if not session.exec(select(Client).where(Client.id == schema.client_id)).first():
         raise NotFoundError(f"Não foi possível localizar o cliente com ID: {schema.client_id}")
 
@@ -72,13 +72,13 @@ def register_sale(session: Session, schema: CreateOrder, context: Context, broke
 
     session.commit()
 
-    broker.send_event(event_code=EventCode.CREATE_ORDER, context=context, order=order.dict())
+    streamer.send_event(event_code=EventEnum.CREATE_ORDER, context=context, order=order.dict())
 
     return order
 
 
-@inject.params(broker=Broker)
-def delete_by_id(session: Session, order_id: UUID, context: Context, broker: Broker) -> Order:
+@inject.params(streamer=Streamer)
+def delete_by_id(session: Session, order_id: UUID, context: Context, streamer: Streamer) -> Order:
     order = session.exec(select(Order).where(Order.id == order_id)).first()
 
     if not order:
@@ -94,13 +94,13 @@ def delete_by_id(session: Session, order_id: UUID, context: Context, broker: Bro
     session.delete(order)
     session.commit()
 
-    broker.send_event(EventCode.DELETE_ORDER, context=context, order=order.dict())
+    streamer.send_event(EventEnum.DELETE_ORDER, context=context, order=order.dict())
 
     return order
 
 
-@inject.params(broker=Broker)
-def update_status(session: Session, schema: UpdateOrderStatus, context: Context, broker: Broker) -> None:
+@inject.params(streamer=Streamer)
+def update_status(session: Session, schema: UpdateOrderStatus, context: Context, streamer: Streamer) -> None:
     order = session.exec(select(Order).where(Order.id == schema.order_id)).first()
 
     if not order:
@@ -113,4 +113,4 @@ def update_status(session: Session, schema: UpdateOrderStatus, context: Context,
     session.add(order)
     session.commit()
 
-    broker.send_event(EventCode.UPDATE_ORDER, context=context, order=order.dict(), new_status=schema.status)
+    streamer.send_event(EventEnum.UPDATE_ORDER, context=context, order=order.dict(), new_status=schema.status)

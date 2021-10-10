@@ -1,9 +1,14 @@
-from src.core.events import EventCode
-from src.core.models import Context
+from typing import Any, Dict, List
 
 from .. import Broker
 
 
 class NoneBroker(Broker):
-    def send_event(self, event_code: EventCode, context: Context, **data) -> None:
+    def send_message(self, message: str, topic: str) -> None:
+        pass
+
+    def get_messages(self) -> List[Dict[str, Any]]:
+        pass
+
+    def delete_message(self, message_id: str) -> None:
         pass
