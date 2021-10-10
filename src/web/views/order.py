@@ -82,8 +82,9 @@ async def order_create_post(
 
     for item in data.get("items", ["{}"]):
         item_data = json.loads(item)
-        item_data["sell_value"] = item_data.get("sugested_sell_value")
-        item_data["item_id"] = item_data.get("id")
+        item_data["sell_value"] = item_data.pop("sugested_sell_value", None)
+        item_data["item_id"] = item_data.pop("id", None)
+        item_data["item_name"] = item_data.pop("name", None)
         items.append(item_data)
 
     order = controller.order.register_sale(

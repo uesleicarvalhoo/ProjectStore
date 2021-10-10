@@ -39,12 +39,16 @@ async def users_view(
 
 
 @router.get("/cadastro")
-async def register(request: Request, context: Context = Depends(web_context_manager)):
-    return templates.TemplateResponse("users/create.html", context={"request": request, "context": context})
+async def user_register(
+    request: Request, current_user: User = Depends(get_current_user), context: Context = Depends(web_context_manager)
+):
+    return templates.TemplateResponse(
+        "users/create.html", context={"request": request, "current_user": current_user, "context": context}
+    )
 
 
 @router.post("/cadastro")
-async def register_post(
+async def user_register_post(
     request: Request,
     name: str = Form(...),
     email: EmailStr = Form(...),
@@ -61,4 +65,4 @@ async def register_post(
     user = controller.user.create(session, create_schema, context=context)
     send_message(request, "Usuario cadastrado", f'Usuário "{user.name}" cadastrado com sucesso! ID: {user.id}')
 
-    return RedirectResponse(request.url_for("web:index"), status_code=HTTP_303_SEE_OTHER)
+    return RedirectResponse(request.url_for("web:users_view"), status_code=HTTP_303_SEE_OTHER)

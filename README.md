@@ -69,7 +69,11 @@ $ make run
 ### Testes
 
 A aplicação possui testes automatizados, para roda-los é bem simples, apenas execute o comando
-```$ make test```
+
+```bash
+# Executa os testes
+$ make test
+```
 
 ### TODO's
 
@@ -78,7 +82,7 @@ A aplicação possui testes automatizados, para roda-los é bem simples, apenas 
 - [ ] Gerar notas fiscais para cada venda realizada
 - [ ] Adicionar o controle de estoque
 - [ ] Criar a função de recuperar a senha
-- [ ] Criar micro-serviço para envio de emails
+- [X] Criar micro-serviço para envio de emails
 - [ ] Action para deploy na AWS
 
 ### Tecnologias
@@ -98,8 +102,8 @@ Este projeto está licenciado nos termos da licença MIT, para mais detalhes con
 
 Olá, sou Ueslei Carvalho 👋🏻 criador e mantenedor deste projeto. Caso queira entrar em contato comigo, fique a vontade para utilizar qualquer um dos canais abaixo! :)
 
-`https://www.linkedin.com/in/uesleicarvalhoo/`
+https://www.linkedin.com/in/uesleicarvalhoo/
 
 📧 uesleicdoliveira@gmail.com
 
-📷 `https://www.instagram.com/uesleicarvalhoo/`
+📷 https://www.instagram.com/uesleicarvalhoo/

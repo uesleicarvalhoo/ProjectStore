@@ -55,6 +55,17 @@ tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)"
 tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins"]
 
 [[package]]
+name = "autoflake8"
+version = "0.2.2"
+description = "Tool to automatically fix some issues reported by flake8 (forked from autoflake)."
+category = "dev"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[package.dependencies]
+pyflakes = ">=2.3.0"
+
+[[package]]
 name = "backports.entry-points-selectable"
 version = "1.1.0"
 description = "Compatibility shim providing selectable entry points for older implementations"
@@ -981,7 +992,7 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "9ff5ae8053755370757e88372491c869463ee5460a0e0aa5fb2aed07b1d614e9"
+content-hash = "fac551e13809d8ffb35103695e991e6e5c12154dea20f43de12645de8565557d"
 
 [metadata.files]
 aiofiles = [
@@ -1003,6 +1014,10 @@ atomicwrites = [
 attrs = [
     {file = "attrs-21.2.0-py2.py3-none-any.whl", hash = "sha256:149e90d6d8ac20db7a955ad60cf0e6881a3f20d37096140088356da6c716b0b1"},
     {file = "attrs-21.2.0.tar.gz", hash = "sha256:ef6aaac3ca6cd92904cdd0d83f629a15f18053ec84e6432106f7a4d04ae4f5fb"},
+]
+autoflake8 = [
+    {file = "autoflake8-0.2.2-py3-none-any.whl", hash = "sha256:55b9158484ead9c1ba8bc7e7c01bbda58cb186c9271746fcde80fff76fde16b7"},
+    {file = "autoflake8-0.2.2.tar.gz", hash = "sha256:a29710d947407e1da0ea39e60141af8f5e57d1db8c7d2558618d68c70c2e5fcf"},
 ]
 "backports.entry-points-selectable" = [
     {file = "backports.entry_points_selectable-1.1.0-py2.py3-none-any.whl", hash = "sha256:a6d9a871cde5e15b4c4a53e3d43ba890cc6861ec1332c9c2428c92f977192acc"},

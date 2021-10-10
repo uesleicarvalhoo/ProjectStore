@@ -46,7 +46,7 @@ class ContextManager:
         )
 
     def _get_session_id(self, request: Request) -> str:
-        return request.cookies.get(settings.SESSION_KEY_NAME)
+        return request.cookies.get(settings.SESSION_KEY_NAME, "")
 
     @inject.params(cache=CacheClient)
     def load_message(self, request: Request, cache: CacheClient) -> Message:

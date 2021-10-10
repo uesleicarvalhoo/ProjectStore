@@ -4,15 +4,15 @@ from uuid import UUID, uuid4
 import inject
 from sqlmodel import Session, select
 
-from src.core.events import EventCode
+from src.core.events import EventEnum
 from src.core.helpers.exceptions import NotAuthorizedError, NotFoundError
 from src.core.models import Context, CreateFiscalNote, File, FiscalNote, Item, QueryFiscalNote
-from src.core.services import Broker, Storage
+from src.core.services import Storage, Streamer
 from src.utils.miscellaneous import get_file_hash
 
 
-@inject.params(broker=Broker, storage=Storage)
-def create(session: Session, schema: CreateFiscalNote, context: Context, broker: Broker, storage: Storage):
+@inject.params(streamer=Streamer, storage=Storage)
+def create(session: Session, schema: CreateFiscalNote, context: Context, streamer: Streamer, storage: Storage):
     def get_or_create_file(file: Union[str, bytes], preffix: str, extension: str) -> File:
         file_hash = get_file_hash(file)
         file = session.exec(select(File).where(File.hash == file_hash)).first()
@@ -27,7 +27,9 @@ def create(session: Session, schema: CreateFiscalNote, context: Context, broker:
 
     if not storage.check_file_exists(file.bucket_key):
         storage.upload_file(schema.image, key=file.bucket_key)
-        broker.send_event(EventCode.UPLOAD_FILE, context=context, file={"filename": schema.filename, "hash": file.hash})
+        streamer.send_event(
+            EventEnum.UPLOAD_FILE, context=context, file={"filename": schema.filename, "hash": file.hash}
+        )
 
     fiscal_note = FiscalNote(
         **schema.dict(exclude={"image": ..., "filename": ..., "items": ...}),
@@ -47,7 +49,7 @@ def create(session: Session, schema: CreateFiscalNote, context: Context, broker:
         session.add(item_obj)
 
     session.commit()
-    broker.send_event(event_code=EventCode.CREATE_FISCAL_NOTE, context=context, fiscal_note=fiscal_note.dict())
+    streamer.send_event(event_code=EventEnum.CREATE_FISCAL_NOTE, context=context, fiscal_note=fiscal_note.dict())
 
     return fiscal_note
 
@@ -56,7 +58,7 @@ def get_all(session: Session, query_schema: QueryFiscalNote, context: Context) -
     query = select(FiscalNote).offset(query_schema.offset)
 
     if not context.user_is_super_user:
-        query = query.where(FiscalNote.owner_id.id == context.user_id)
+        query = query.where(FiscalNote.owner_id == context.user_id)
 
     if query_schema.limit > 0:
         query = query.limit(query_schema.limit)
@@ -80,8 +82,8 @@ def get_by_id(session: Session, fiscal_note_id: UUID, context: Context, storage:
     return fiscal_note
 
 
-@inject.params(broker=Broker)
-def delete(session: Session, fiscal_note_id: UUID, context: Context, broker: Broker) -> FiscalNote:
+@inject.params(streamer=Streamer)
+def delete(session: Session, fiscal_note_id: UUID, context: Context, streamer: Streamer) -> FiscalNote:
     fiscal_note = session.exec(select(FiscalNote).where(FiscalNote.id == fiscal_note_id)).first()
 
     if not fiscal_note:
@@ -93,6 +95,6 @@ def delete(session: Session, fiscal_note_id: UUID, context: Context, broker: Bro
     session.delete(fiscal_note)
     session.commit()
 
-    broker.send_event(EventCode.DELETE_FISCAL_NOTE, context=context, fiscal_note=fiscal_note.dict())
+    streamer.send_event(EventEnum.DELETE_FISCAL_NOTE, context=context, fiscal_note=fiscal_note.dict())
 
     return fiscal_note

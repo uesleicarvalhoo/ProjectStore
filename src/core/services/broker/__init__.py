@@ -1,10 +1,16 @@
 from abc import ABC, abstractmethod
-
-from src.core.events import EventCode
-from src.core.models import Context
+from typing import Any, Dict, List
 
 
 class Broker(ABC):
     @abstractmethod
-    def send_event(self, event_code: EventCode, context: Context, **data) -> None:
+    def send_message(self, message: str, topic: str) -> None:
+        raise NotImplementedError
+
+    @abstractmethod
+    def get_messages(self) -> List[Dict[str, Any]]:
+        raise NotImplementedError
+
+    @abstractmethod
+    def delete_message(self, message_id: str) -> None:
         raise NotImplementedError

@@ -2,7 +2,7 @@ from typing import Generator
 
 from sqlmodel import Session, SQLModel, create_engine
 
-from src.core.helpers.logger import capture_exception
+from src.monitoring import capture_exception
 
 from .. import controller
 from ..config import settings
@@ -10,7 +10,9 @@ from ..constants import AccessLevel, ContextEnum
 from ..helpers.exceptions import NotFoundError
 from ..models import Context, CreateUser
 
-engine = create_engine(settings.SQLALCHEMY_DB_URI)
+engine = create_engine(
+    settings.SQLALCHEMY_DB_URI, connect_args={"connect_timeout": settings.SQLALCHEMY_CONNECTION_TIMEOUT}
+)
 
 
 def make_session() -> Generator[None, Session, None]:

@@ -1,8 +1,16 @@
 [tool.poetry]
-name = "store"
+name = "src"
 version = "0.1.0"
-description = ""
+description = "Aplicação para controle de vendas para micro e pequenas empresas 🚀"
 authors = ["Ueslei Carvalho <uesleicdoliveira@gmail.com>"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+processor = "src.lambdas.event:main"
+
 
 [tool.poetry.dependencies]
 python = "^3.9"
@@ -37,10 +45,7 @@ Faker = "^8.11.0"
 pytest-env = "^0.6.2"
 pre-commit = "^2.14.1"
 factory-boy = "^3.2.0"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+autoflake8 = "^0.2.2"
 
 [tool.isort]
 line_length=120

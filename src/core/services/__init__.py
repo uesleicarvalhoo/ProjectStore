@@ -4,47 +4,33 @@ from ..config import ENVIRONMENT, settings
 from ..constants import EnvironmentEnum
 from .broker.vendor import Broker, NoneBroker, SQSBroker
 from .cache.vendor import CacheClient, NoneCache, RedisClient
+from .email.vendor import BrokerEmailClient, EmailClient, NoneEmailClient, SMTPEmailClient
 from .storage.vendor import NoneStorage, Storage, StorageS3
-from .streamer.vendor import ElasticStreamer, NoneStreamer, Streamer
+from .streamer.vendor import BrokerStreamer, ElasticStreamer, NoneStreamer, Streamer
 
+if ENVIRONMENT == EnvironmentEnum.testing:
+    DefaultCacheClient: CacheClient = lambda: NoneCache()
+    DefaultStorage: Storage = lambda: NoneStorage()
+    DefaultBroker: Broker = lambda: NoneBroker()
+    DefaultStreamer: Streamer = lambda: NoneStreamer()
+    DefaultEmailClient: EmailClient = lambda: NoneEmailClient()
 
-def configure_cache(binder: inject.Binder) -> None:
-    if ENVIRONMENT == EnvironmentEnum.testing:
-        binder.bind_to_constructor(CacheClient, lambda: NoneCache())
-
-    else:
-        binder.bind_to_constructor(CacheClient, lambda: RedisClient(settings.CACHE_HOST))
-
-
-def configure_storage(binder: inject.Binder) -> None:
-    if ENVIRONMENT == EnvironmentEnum.testing:
-        binder.bind_to_constructor(Storage, lambda: NoneStorage())
-
-    else:
-        binder.bind_to_constructor(Storage, lambda: StorageS3())
-
-
-def configure_streamer(binder: inject.Binder) -> None:
-    if ENVIRONMENT == EnvironmentEnum.testing:
-        binder.bind_to_constructor(Streamer, lambda: NoneStreamer())
-
-    else:
-        binder.bind_to_constructor(Streamer, lambda: ElasticStreamer())
-
-
-def configure_broker(binder: inject.Binder) -> None:
-    if ENVIRONMENT == EnvironmentEnum.testing:
-        binder.bind_to_constructor(Broker, lambda: NoneBroker())
-
-    else:
-        binder.bind_to_constructor(Broker, lambda: SQSBroker())
+else:
+    DefaultCacheClient: CacheClient = lambda: RedisClient(settings.CACHE_HOST)
+    DefaultStorage: Storage = lambda: StorageS3()
+    DefaultBroker: Broker = lambda: SQSBroker()
+    DefaultStreamer: Streamer = lambda: BrokerStreamer() if settings.STREAMER_USE_MESSAGE_BROKER else ElasticStreamer()
+    DefaultEmailClient: EmailClient = (
+        lambda: BrokerEmailClient if settings.EMAILS_USE_MESSAGE_BROKER else SMTPEmailClient()
+    )
 
 
 def configure_services(binder: inject.Binder) -> None:
-    configure_cache(binder)
-    configure_storage(binder)
-    configure_streamer(binder)
-    configure_broker(binder)
+    binder.bind_to_constructor(CacheClient, DefaultCacheClient)
+    binder.bind_to_constructor(Storage, DefaultStorage)
+    binder.bind_to_constructor(Streamer, DefaultStreamer)
+    binder.bind_to_constructor(Broker, DefaultBroker)
+    binder.bind_to_constructor(EmailClient, DefaultEmailClient)
 
 
 inject.configure(configure_services)

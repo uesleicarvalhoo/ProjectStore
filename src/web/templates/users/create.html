@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 
+{% block side_menu %}
+{% endblock side_menu %}
+
+{% block extra_top_menu %}
+<a class="text-lg font-bold text-gray-800 dark:text-gray-200" href="{{ request.url_for('web:index') }}">
+    {{settings.APPLICATION_NAME}}
+</a>
+{% endblock extra_top_menu %}
+
 {% block content %}
 <div class="flex items-center min-h-screen p-6">
     <div class="flex-1 h-full max-w-4xl mx-auto overflow-hidden">
@@ -50,8 +59,6 @@
                             </span>
                         </label>
                     </div>
-
-                    <!-- You should use a button here, as the anchor is only used for the example  -->
                     <div
                         class="flex flex-col items-center justify-end mt-6 space-y-4 sm:space-y-0 sm:space-x-6 sm:flex-row">
                     </div>

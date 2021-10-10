@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: EnvironmentEnum
 
     # Application
-    VERSION: str
+    VERSION: str = Field("0.0.0")
     APPLICATION_NAME: str = Field(...)
     HOST: str = Field("0.0.0.0")
     PORT: PositiveInt = Field(8000)
@@ -38,11 +38,13 @@ class Settings(BaseSettings):
 
     # Database
     SQLALCHEMY_DB_URI: PostgresDsn = Field(...)
+    SQLALCHEMY_CONNECTION_TIMEOUT: int = Field(30)
 
     # Security
     SECRET_KEY: str = Field(...)
     ACCESS_TOKEN_EXPIRE_MINUTES: PositiveInt = Field(60)
     ACESS_TOKEN_REFRESH_MINUTES: int = Field(5)
+    EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = Field(2)
     ACCESS_TOKEN_NAME: str = Field("access_token")
     SESSION_KEY_NAME: str = Field("session_id")
 
@@ -51,7 +53,8 @@ class Settings(BaseSettings):
         return value.lower().replace("-", "_")
 
     # Monitoring
-    APM_SERVER_URL: AnyHttpUrl = Field("http://localhost:8200")
+    MONITORING_ENABLED: bool = Field(False)
+    MONITORING_SERVER_URL: AnyHttpUrl = Field("http://localhost:8200")
 
     # AWS
     AWS_URL: AnyHttpUrl = Field("http://localhost:4566")
@@ -60,7 +63,10 @@ class Settings(BaseSettings):
     # Services
     STORAGE_URL: AnyHttpUrl = Field("http://localhost:4566")
     STORAGE_BUCKET: str = Field("storage")
-    EVENTS_SQS_QUEUE: str = Field("http://localhost:4566")
+    STREAMER_USE_MESSAGE_BROKER: bool = Field(default=False)
+    EMAILS_USE_MESSAGE_BROKER: bool = Field(default=False)
+    EVENTS_BROKER_URL: str = Field("http://localhost:4566")
+    EMAIL_BROKER_URL: str = Field("http://localhost:4566")
 
     # Cache
     CACHE_HOST: RedisDsn = Field(...)
