@@ -2,7 +2,7 @@ FROM python:3.9-slim-buster
 
 WORKDIR /app
 
-RUN apt update -y && apt upgrade -y && apt install -y make
+RUN apt update -y && apt upgrade -y && apt install -y make apt-utils && pip install --upgrade pip
 
 RUN pip install poetry
 

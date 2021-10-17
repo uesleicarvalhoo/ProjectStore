@@ -5,6 +5,7 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel, Field
 
 from src.core.config import settings
+from src.core.events import EventDescription
 
 from .context import Context
 
@@ -13,8 +14,7 @@ class Event(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     application: str = Field(settings.APPLICATION_NAME)
     date_time: str = Field(default_factory=datetime.now)
-    event_code: int = Field(...)
-    event_description: str = Field(...)
+    description: EventDescription = Field(...)
     data: Dict[str, Any] = Field(...)
     context: Context = Field(...)
 

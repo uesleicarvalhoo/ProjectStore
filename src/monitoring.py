@@ -15,8 +15,7 @@ if settings.MONITORING_ENABLED and settings.ENVIRONMENT != EnvironmentEnum.testi
             "SANITIZE_FIELD_NAMES": APM_SANITIZE_FIELDS,
             "COLLECT_LOCAL_VARIABLES": "errors",
             "CAPTURE_HEADERS": "true",
-            "CAPTURE_BODY": "errors",
-            "USE_ELASTIC_EXCEPTHOOK": True,
+            "CAPTURE_BODY": "off",
         }
     )
 

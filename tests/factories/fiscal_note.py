@@ -7,7 +7,7 @@ from factory import fuzzy
 from src.core.models.fiscal_note import CreateFiscalNote
 from src.core.models.item import Item
 
-from .item import CreateItemFactory
+from .fiscal_note_item import CreateFiscalNoteItemFactory
 
 
 class CreateFiscalNoteFactory(factory.Factory):
@@ -15,7 +15,7 @@ class CreateFiscalNoteFactory(factory.Factory):
     filename: str = factory.Faker("file_name", extension="png")
     description: str = factory.Faker("sentence")
     purchase_date: date = fuzzy.FuzzyDate(date.today() - timedelta(days=30), date.today())
-    items: List[Item] = factory.List([factory.SubFactory(CreateItemFactory)])
+    items: List[Item] = factory.List([factory.SubFactory(CreateFiscalNoteItemFactory)])
 
     class Meta:
         model = CreateFiscalNote

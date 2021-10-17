@@ -1,5 +1,5 @@
 from datetime import date as date_
-from typing import List
+from typing import List, Optional
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel
@@ -7,7 +7,7 @@ from sqlalchemy import Column, Enum
 from sqlmodel import Field, Relationship, SQLModel
 from sqlmodel.sql.sqltypes import GUID
 
-from ..constants import OrderStatus
+from ..constants import OperationType, OrderStatus
 from .base import BaseQuerySchema
 from .client import Client
 from .order_detail import CreateOrderDetail, OrderDetail
@@ -21,16 +21,19 @@ class BaseOrder(SQLModel):
 
     date: date_ = Field(..., description="Purchase date")
     status: OrderStatus = Field(..., description="Purchase Status", sa_column=Column(Enum(OrderStatus), nullable=False))
-    description: str = Field(None, description="Description of sale")
+    description: Optional[str] = Field(description="Description of sale")
 
 
 class CreateOrder(BaseOrder):
     details: List["CreateOrderDetail"] = Field(..., description="Details of purchase")
+    operation_type: OperationType = Field(..., description="Tipo da operação")
 
 
 class QueryOrder(BaseQuerySchema):
-    client_id: UUID = Field(None, description="Identification of the customer who made purchase")
-    status: OrderStatus = Field(None, description="Purchase Status")
+    client_id: Optional[UUID] = Field(description="Identification of the customer who made purchase")
+    status: Optional[OrderStatus] = Field(description="Purchase Status")
+    start_date: Optional[date_] = Field(description="Initial date for query")
+    end_date: Optional[date_] = Field(description="End date for query")
 
 
 class UpdateOrderStatus(BaseModel):
@@ -56,7 +59,7 @@ class Order(BaseOrder, table=True):
 
     @property
     def cost_total(self) -> float:
-        return sum(detail.buy_value for detail in self.details)
+        return sum(detail.cost for detail in self.details)
 
     @property
     def sell_total(self) -> float:

@@ -6,6 +6,7 @@ class DatabaseError(Exception):
 
     def __init__(self, message: str) -> None:
         self.detail = message
+        super().__init__(message)
 
 
 class NotFoundError(Exception):
@@ -13,6 +14,7 @@ class NotFoundError(Exception):
 
     def __init__(self, message: Union[Dict[str, Any], str]) -> None:
         self.detail = message
+        super().__init__(message)
 
 
 class InvalidCredentialError(Exception):
@@ -20,6 +22,7 @@ class InvalidCredentialError(Exception):
 
     def __init__(self, message: str) -> None:
         self.detail = message
+        super().__init__(message)
 
 
 class NotAuthorizedError(Exception):
@@ -27,10 +30,12 @@ class NotAuthorizedError(Exception):
 
     def __init__(self, message: str) -> None:
         self.detail = message
+        super().__init__(message)
 
 
 class DataValidationError(Exception):
     detail: str = None
 
     def __init__(self, message: str) -> None:
-        self.edtail = message
+        self.detail = message
+        super().__init__(message)

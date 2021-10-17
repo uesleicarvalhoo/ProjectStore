@@ -5,12 +5,11 @@ from pydantic import ValidationError
 from sqlmodel import Session
 
 from src.core import controller
-from src.core.constants import OrderStatus
-from src.core.helpers.exceptions import NotFoundError
+from src.core.constants import OperationType, OrderStatus
+from src.core.helpers.exceptions import DataValidationError, NotFoundError
 from src.core.models.context import Context
 from src.core.models.order import UpdateOrderStatus
 from tests.factories.client import CreateClientFactory
-from tests.factories.fiscal_note import CreateFiscalNoteFactory
 from tests.factories.item import CreateItemFactory
 from tests.factories.order import CreateOrderFactory
 from tests.factories.order_detail import CreateOrderDetailFactory
@@ -20,15 +19,15 @@ def test_register_sale_success(session: Session, context: Context) -> None:
     # prepare
     client = controller.client.create(session, CreateClientFactory(), context=context)
 
-    fiscal_note = controller.fiscal_note.create(session, CreateFiscalNoteFactory(), context=context)
-    item = controller.item.create(
-        session, CreateItemFactory(buy_value=100, sugested_sell_value=150), fiscal_note.id, context=context
-    )
+    item = controller.item.create(session, CreateItemFactory(cost=100, value=150), context=context)
     order_detail = CreateOrderDetailFactory(
-        item_id=item.id, buy_value=item.buy_value, sell_value=item.sugested_sell_value
+        item_id=item.id,
+        cost=item.cost,
+        sell_value=item.value,
+        item_amount=item.amount,
     )
-
-    schema = CreateOrderFactory(client_id=client.id, details=[order_detail])
+    initial_item_amount = item.amount
+    schema = CreateOrderFactory(client_id=client.id, details=[order_detail], operation_type=OperationType.SALE_IN_PIX)
 
     # create
     order = controller.order.register_sale(session, schema, context=context)
@@ -42,21 +41,109 @@ def test_register_sale_success(session: Session, context: Context) -> None:
     assert order.profit == 50
     assert order.cost_total == 100
     assert order.sell_total == 150
+    assert item.amount + order.details[0].item_amount == initial_item_amount
+
+
+def test_register_sale_fail(session: Session, context: Context) -> None:
+    # prepare
+    client = controller.client.create(session, CreateClientFactory(), context=context)
+
+    item = controller.item.create(session, CreateItemFactory(buy_value=100, sugested_sell_value=150), context=context)
+
+    # Invalid Client
+    with pytest.raises(NotFoundError):
+        order_detail = CreateOrderDetailFactory(
+            item_id=item.id,
+            cost=item.cost,
+            sell_value=item.value,
+            item_amount=item.amount,
+        )
+        controller.order.register_sale(
+            session,
+            schema=CreateOrderFactory(
+                client_id=uuid4(), details=[order_detail], operation_type=OperationType.SALE_IN_MONEY
+            ),
+            context=context,
+        )
+
+    # Invalid Item
+    with pytest.raises(NotFoundError):
+        order_detail = CreateOrderDetailFactory(
+            item_id=uuid4(),
+            cost=item.cost,
+            sell_value=item.value,
+            item_amount=item.amount,
+        )
+        controller.order.register_sale(
+            session,
+            schema=CreateOrderFactory(
+                client_id=uuid4(), details=[order_detail], operation_type=OperationType.SALE_IN_CREDIT
+            ),
+            context=context,
+        )
+
+    # Invalid amount
+    with pytest.raises(DataValidationError):
+        order_detail = CreateOrderDetailFactory(
+            item_id=item.id,
+            cost=item.cost,
+            sell_value=item.value,
+            item_amount=item.amount + 1,
+        )
+        controller.order.register_sale(
+            session,
+            schema=CreateOrderFactory(
+                client_id=client.id, details=[order_detail], operation_type=OperationType.SALE_IN_DEBT
+            ),
+            context=context,
+        )
+
+    # Invalid cost
+    with pytest.raises(DataValidationError):
+        order_detail = CreateOrderDetailFactory(
+            item_id=item.id,
+            cost=item.cost - 1,
+            sell_value=item.value,
+            item_amount=item.amount,
+        )
+        controller.order.register_sale(
+            session,
+            schema=CreateOrderFactory(
+                client_id=client.id, details=[order_detail], operation_type=OperationType.SALE_IN_PIX
+            ),
+            context=context,
+        )
+
+    # Invalid sell value
+    with pytest.raises(DataValidationError):
+        order_detail = CreateOrderDetailFactory(
+            item_id=item.id,
+            cost=item.cost,
+            sell_value=item.cost - 1,
+            item_amount=item.amount,
+        )
+        controller.order.register_sale(
+            session,
+            schema=CreateOrderFactory(
+                client_id=client.id, details=[order_detail], operation_type=OperationType.SALE_IN_PIX
+            ),
+            context=context,
+        )
 
 
 def test_get_by_id_success(session: Session, context: Context) -> None:
     # prepare
     client = controller.client.create(session, CreateClientFactory(), context=context)
 
-    fiscal_note = controller.fiscal_note.create(session, CreateFiscalNoteFactory(), context=context)
-    item = controller.item.create(
-        session, CreateItemFactory(buy_value=100, sugested_sell_value=150), fiscal_note.id, context=context
-    )
+    item = controller.item.create(session, CreateItemFactory(buy_value=100, sugested_sell_value=150), context=context)
     order_detail = CreateOrderDetailFactory(
-        item_id=item.id, buy_value=item.buy_value, sell_value=item.sugested_sell_value
+        item_id=item.id,
+        cost=item.cost,
+        sell_value=item.value,
+        item_amount=item.amount,
     )
 
-    schema = CreateOrderFactory(client_id=client.id, details=[order_detail])
+    schema = CreateOrderFactory(client_id=client.id, details=[order_detail], operation_type=OperationType.SALE_IN_PIX)
 
     # create
     order = controller.order.register_sale(session, schema, context=context)
@@ -75,15 +162,17 @@ def test_update_order_status_success(session: Session, context: Context) -> None
     # prepare
     client = controller.client.create(session, CreateClientFactory(), context=context)
 
-    fiscal_note = controller.fiscal_note.create(session, CreateFiscalNoteFactory(), context=context)
-    item = controller.item.create(
-        session, CreateItemFactory(buy_value=100, sugested_sell_value=150), fiscal_note.id, context=context
-    )
+    item = controller.item.create(session, CreateItemFactory(buy_value=100, sugested_sell_value=150), context=context)
     order_detail = CreateOrderDetailFactory(
-        item_id=item.id, buy_value=item.buy_value, sell_value=item.sugested_sell_value
+        item_id=item.id,
+        cost=item.cost,
+        sell_value=item.value,
+        item_amount=item.amount,
     )
 
-    order_schema = CreateOrderFactory(client_id=client.id, details=[order_detail])
+    order_schema = CreateOrderFactory(
+        client_id=client.id, details=[order_detail], operation_type=OperationType.SALE_IN_PIX
+    )
     order = controller.order.register_sale(session, order_schema, context=context)
     pending_schema = UpdateOrderStatus(order_id=order.id, status=OrderStatus.PENDING)
     completed_schema = UpdateOrderStatus(order_id=order.id, status=OrderStatus.COMPLETED)
@@ -106,17 +195,21 @@ def test_update_order_status_fail(session: Session, context: Context) -> None:
     # prepare
     client = controller.client.create(session, CreateClientFactory(), context=context)
 
-    fiscal_note = controller.fiscal_note.create(session, CreateFiscalNoteFactory(), context=context)
-    item = controller.item.create(
-        session, CreateItemFactory(buy_value=100, sugested_sell_value=150), fiscal_note.id, context=context
-    )
+    item = controller.item.create(session, CreateItemFactory(buy_value=100, sugested_sell_value=150), context=context)
     order_detail = CreateOrderDetailFactory(
-        item_id=item.id, buy_value=item.buy_value, sell_value=item.sugested_sell_value
+        item_id=item.id,
+        cost=item.cost,
+        sell_value=item.value,
+        item_amount=item.amount,
     )
 
     # create
     order = controller.order.register_sale(
-        session, schema=CreateOrderFactory(client_id=client.id, details=[order_detail]), context=context
+        session,
+        schema=CreateOrderFactory(
+            client_id=client.id, details=[order_detail], operation_type=OperationType.SALE_IN_PIX
+        ),
+        context=context,
     )
 
     # assert

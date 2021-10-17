@@ -5,7 +5,7 @@ import inject
 from pydantic import EmailStr
 from sqlmodel import Session, select
 
-from src.core.events import EventEnum
+from src.core.events import EventDescription
 from src.core.helpers.exceptions import DatabaseError, InvalidCredentialError, NotFoundError
 from src.core.models import Context, CreateUser, QueryUser, User
 from src.core.security import get_password_hash, verify_password
@@ -24,7 +24,7 @@ def create(session: Session, schema: CreateUser, context: Context, streamer: Str
     session.add(user)
     session.commit()
 
-    streamer.send_event(event_code=EventEnum.CREATE_USER, context=context, **{"user": user.dict()})
+    streamer.send_event(description=EventDescription.CREATE_USER, context=context, **{"user": user.dict()})
 
     return user
 
@@ -77,7 +77,7 @@ def delete(session: Session, user_id: UUID, context: Context, streamer: Streamer
         raise NotFoundError(f"Não foi possível localiazar o usuário com ID: {user_id}")
 
     session.delete(user)
-    streamer.send_event(EventEnum.DELETE_USER, context=context, user=user.dict())
+    streamer.send_event(EventDescription.DELETE_USER, context=context, user=user.dict())
 
     return user
 

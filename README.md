@@ -80,9 +80,7 @@ $ make test
 - [ ] Converter a aplicação em micro-serviços separando o back e o front
 - [ ] Implementar testes de integração para a API e WEB
 - [ ] Gerar notas fiscais para cada venda realizada
-- [ ] Adicionar o controle de estoque
-- [ ] Criar a função de recuperar a senha
-- [X] Criar micro-serviço para envio de emails
+- [X] Adicionar o controle de estoque
 - [ ] Action para deploy na AWS
 
 ### Tecnologias

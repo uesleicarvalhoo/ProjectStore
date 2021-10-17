@@ -81,7 +81,7 @@
                 <span class="px-4 py-3 text-sm">{{ detail.item.code }}</span>
             </td>
             <td class="px-4 py-3 text-center text-xs">
-                <span class="px-4 py-3 text-sm"> R$ {{ '%0.2f' % detail.buy_value }}</span>
+                <span class="px-4 py-3 text-sm"> R$ {{ '%0.2f' % detail.cost }}</span>
             </td>
             <td class="px-4 py-3 text-center text-xs">
                 <span class="px-4 py-3 text-sm"> R$ {{ '%0.2f' % detail.sell_value }} </span>
@@ -91,7 +91,7 @@
             </td>
             <td class="px-4 py-3 text-center text-xs">
                 <div class="flex justify-center items-center space-x-4 text-sm">
-                    <a href="{{ request.url_for('web:item_by_id', item_id=detail.item.id)}}"
+                    <a href="{{ request.url_for('web:update_item_by_id', item_id=detail.item.id)}}"
                         class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
                         aria-label="Edit">
                         <svg class="w-6 h-7" aria-hidden="true" fill="currentColor" viewBox="5 -3 4 20">

@@ -8,13 +8,9 @@ from ..config import settings
 from .base import BaseQuerySchema
 
 
-class BaseFile(SQLModel):
-    bucket_key: str = Field(..., description="Identation of file in storage service", primary_key=True)
-    hash: str = Field(..., description="Hash of file")
-
-
-class CreateFile(BaseFile):
-    pass
+class CreateFile(SQLModel):
+    image: bytes = Field(..., description="Content base64 of the image")
+    filename: str = Field(..., description="Image filename", min_length=1)
 
 
 class QueryFile(BaseQuerySchema):
@@ -25,11 +21,14 @@ class DeleteFile(BaseModel):
     bucket_key: str = Field(..., description="Identation of file in storage service")
 
 
-class File(BaseFile, table=True):
+class File(SQLModel, table=True):
     __tablename__ = "files"
+
+    bucket_key: str = Field(..., description="Identation of file in storage service", primary_key=True)
+    hash: str = Field(..., description="Hash of file")
 
     uploaded_at: datetime = Field(default_factory=now_datetime, description="Datetime of the file update")
 
     @property
     def src_url(self) -> str:
-        return f"{settings.STORAGE_URL}/{self.bucket_key}"
+        return f"{settings.STORAGE_URL.rstrip('/')}/{settings.STORAGE_BUCKET}/{self.bucket_key}".replace("%", "%25")

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% from "components/pagination.html" import render_pagination %}
+
+{% block desktop_balance_menu %}
+<span class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg" aria-hidden="true"></span>
+{{ super() }}
+{% endblock desktop_balance_menu %}
+
+{% block mobile_balance_menu %}
+<span class="absolute inset-y-0 left-0 w-1 bg-purple-600 rounded-tr-lg rounded-br-lg" aria-hidden="true"></span>
+{{ super() }}
+{% endblock mobile_balance_menu %}
+
+{% block content %}
+<div class="w-full overflow-hidden rounded-lg shadow-xs">
+    <div class="w-full overflow-x-auto">
+        <table class="w-full whitespace-no-wrap">
+            <thead>
+                <tr
+                    class="text-xs font-semibold tracking-wide text-center text-white uppercase border-b dark:border-gray-700 bg-purple-500 dark:text-gray-400 dark:bg-gray-800">
+                    <th class="px-4 py-3">Operação</th>
+                    <th class="px-4 py-3">Valor</th>
+                    <th class="px-4 py-3">Descrição</th>
+                    <th class="px-4 py-3">Data</th>
+                    <th class="px-4 py-3">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
+                {% for balance in balances %}
+                <tr class="text-gray-700 text-center dark:text-gray-400">
+                <tr class="text-gray-700 text-center dark:text-gray-400">
+                    <td class="px-4 py-3 text-sm">
+                        <span class="px-4 py-3 text-sm">
+                            {{ balance.operation.value }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm {% if balance.type == BalanceType.CREDIT %} text-green-800 dark:text-green-500 {% else %} text-red-700 dark:text-red-500 {% endif %}">
+                            R$ {{ "%0.2f" % balance.normalized_value }}
+                    </td>
+                    <td class="px-4 py-3 text-sm">
+                        <span class="px-4 py-3 text-sm">
+                            {{ balance.description }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm">
+                        {{ balance.created_at.strftime("%d/%m/%Y") }}
+                    </td>
+                <td class="px-4 py-3">
+                    <div class="flex items-center justify-center space-x-4 text-sm">
+                        <button
+                            class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
+                            aria-label="Delete"
+                            @click="openModal('Excluir Fluxo de caixa ID: {{ balance.id }}', 'Tem certeza que deseja excluir o fluxo de caixa?', () => deleteBalance('{{balance.id}}'))">
+                            <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                    clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {{ render_pagination(request, current_page=current_page, items_per_page=items_per_page, total_items=total_items,
+    endpoint="web:balances_view") }}
+</div>
+{% endblock content %}

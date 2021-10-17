@@ -3,14 +3,18 @@ from fastapi.params import Depends
 
 from src.utils.dependencies import login_required, validate_super_user
 
-from . import access, clients, fiscal_notes, index, items, order, users
+from . import access, balance, clients, fiscal_note_items, fiscal_notes, index, items, order, users
 
 endpoints = APIRouter()
 endpoints.include_router(access.router)
 endpoints.include_router(index.router, dependencies=[Depends(login_required)])
 endpoints.include_router(clients.router, prefix="/clientes", dependencies=[Depends(login_required)])
-endpoints.include_router(fiscal_notes.router, prefix="/notas_fiscais", dependencies=[Depends(login_required)])
 endpoints.include_router(items.router, prefix="/produtos", dependencies=[Depends(login_required)])
+endpoints.include_router(fiscal_notes.router, prefix="/notas-fiscais", dependencies=[Depends(login_required)])
+endpoints.include_router(balance.router, prefix="/caixa", dependencies=[Depends(login_required)])
+endpoints.include_router(
+    fiscal_note_items.router, prefix="/items-notas-fiscais", dependencies=[Depends(login_required)]
+)
 endpoints.include_router(order.router, prefix="/vendas", dependencies=[Depends(login_required)])
 endpoints.include_router(
     users.router, prefix="/usuarios", dependencies=[Depends(login_required), Depends(validate_super_user)]

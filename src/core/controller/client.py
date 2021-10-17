@@ -4,7 +4,7 @@ from uuid import UUID
 import inject
 from sqlmodel import Session, select
 
-from src.core.events import EventEnum
+from src.core.events import EventDescription
 from src.core.helpers.exceptions import DatabaseError, NotAuthorizedError, NotFoundError
 from src.core.models import Client, Context, CreateClient, QueryClient, UpdateClient
 from src.core.services import Streamer
@@ -21,16 +21,18 @@ def create(session: Session, schema: CreateClient, context: Context, streamer: S
     client = Client(**schema.dict(), owner_id=context.user_id)
     session.add(client)
     session.commit()
-    streamer.send_event(EventEnum.CREATE_USER, context=context, client=client.dict())
+    streamer.send_event(EventDescription.CREATE_USER, context=context, client=client.dict())
 
     return client
 
 
 def get_all(session: Session, query_schema: QueryClient, context: Context) -> List[Client]:
-    query = select(Client).offset(query_schema.offset)
+    args = []
 
     if not context.user_is_super_user:
-        query = query.where(Client.owner_id == context.user_id)
+        args.append(Client.owner_id == context.user_id)
+
+    query = select(Client).where(*args).offset(query_schema.offset)
 
     if query_schema.limit > 0:
         query = query.limit(query_schema.limit)
@@ -63,13 +65,13 @@ def delete(session: Session, client_id: UUID, context: Context, streamer: Stream
     session.delete(client)
     session.commit()
 
-    streamer.send_event(event_code=EventEnum.DELETE_ITEM, context=context, client=client.dict())
+    streamer.send_event(description=EventDescription.DELETE_CLIENT, context=context, client=client.dict())
 
     return client
 
 
 @inject.params(streamer=Streamer)
-def update(session: Session, data: UpdateClient, context: Context, streamer: Streamer) -> None:
+def update(session: Session, data: UpdateClient, context: Context, streamer: Streamer) -> Client:
     client = session.exec(select(Client).where(Client.id == data.id)).first()
 
     if not client:
@@ -90,7 +92,9 @@ def update(session: Session, data: UpdateClient, context: Context, streamer: Str
     session.commit()
 
     streamer.send_event(
-        event_code=EventEnum.UPDATE_CLIENT,
+        description=EventDescription.UPDATE_CLIENT,
         context=context,
         data={"client_data": client.dict(), "update_schema": data.dict()},
     )
+
+    return client

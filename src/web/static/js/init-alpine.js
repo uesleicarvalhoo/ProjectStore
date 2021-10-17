@@ -64,6 +64,10 @@ function data() {
     toggleFiscalNoteMenu() {
       this.isFiscalNoteMenuOpen = !this.isFiscalNoteMenuOpen
     },
+    isBalancesMenuOpen: false,
+    toggleBalancesMenu() {
+      this.isBalancesMenuOpen = !this.isBalancesMenuOpen
+    },
 
     // Client
     targetClientId: null,
@@ -79,6 +83,9 @@ function data() {
         body: new URLSearchParams({ 'id': clientId })
       })
         .then((response) => {
+          if (response.status >= 400) {
+            this.openModal('Ops!', 'Alguma coisa deu errado! x.x')
+          }
           window.location.reload()
         })
         .catch(() => {
@@ -91,6 +98,24 @@ function data() {
         body: new URLSearchParams({ 'id': fiscalNoteId })
       })
         .then((response) => {
+          if (response.status >= 400) {
+            this.openModal('Ops!', 'Alguma coisa deu errado! x.x')
+          }
+          window.location.reload()
+        })
+        .catch(() => {
+          this.openModal('Ops!', 'Alguma coisa deu errado! x.x')
+        })
+    },
+    deleteFiscalNoteItem(fiscalNoteItemId) {
+      fetch(window.location.pathname.split(/\/\d$/)[0] + 'delete', {
+        method: 'POST',
+        body: new URLSearchParams({ 'id': fiscalNoteItemId })
+      })
+        .then((response) => {
+          if (response.status >= 400) {
+            this.openModal('Ops!', 'Alguma coisa deu errado! x.x')
+          }
           window.location.reload()
         })
         .catch(() => {
@@ -103,6 +128,24 @@ function data() {
         body: new URLSearchParams({ 'id': itemId })
       })
         .then((response) => {
+          if (response.status >= 400) {
+            this.openModal('Ops!', 'Alguma coisa deu errado! x.x')
+          }
+          window.location.reload()
+        })
+        .catch(() => {
+          this.openModal('Ops!', 'Alguma coisa deu errado! x.x')
+        })
+    },
+    deleteBalance(balanceId) {
+      fetch('/caixa/delete', {
+        method: 'POST',
+        body: new URLSearchParams({ 'id': itemId })
+      })
+        .then((response) => {
+          if (response.status >= 400) {
+            this.openModal('Ops!', 'Alguma coisa deu errado! x.x')
+          }
           window.location.reload()
         })
         .catch(() => {
@@ -205,8 +248,10 @@ function orderForm() {
     items: [],
     clients: [],
     orderItems: [],
-    selectedItem: null,
+    itemAmount: 1,
+    saleType: null,
     description: null,
+    selectedItem: null,
     selectedClient: { "phone": "-", "email": "-" },
     clientData: { "id": "-", "phone": "-", "email": "-" },
 
@@ -222,7 +267,9 @@ function orderForm() {
     },
     addItem() {
       if (this.selectedItem !== null && !this.orderItems.includes(this.selectedItem)) {
-        this.orderItems.push(this.selectedItem)
+        item = Object.assign({}, JSON.parse(this.selectedItem))
+        item.amount = this.itemAmount
+        this.orderItems.push(item)
       }
     },
     removeItem(item) {
@@ -235,14 +282,15 @@ function orderForm() {
         body: JSON.stringify({
           client: this.selectedClient,
           items: this.orderItems,
-          description: this.description
-        }, )
+          description: this.description,
+          operation_type: this.saleType
+        })
       })
         .then((response) => {
-          window.location.reload()
-        })
-        .catch(() => {
-          this.openModal('Ops!', 'Alguma coisa deu errado! x.x')
+          if (response.status >= 400) {
+            window.location.reload()
+          }
+          window.location.replace(window.location.pathname.split(/\/\d$/)[0])
         })
     }
   }

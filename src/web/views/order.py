@@ -11,14 +11,14 @@ from starlette.responses import RedirectResponse
 from starlette.status import HTTP_201_CREATED, HTTP_202_ACCEPTED
 
 from src.core import controller
-from src.core.constants import OrderStatus
+from src.core.constants import OperationType, OrderStatus
 from src.core.models import (
     Client,
     Context,
     CreateOrder,
     CreateOrderDetail,
     QueryClient,
-    QueryItem,
+    QueryFiscalNoteItem,
     QueryOrder,
     UpdateOrderStatus,
     User,
@@ -58,7 +58,7 @@ async def order_create(
     request: Request, session: Session = Depends(make_session), context: Context = Depends(web_context_manager)
 ):
     clients = controller.client.get_all(session, QueryClient(), context=context)
-    items = controller.item.get_all(session, QueryItem(avaliable=True), context=context)
+    items = controller.item.get_all(session, QueryFiscalNoteItem(avaliable=True), context=context)
 
     return templates.TemplateResponse(
         "orders/create.html",
@@ -67,6 +67,7 @@ async def order_create(
             "context": context,
             "clients": [c.json() for c in clients],
             "items": [i.json() for i in items],
+            "sale_types": OperationType.list_sale_types(),
         },
     )
 
@@ -78,14 +79,20 @@ async def order_create_post(
     items = []
     data = await request.json()
     description = data["description"]
+
+    operation_type = data.get("operation_type", None)
+
+    if operation_type:
+        operation_type = OperationType(operation_type)
+
     client = Client(**json.loads(data.get("client", {})))
 
-    for item in data.get("items", ["{}"]):
-        item_data = json.loads(item)
-        item_data["sell_value"] = item_data.pop("sugested_sell_value", None)
-        item_data["item_id"] = item_data.pop("id", None)
-        item_data["item_name"] = item_data.pop("name", None)
-        items.append(item_data)
+    for item in data.get("items", []):
+        item["sell_value"] = item.pop("value", None)
+        item["item_id"] = item.pop("id", None)
+        item["item_name"] = item.pop("name", None)
+        item["item_amount"] = item.pop("amount", None)
+        items.append(item)
 
     order = controller.order.register_sale(
         session,
@@ -94,6 +101,7 @@ async def order_create_post(
             date=date.today(),
             status=OrderStatus.COMPLETED,
             description=description,
+            operation_type=operation_type,
             details=[CreateOrderDetail(**detail) for detail in items],
         ),
         context=context,

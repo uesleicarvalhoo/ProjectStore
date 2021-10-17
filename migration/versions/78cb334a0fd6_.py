@@ -8,6 +8,7 @@ Create Date: 2021-10-01 17:51:52.747538
 import sqlalchemy as sa
 import sqlmodel
 from alembic import op
+from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision = "78cb334a0fd6"
@@ -28,6 +29,7 @@ def upgrade():
         sa.Column("password_hash", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.PrimaryKeyConstraint("id"),
     )
+    op.create_index(op.f("ix_users_active"), "users", ["active"], unique=False)
     op.create_index(op.f("ix_users_email"), "users", ["email"], unique=False)
     op.create_table(
         "clients",
@@ -90,44 +92,38 @@ def upgrade():
             ["users.id"],
         ),
     )
+    op.create_index(op.f("ix_orders_owner_id"), "orders", ["owner_id"], unique=False)
     op.create_index(op.f("ix_orders_client_id"), "orders", ["client_id"], unique=False)
     op.create_index(op.f("ix_orders_date"), "orders", ["date"], unique=False)
+
     op.create_table(
         "items",
         sa.Column("id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
         sa.Column("code", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.Column("name", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.Column("avaliable", sa.Boolean(), nullable=False),
-        sa.Column("buy_value", sa.Float(), nullable=False),
-        sa.Column("sugested_sell_value", sa.Float(), nullable=False),
-        sa.Column("fiscal_note_id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
-        sa.Column("file_id", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
-        sa.ForeignKeyConstraint(
-            ["file_id"],
-            ["files.bucket_key"],
-        ),
-        sa.ForeignKeyConstraint(
-            ["fiscal_note_id"],
-            ["fiscal_notes.id"],
-        ),
-        sa.Column("owner_id", sqlmodel.sql.sqltypes.GUID()),
+        sa.Column("cost", postgresql.DOUBLE_PRECISION(precision=53), nullable=True),
+        sa.Column("value", sa.Float(), nullable=False),
+        sa.Column("amount", sa.Integer(), nullable=True),
+        sa.Column("owner_id", postgresql.UUID(), nullable=False),
         sa.ForeignKeyConstraint(
             ["owner_id"],
             ["users.id"],
         ),
         sa.PrimaryKeyConstraint("id"),
     )
-    op.create_index(op.f("ix_items_avaliable"), "items", ["avaliable"], unique=False)
     op.create_index(op.f("ix_items_code"), "items", ["code"], unique=False)
-    op.create_index(op.f("ix_items_fiscal_note_id"), "items", ["fiscal_note_id"], unique=False)
     op.create_index(op.f("ix_items_name"), "items", ["name"], unique=False)
+    op.create_index(op.f("ix_items_owner_id"), "items", ["owner_id"], unique=False)
+
     op.create_table(
         "order_details",
         sa.Column("id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
         sa.Column("item_id", sqlmodel.sql.sqltypes.GUID(), nullable=False),
-        sa.Column("buy_value", sa.Float(), nullable=False),
         sa.Column("sell_value", sa.Float(), nullable=False),
-        sa.Column("order_id", sqlmodel.sql.sqltypes.GUID(), nullable=True),
+        sa.Column("order_id", postgresql.UUID(), nullable=False),
+        sa.Column("cost", sa.Float(), nullable=False),
+        sa.Column("item_amount", sa.Integer(), nullable=False),
+        sa.Column("item_name", sqlmodel.sql.sqltypes.AutoString(), nullable=False),
         sa.ForeignKeyConstraint(
             ["item_id"],
             ["items.id"],
@@ -164,6 +160,7 @@ def downgrade():
     op.drop_index(op.f("ix_clients_name"), table_name="clients")
     op.drop_index(op.f("ix_clients_email"), table_name="clients")
     op.drop_table("clients")
+    op.drop_index(op.f("ix_users_active"), table_name="users")
     op.drop_index(op.f("ix_users_email"), table_name="users")
     op.drop_table("users")
     # ### end Alembic commands ###

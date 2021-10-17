@@ -20,7 +20,7 @@ def test_create_client(session: Session, context: Context):
     client = controller.client.create(session, schema, context=context)
 
     # assert
-    assert client.id is not None
+    assert client.id is not None and client.id is not ...
     assert client.name == schema.name
     assert client.email == schema.email
     assert client.phone == schema.phone
