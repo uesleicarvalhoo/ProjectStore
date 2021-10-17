@@ -19,10 +19,10 @@
             <thead>
                 <tr
                     class="text-xs font-semibold tracking-wide text-center text-white uppercase border-b dark:border-gray-700 bg-purple-500 dark:text-gray-400 dark:bg-gray-800">
-                    <th class="px-4 py-3">Nota Fiscal</th>
                     <th class="px-4 py-3">Nome do produto</th>
-                    <th class="px-4 py-3">Preço de compra</th>
-                    <th class="px-4 py-3">Preço Sugerido</th>
+                    <th class="px-4 py-3">Código</th>
+                    <th class="px-4 py-3">Quantidade em estoque</th>
+                    <th class="px-4 py-3">Valor</th>
                     <th class="px-4 py-3">Status</th>
                     <th class="px-4 py-3">Ações</th>
                 </tr>
@@ -30,22 +30,24 @@
             <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800">
                 {% for item in items %}
                 <tr class="text-gray-700 text-center dark:text-gray-400">
-                    <td class=" px-4 py-3">
-                        <div class="flex justify-center items-center text-sm">
-                            <img src="{{ item.file.src_url }}" alt="item image" width="50" height="50">
-                        </div>
-                    </td>
                     <td class="px-4 py-3 text-sm">
-                        {{ item.name }}
-                    </td>
-                    <td class="px-4 py-3 text-xs">
                         <span class="px-4 py-3 text-sm">
-                            R$ {{ '%0.2f' % item.buy_value }}
+                            {{ item.name }}
                         </span>
                     </td>
                     <td class="px-4 py-3 text-xs">
                         <span class="px-4 py-3 text-sm">
-                            R$ {{ '%0.2f' % item.sugested_sell_value }}
+                            {{ item.code }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-xs">
+                        <span class="px-4 py-3 text-sm">
+                            {{ item.amount }}
+                        </span>
+                    </td>
+                    <td class="px-4 py-3 text-xs">
+                        <span class="px-4 py-3 text-sm">
+                            R$ {{ '%0.2f' % item.value }}
                         </span>
                     </td>
                     <td class="px-4 py-3 text-xs">
@@ -53,13 +55,13 @@
                             {% if item.avaliable %}
                             {{ render_green_tag("Disponível") }}
                             {% else %}
-                            {{ render_red_tag("Vendido") }}
+                            {{ render_red_tag("Indisponível") }}
                             {% endif %}
                         </span>
                     </td>
                     <td class="px-4 py-3">
                         <div class="flex justify-center items-center space-x-4 text-sm">
-                            <a href="{{request.url_for('web:item_by_id', item_id=item.id)}}"
+                            <a href="{{request.url_for('web:update_item_by_id', item_id=item.id)}}"
                                 class="flex items-center justify-between px-0.5 py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
                                 aria-label="View">
                                 <svg class="w-6 h-7" aria-hidden="true" fill="currentColor" viewBox="5 -3 4 20">
@@ -79,16 +81,6 @@
                                         clip-rule="evenodd"></path>
                                 </svg>
                             </button>
-                            <a href="{{request.url_for('web:fiscal_note_by_id', fiscal_note_id=item.fiscal_note.id)}}"
-                                class="flex items-center justify-between px-0.5 py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
-                                aria-label="View">
-                                <svg class="w-5 h-5" aria-hidden="true" fill="none" stroke-linecap="round"
-                                    stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path
-                                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z">
-                                    </path>
-                                </svg>
-                            </a>
                         </div>
                     </td>
                 </tr>

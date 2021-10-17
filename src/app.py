@@ -1,6 +1,7 @@
 import uvicorn
 from elasticapm.contrib.starlette import ElasticAPM
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from . import api, web
 from .core.config import settings
@@ -10,12 +11,22 @@ from .monitoring import monitoring_client
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
 
-if monitoring_client:
-    app.add_middleware(ElasticAPM, client=monitoring_client)
-
-
 app.mount(path=f"{settings.BASE_PATH}/api", app=api.app, name="api")
 app.mount(path=f"{settings.BASE_PATH}/", app=web.app, name="web")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost",
+        "https://localhost",
+    ],
+    allow_credentials=True,
+    allow_methods="*",
+    allow_headers="*",
+)
+
+if monitoring_client:
+    app.add_middleware(ElasticAPM, client=monitoring_client)
 
 
 @app.on_event("startup")

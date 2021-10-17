@@ -5,7 +5,7 @@ from fastapi import Request
 from fastapi.templating import Jinja2Templates
 
 from src.core.config import AppSettings, settings
-from src.core.constants import AccessLevel, OrderStatus
+from src.core.constants import AccessLevel, BalanceType, OperationType, OrderStatus
 from src.core.models import Message, User
 from src.core.services import CacheClient
 
@@ -22,6 +22,8 @@ templates.env.globals.update(
         "settings": AppSettings(),
         "round": round,
         "OrderStatus": OrderStatus,
+        "BalanceType": BalanceType,
+        "OperationType": OperationType,
         "current_user": anonimous_user,
     }
 )

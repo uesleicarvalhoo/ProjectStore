@@ -127,6 +127,7 @@ async def validation_error(
     exc: DataValidationError,
     context: Context = Depends(web_context_manager),
 ):
+    send_message(request, header="Dados de entrada invalidos!", text=exc.detail)
     return templates.TemplateResponse(
         "error.html",
         context={

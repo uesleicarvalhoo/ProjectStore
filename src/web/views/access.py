@@ -28,7 +28,7 @@ async def login(
     request: Request,
     context: Context = Depends(web_context_manager),
 ):
-    return templates.TemplateResponse("login.html", context={"request": request, "context": context})
+    return templates.TemplateResponse("access/login.html", context={"request": request, "context": context})
 
 
 @router.get("/logout")
@@ -57,7 +57,7 @@ async def auth(
 
 @router.get("/forgot_password")
 async def forgot_password(request: Request, context: Context = Depends(web_context_manager)):
-    return templates.TemplateResponse("forgot_password.html", context={"request": request, "context": context})
+    return templates.TemplateResponse("access/forgot_password.html", context={"request": request, "context": context})
 
 
 @router.post("/forgot_password")
@@ -76,14 +76,8 @@ async def forgot_password_post(
         return RedirectResponse(request.url_for("web:recovery_password"), status_code=HTTP_303_SEE_OTHER)
 
     password_reset_token = generate_password_reset_token(user.email)
-    email_client.send_email(
-        user.email,
-        template="recovery_password",
-        environment={
-            "token": password_reset_token,
-            "user": {"name": user.name, "email": user.email, "first_name": user.first_name},
-            "subject": "Recuperação de senha",
-        },
+    email_client.send_reset_password_email(
+        email=user.email, reset_link=request.url_for("web:recovery_password", password_reset_token=password_reset_token)
     )
 
     send_message(
@@ -97,7 +91,7 @@ async def recovery_password(
     request: Request, password_reset_token: str, context: Context = Depends(web_context_manager)
 ):
     return templates.TemplateResponse(
-        "recovery_password.hmtl",
+        "access/recovery_password.hmtl",
         context={"request": request, "context": context, "password_reset_token": password_reset_token},
     )
 

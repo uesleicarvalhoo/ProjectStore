@@ -1,14 +1,13 @@
-from base64 import b64encode
 from uuid import UUID
 
-from fastapi import APIRouter, File, Request, UploadFile, status
+from fastapi import APIRouter, Request, status
 from fastapi.params import Depends, Form
 from sqlmodel import Session
 from starlette.responses import RedirectResponse
 
 from src.core import controller
 from src.core.helpers.database import make_session
-from src.core.models import Context, CreateItem
+from src.core.models import Context, CreateItem, UpdateItem
 from src.core.models.item import QueryItem
 from src.utils.dependencies import web_context_manager
 
@@ -38,42 +37,22 @@ async def items_view(
     )
 
 
-@router.get("/{item_id}")
-async def item_by_id(
-    request: Request,
-    item_id: UUID,
-    session: Session = Depends(make_session),
-    context: Context = Depends(web_context_manager),
-):
-    item = controller.item.get_by_id(session, item_id, context)
-
-    return templates.TemplateResponse(
-        "items/view_detail.html", context={"request": request, "context": context, "item": item}
-    )
-
-
-@router.get("/cadastro/{fiscal_note_id}")
+@router.get("/cadastro")
 async def items_create(
     request: Request,
-    fiscal_note_id: UUID,
     context: Context = Depends(web_context_manager),
 ):
-    return templates.TemplateResponse(
-        "items/create.html",
-        context={"request": request, "context": context, "fiscal_note_id": fiscal_note_id},
-    )
+    return templates.TemplateResponse("items/create.html", context={"request": request, "context": context})
 
 
-@router.post("/cadastro/{fiscal_note_id}", status_code=status.HTTP_201_CREATED)
+@router.post("/cadastro", status_code=status.HTTP_201_CREATED)
 async def items_create_post(
     request: Request,
-    fiscal_note_id: UUID,
     code: str = Form(...),
     name: str = Form(...),
-    avaliable: bool = Form(...),
-    file: UploadFile = File(...),
-    buy_value: float = Form(...),
-    sugested_sell_value: float = Form(...),
+    amount: int = Form(...),
+    cost: float = Form(...),
+    value: float = Form(...),
     session: Session = Depends(make_session),
     context: Context = Depends(web_context_manager),
 ):
@@ -83,21 +62,48 @@ async def items_create_post(
         schema=CreateItem(
             code=code,
             name=name,
-            avaliable=avaliable,
-            buy_value=buy_value,
-            sugested_sell_value=sugested_sell_value,
-            image=b64encode(await file.read()),
-            filename=file.filename,
+            amount=amount,
+            cost=cost,
+            value=value,
         ),
-        fiscal_note_id=fiscal_note_id,
         context=context,
     )
 
     send_message(request, header="Sucesso!", text=f"Item cadastrado com sucesso! ID: {item.id}")
 
-    return RedirectResponse(
-        request.url_for("web:fiscal_note_by_id", fiscal_note_id=fiscal_note_id), status_code=status.HTTP_303_SEE_OTHER
+    return RedirectResponse(request.url_for("web:items_view"), status_code=status.HTTP_303_SEE_OTHER)
+
+
+@router.get("/{item_id}")
+async def update_item_by_id(
+    request: Request,
+    item_id: UUID,
+    session: Session = Depends(make_session),
+    context: Context = Depends(web_context_manager),
+):
+    item = controller.item.get_by_id(session, item_id, context)
+
+    return templates.TemplateResponse(
+        "items/update.html", context={"request": request, "context": context, "item": item}
     )
+
+
+@router.post("/{item_id}")
+async def update_item_by_id_post(
+    request: Request,
+    item_id: UUID,
+    code: str = Form(...),
+    name: str = Form(...),
+    amount: int = Form(...),
+    cost: float = Form(...),
+    value: float = Form(...),
+    session: Session = Depends(make_session),
+    context: Context = Depends(web_context_manager),
+):
+    schema = UpdateItem(id=item_id, code=code, name=name, cost=cost, value=value, amount=amount)
+    controller.item.update(session, schema, context)
+
+    return RedirectResponse("web:items_view", status_code=status.HTTP_303_SEE_OTHER)
 
 
 @router.post("/delete")
@@ -107,9 +113,9 @@ async def items_delete(
     session: Session = Depends(make_session),
     context: Context = Depends(web_context_manager),
 ):
-    item = controller.item.delete(session, item_id=id, context=context)
+    controller.item.delete(session, item_id=id, context=context)
 
     return RedirectResponse(
-        request.url_for("web:fiscal_note_by_id", fiscal_note_id=item.fiscal_note_id),
+        request.url_for("web:items_view"),
         status_code=status.HTTP_303_SEE_OTHER,
     )

@@ -7,7 +7,7 @@ from sqlmodel import Session
 from src.core import controller
 from src.core.helpers.exceptions import NotFoundError
 from src.core.models.context import Context
-from src.core.models.item import Item
+from src.core.models.fiscal_note_item import FiscalNoteItem
 from tests.factories.fiscal_note import CreateFiscalNoteFactory
 
 
@@ -23,7 +23,7 @@ def test_create_fiscal_note_success(session: Session, context: Context) -> None:
     assert fiscal_note.description == schema.description
     assert fiscal_note.purchase_date == schema.purchase_date
     assert len(fiscal_note.items) == len(schema.items)
-    assert all(isinstance(item, Item) for item in fiscal_note.items)
+    assert all(isinstance(item, FiscalNoteItem) for item in fiscal_note.items)
 
 
 def test_create_fiscal_note_fail(session: Session, context: Context) -> None:
@@ -72,7 +72,7 @@ def test_delete_fiscal_note_success(session: Session, context: Context) -> None:
 
     for item in fiscal_note.items:
         with pytest.raises(NotFoundError):
-            controller.item.get_by_id(session, item.id, context=context)
+            controller.fiscal_note_item.get_by_id(session, item.id, context=context)
 
 
 def test_delete_fiscal_note_fail(session: Session, context: Context) -> None:

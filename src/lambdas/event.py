@@ -26,7 +26,7 @@ def main(streamer: Streamer, broker: Broker) -> None:
     for message in messages:
         try:
             data = json.loads(message["Body"])
-            data["event_code"] = data.pop("eventCode")
+            data["event"] = data.pop("description")
             streamer.send_event(**data)
 
         except json.JSONDecodeError as err:

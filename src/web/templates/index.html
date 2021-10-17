@@ -47,7 +47,7 @@
             </div>
             <div>
                 <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Total de Vendas
+                    Vendas do mês
                 </p>
                 <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">
                     {{ orders|count }}
@@ -65,10 +65,10 @@
             </div>
             <div>
                 <p class="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">
-                    Lucro total
+                    Lucro do mês
                 </p>
                 <p class="text-lg font-semibold text-gray-700 dark:text-gray-200">
-                    $ {{ "%.2f" % orders|sum(attribute="profit")}}
+                    $ {{ "%0.2f" % orders|sum(attribute="profit")}}
                 </p>
             </div>
         </div>
@@ -79,49 +79,32 @@
                 <thead>
                     <tr
                         class="text-xs font-semibold tracking-wide text-center text-white uppercase border-b dark:border-gray-700 bg-purple-500 dark:text-gray-400 dark:bg-gray-800">
-                        <th class="px-4 py-3">Cliente</th>
-                        <th class="px-4 py-3">Total de pedidos</th>
-                        <th class="px-4 py-3">Cliente desde</th>
-                        <th class="px-4 py-3"></th>
+                        <th class="px-4 py-3">Operação</th>
+                        <th class="px-4 py-3">Valor</th>
+                        <th class="px-4 py-3">Descrição</th>
+                        <th class="px-4 py-3">Data</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800 text-center">
-                    {% for client in clients %}
+                    {% for balance in balances %}
                     <tr class="text-gray-700 text-center dark:text-gray-400">
-                        <td class="px-4 py-3 text-xs">
-                            <div class="flex items-center text-sm">
-                                <!-- Avatar with inset shadow -->
-                                <div class="relative hidden w-8 h-8 mr-3 rounded-full md:block">
-                                    <img class="object-cover w-full h-full rounded-full"
-                                        src="{{ url_for('web:static', path='img/user.png')}}" alt="" loading="lazy" />
-                                    <div class="absolute inset-0 rounded-full shadow-inner" aria-hidden="true"></div>
-                                </div>
-                                <div>
-                                    <p class="font-semibold">{{client.name}}</p>
-                                </div>
-                            </div>
-                        </td>
                         <td class="px-4 py-3 text-sm">
                             <span class="px-4 py-3 text-sm">
-                                {{ client.orders|count }}
+                                {{ balance.operation.name }}
                             </span>
                         </td>
                         <td class="px-4 py-3 text-sm">
-                            {{ client.created_at.strftime("%d/%m/%Y") }}
+                            <span class="px-4 py-3 text-sm {% if balance.type == BalanceType.CREDIT %} text-green-800 rounded-full dark:text-green-500 {% else %} text-red-700 rounded-full dark:text-red-500 {% endif %}">
+                                R$ {{ "%0.2f" % balance.normalized_value }}
+                            </span>
                         </td>
-                        <td class="px-4 py-3">
-                            <div class="flex justify-center items-center space-x-4 text-sm">
-                                <a href="{{ request.url_for('web:client_detail', client_id=client.id)}}"
-                                    class="flex items-center justify-between px-2 py-2 text-sm font-medium leading-5 text-purple-600 rounded-lg dark:text-gray-400 focus:outline-none focus:shadow-outline-gray"
-                                    aria-label="Edit">
-                                    <svg class="w-6 h-7" aria-hidden="true" fill="currentColor" viewBox="5 -3 4 20">
-                                        <path
-                                            d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z" />
-                                        <path
-                                            d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
-                                    </svg>
-                                </a>
-                            </div>
+                        <td class="px-4 py-3 text-sm">
+                            <span class="px-4 py-3 text-sm">
+                                {{ balance.description }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3 text-sm">
+                            {{ balance.strftime("%d/%m/%Y") }}
                         </td>
                     </tr>
                     {% endfor %}
@@ -130,5 +113,4 @@
         </div>
     </div>
 </div>
-
 {% endblock content %}

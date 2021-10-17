@@ -1,4 +1,4 @@
-from src.core.events import EventEnum
+from src.core.events import EventDescription
 
 from .. import Streamer
 
@@ -9,5 +9,5 @@ class NoneStreamer(Streamer):
     conforme o design pattern: https://sourcemaking.com/design_patterns/null_object
     """
 
-    def send_event(cls, event_code: EventEnum, context: str, **data) -> None:
+    def send_event(cls, description: EventDescription, context: str, **data) -> None:
         pass

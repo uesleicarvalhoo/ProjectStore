@@ -11,7 +11,7 @@ from src.monitoring import capture_exception
 
 from .base import BaseQuerySchema
 from .file import File
-from .item import CreateItem, Item
+from .fiscal_note_item import CreateFiscalNoteItem, FiscalNoteItem
 from .user import User
 
 
@@ -23,7 +23,7 @@ class BaseFiscalNote(SQLModel):
 class CreateFiscalNote(BaseFiscalNote):
     image: bytes = Field(..., description="Content base64 of the image")
     filename: str = Field(..., description="Image filename", min_length=1)
-    items: List[CreateItem] = Field([], description="List of items in the fiscal note")
+    items: List[CreateFiscalNoteItem] = Field([], description="List of items in the fiscal note")
 
     @validator("image", pre=True)
     def validate_image(cls, value: Union[str, bytes]) -> bytes:
@@ -36,10 +36,6 @@ class CreateFiscalNote(BaseFiscalNote):
         except Exception:
             capture_exception()
             raise ValueError("Couldn't decode the file!")
-
-    @property
-    def file_extension(self) -> str:
-        return self.filename.split(".")[-1]
 
 
 class QueryFiscalNote(BaseQuerySchema):
@@ -61,6 +57,6 @@ class FiscalNote(BaseFiscalNote, table=True):
 
     file: File = Relationship()
     owner: User = Relationship()
-    items: List[Item] = Relationship(
+    items: List[FiscalNoteItem] = Relationship(
         sa_relationship_kwargs={"cascade": "all,delete", "lazy": "selectin", "passive_deletes": True}
     )

@@ -10,3 +10,4 @@ max_requests_jitter = 5
 keepalive = 120
 timeout = 120
 worker_class = "uvicorn.workers.UvicornWorker"
+forwarded_allow_ips = "*"

@@ -4,8 +4,8 @@ from src.core.models.file import CreateFile
 
 
 class CreateFileFactory(factory.Factory):
-    bucket_key: str = factory.Faker("filename", extension="png")
-    hash: str = factory.Faker("md5")
+    image: bytes = factory.Faker("image")
+    filename: str = factory.Faker("file_name", extension="png")
 
     class Meta:
         model = CreateFile

@@ -11,7 +11,7 @@
 {% endblock mobile_sales_menu %}
 
 {% block content %}
-<div x-data="orderForm()" x-init="updateData(clients={{ clients}}, items={{ items }})">
+<div x-data="orderForm(this)" x-init="updateData(clients={{ clients }}, items={{ items }})">
     <div class="px-4 py-3 mb-8 bg-white rounded-lg shadow-md dark:bg-gray-800">
         <h4 class="mb-4 text-2xl font-semibold text-gray-600 dark:text-gray-300">
             <div class="flex justify-between">
@@ -50,32 +50,44 @@
         </div>
         <div class="text mt-6">
             <label class="block">
+                <span class="text-gray-700 dark:text-gray-400">Tipo de venda</span>
+                <select x-model="saleType"
+                    class="block w-full mt-1 text-sm border dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-select focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray rounded-md">
+                    <option value=""> Selecione o tipo de venda </option>
+                    {% for sale_type in sale_types %}
+                    <option value="{{ sale_type.value }}" class="pl-20">{{ sale_type.value }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+        </div>
+        <div class="text mt-6">
+            <label class="block">
                 <span class="text-gray-700 dark:text-gray-400">Descrição da venda</span>
-                <textarea
-                    x-model="description"
+                <textarea x-model="description"
                     class="rounded-lg border block w-full mt-1 text-sm dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:text-gray-300 dark:focus:shadow-outline-gray form-input"></textarea>
             </label>
         </div>
         <div class="text pt-6">
-            <label class="block">
-                <span class="text-gray-700 dark:text-gray-400">Produto</span>
-                <div class="relative mt-2">
-                    <select x-model="selectedItem"
-                        class="pl-28 block w-full mt-1 text-sm border dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-select focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray rounded-md">
-                        <option value=""> Selecione o item </option>
-                        <template x-for="item in items">
-                            <!-- Filtrar os itens que não estão na lista-->
-                            <option x-bind:value="item" x-text="JSON.parse(item).name" class="pl-20"></option>
-                        </template>
-                    </select>
-                    <button @click="addItem"
-                        class="absolute inset-y-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-l-md">
-                        Adicionar
-                    </button>
-                </div>
-            </label>
-            <img src="" alt="">
-            <!-- Atualizar com a imagem do item atual -->
+            <span class="text-gray-700 dark:text-gray-400">Produto</span>
+            <select x-model="selectedItem"
+                class="block w-full mt-1 text-sm border dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-select focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray rounded-md">
+                <option value=""> Selecione o item </option>
+                <template x-for="item in items">
+                    <option x-bind:value="item"
+                        x-text="JSON.parse(item).name + ' - (Disponível: ' + JSON.parse(item).amount + ')'"
+                        class="pl-20"></option>
+                </template>
+            </select>
+            <div class="relative mt-2">
+                <input
+                    class="pl-28 block w-full mt-1 text-sm border dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-input focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray rounded-md"
+                    placeholder="Informe a quantidade" x-model=itemAmount value=1 type="number" step="1" required
+                    min="1">
+                <button @click="addItem"
+                    class="absolute inset-y-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-l-md">
+                    Adicionar
+                </button>
+            </div>
         </div>
         <table class="w-full border-cool-gray-400 mt-6 whitespace-no-wrap">
             <thead>
@@ -83,24 +95,24 @@
                     class="text-xs font-semibold tracking-wide text-center text-white uppercase border-b dark:border-gray-700 bg-purple-500 dark:text-gray-400 dark:bg-gray-800">
                     <th class="px-4 py-3">Produto</th>
                     <th class="px-4 py-3">Código</th>
-                    <th class="px-4 py-3">Preço de compra</th>
-                    <th class="px-4 py-3">Preço de venda</th>
+                    <th class="px-4 py-3">Valor unitario</th>
+                    <th class="px-4 py-3">Quantidade</th>
                     <th class="px-4 py-3">Ações</th>
                 </tr>
             </thead>
             <template x-for="item in orderItems">
                 <tr class="text-gray-700 dark:text-gray-400">
                     <td class="px-4 py-3 text-center text-xs">
-                        <span class="px-4 py-3 text-sm" x-text="JSON.parse(item).name" />
+                        <span class="px-4 py-3 text-sm" x-text="item.name" />
                     </td>
                     <td class="px-4 py-3 text-center text-xs">
-                        <span class="px-4 py-3 text-sm" x-text="JSON.parse(item).code" />
+                        <span class="px-4 py-3 text-sm" x-text="item.code" />
                     </td>
                     <td class="px-4 py-3 text-center text-xs">
-                        <span class="px-4 py-3 text-sm" x-text="JSON.parse(item).buy_value" />
+                        <span class="px-4 py-3 text-sm" x-text="item.value" />
                     </td>
                     <td class="px-4 py-3 text-center text-xs">
-                        <span class="px-4 py-3 text-sm" x-text="JSON.parse(item).sugested_sell_value" />
+                        <span class="px-4 py-3 text-sm" x-text="item.amount" />
                     </td>
                     <td>
                         <button

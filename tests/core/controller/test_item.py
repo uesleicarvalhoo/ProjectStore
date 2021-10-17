@@ -8,20 +8,17 @@ from src.core import controller
 from src.core.helpers.exceptions import NotFoundError
 from src.core.models.context import Context
 from src.core.models.item import Item, QueryItem
-from tests.factories.fiscal_note import CreateFiscalNoteFactory
 from tests.factories.item import CreateItemFactory
 
 
 def test_create_item_success(session: Session, context: Context) -> None:
     # prepare
-    fiscal_note_schema = CreateFiscalNoteFactory(items=[])
     schema = CreateItemFactory()
-    not_avaliable_schema = CreateItemFactory(avaliable=False)
+    not_avaliable_schema = CreateItemFactory(amount=0)
 
     # create
-    fiscal_note = controller.fiscal_note.create(session, fiscal_note_schema, context=context)
-    item = controller.item.create(session, schema, fiscal_note.id, context=context)
-    not_avaliable_item = controller.item.create(session, not_avaliable_schema, fiscal_note.id, context=context)
+    item = controller.item.create(session, schema, context=context)
+    not_avaliable_item = controller.item.create(session, not_avaliable_schema, context=context)
 
     # assert
     assert item.id is not None
@@ -31,9 +28,9 @@ def test_create_item_success(session: Session, context: Context) -> None:
 
     assert item.code == schema.code
     assert item.name == schema.name
-    assert item.buy_value == schema.buy_value
-    assert item.sugested_sell_value == schema.sugested_sell_value
-    assert item.sugested_sell_value > item.buy_value
+    assert item.cost == schema.cost
+    assert item.value == schema.value
+    assert item.value > item.cost
     assert not not_avaliable_item.avaliable
 
 
@@ -45,23 +42,21 @@ def test_create_item_fail(session: Session, context: Context) -> None:
         CreateItemFactory(name="")
 
     with pytest.raises(ValidationError):
-        CreateItemFactory(buy_value=-1)
+        CreateItemFactory(value=-1)
 
     with pytest.raises(ValidationError):
-        CreateItemFactory(sugested_sell_value=-1)
+        CreateItemFactory(cost=-1)
 
     with pytest.raises(ValueError):
-        CreateItemFactory(buy_value=2, sugested_sell_value=1)
+        CreateItemFactory(cost=2, value=1)
 
 
-def test_get_item_by_id_success(session: Session, context: Context) -> None:
+def test_get_update_item_by_id_success(session: Session, context: Context) -> None:
     # prepare
-    fiscal_note_schema = CreateFiscalNoteFactory(items=[])
     schema = CreateItemFactory()
 
     # create
-    fiscal_note = controller.fiscal_note.create(session, fiscal_note_schema, context=context)
-    item = controller.item.create(session, schema, fiscal_note.id, context=context)
+    item = controller.item.create(session, schema, context=context)
     item2 = controller.item.get_by_id(session, item.id, context=context)
 
     # assert
@@ -69,7 +64,7 @@ def test_get_item_by_id_success(session: Session, context: Context) -> None:
     assert item == item2
 
 
-def test_get_item_by_id_fail(session: Session, context: Context) -> None:
+def test_get_update_item_by_id_fail(session: Session, context: Context) -> None:
     with pytest.raises(NotFoundError):
         controller.item.get_by_id(session, uuid4(), context=context)
 
@@ -81,14 +76,13 @@ def test_get_all_item_success(session: Session, context: Context) -> None:
     query_not_avaliable = QueryItem(avaliable=False)
 
     # create
-    fiscal_note = controller.fiscal_note.create(session, CreateFiscalNoteFactory(), context=context)
     for _ in range(5):
         schema = CreateItemFactory()
-        controller.item.create(session, schema=schema, fiscal_note_id=fiscal_note.id, context=context)
+        controller.item.create(session, schema=schema, context=context)
 
     for _ in range(5):
         schema = CreateItemFactory(avaliable=False)
-        controller.item.create(session, schema=schema, fiscal_note_id=fiscal_note.id, context=context)
+        controller.item.create(session, schema=schema, context=context)
 
     items = controller.item.get_all(session, query_schema=query, context=context)
     items2 = controller.item.get_all(session, query_schema=query2, context=context)
@@ -109,21 +103,16 @@ def test_get_all_item_success(session: Session, context: Context) -> None:
 
 def test_delete_item_success(session: Session, context: Context) -> None:
     # prepare
-    fiscal_note_schema = CreateFiscalNoteFactory(items=[])
     schema = CreateItemFactory()
 
     # create
-    fiscal_note = controller.fiscal_note.create(session, fiscal_note_schema, context=context)
-    item = controller.item.create(session, schema, fiscal_note.id, context=context)
+    item = controller.item.create(session, schema, context=context)
 
     deleted_item = controller.item.delete(session, item.id, context=context)
-    fiscal_note2 = controller.fiscal_note.get_by_id(session, fiscal_note.id, context=context)
 
     # assert
     assert item.id == deleted_item.id
     assert item == deleted_item
-    assert fiscal_note2 is not None
-    assert fiscal_note == fiscal_note2
 
 
 def test_delete_item_fail(session: Session, context: Context) -> None:

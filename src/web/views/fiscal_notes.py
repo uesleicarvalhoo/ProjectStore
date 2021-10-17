@@ -1,4 +1,3 @@
-from base64 import b64encode
 from datetime import date
 from uuid import UUID
 
@@ -53,13 +52,13 @@ async def fiscal_notes_create_post(
     session: Session = Depends(make_session),
     context: Context = Depends(web_context_manager),
 ):
-
+    image = await file.read()
     fiscal_note = controller.fiscal_note.create(
         session,
         schema=CreateFiscalNote(
             description=description,
             purchase_date=purchase_date,
-            image=b64encode(await file.read()),
+            image=image,
             filename=file.filename,
         ),
         context=context,
