@@ -37,7 +37,7 @@ Antes de começar, você vai precisar ter instalado em sua máquina as seguintes
 * [S3](https://aws.amazon.com/pt/s3/)
 * [ElasticSearch](https://www.elastic.co/pt/)
 
-Dica: Para as dependencias de serviços externos o projeto você pode usar o docker-compose-dev.yaml para iniciar os containers, para conferir mais alguns docker-composes que eu utilizo no meu desenvolvimento, pode conferir o meu <a href="https://github.com/uesleicarvalhoo/Docker-localstack">Docker-Localstack</a>.
+Dica: Para as dependencias de serviços externos o projeto você pode usar o docker-compose-dev.yaml para iniciar os containers, para conferir mais alguns docker-composes que eu utilizo no meu desenvolvimento, pode conferir o meu [Docker-Localstack]("https://github.com/uesleicarvalhoo/Docker-localstack").
 
 Além disto é bom ter um editor para trabalhar com o código como [VSCode](https://code.visualstudio.com/)
 
@@ -80,7 +80,6 @@ $ make test
 - [ ] Converter a aplicação em micro-serviços separando o back e o front
 - [ ] Implementar testes de integração para a API e WEB
 - [ ] Gerar notas fiscais para cada venda realizada
-- [X] Adicionar o controle de estoque
 - [ ] Action para deploy na AWS
 
 ### Tecnologias
@@ -91,6 +90,8 @@ As seguintes ferramentas foram usadas na construção do projeto:
 * [SQLModel](https://sqlmodel.tiangolo.com/)
 * [Node.js](https://nodejs.org/en/)
 * [TailwindCSS](https://tailwindcss.com/docs/height)
+
+Também utilizei [esse template](https://github.com/estevanmaito/windmill-dashboard) como base para o frontend.
 
 ### Licença
 
