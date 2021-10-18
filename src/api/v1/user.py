@@ -14,7 +14,7 @@ from src.utils.dependencies import api_context_manager
 router = APIRouter()
 
 
-@router.get("/", response_model=List[User], response_model_exclude={"password_hash"})
+@router.get("/", response_model=List[User], response_model_exclude={"password_hash": ...})
 async def get(
     query: QueryUser = Depends(),
     session: Session = Depends(make_session),
@@ -23,7 +23,7 @@ async def get(
     return user.get_all(session, query, context=api_context_manager)
 
 
-@router.get("/{user_id}", response_model=User, response_model_exclude={"password_hash"})
+@router.get("/{user_id}", response_model=User, response_model_exclude={"password_hash": ...})
 async def get_by_id(
     user_id: UUID, session: Session = Depends(make_session), context: Context = Depends(api_context_manager)
 ):

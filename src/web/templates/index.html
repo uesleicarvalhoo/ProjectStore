@@ -90,7 +90,7 @@
                     <tr class="text-gray-700 text-center dark:text-gray-400">
                         <td class="px-4 py-3 text-sm">
                             <span class="px-4 py-3 text-sm">
-                                {{ balance.operation.name }}
+                                {{ balance.operation.value }}
                             </span>
                         </td>
                         <td class="px-4 py-3 text-sm">
@@ -104,7 +104,7 @@
                             </span>
                         </td>
                         <td class="px-4 py-3 text-sm">
-                            {{ balance.strftime("%d/%m/%Y") }}
+                            {{ balance.created_at.strftime("%d/%m/%Y") }}
                         </td>
                     </tr>
                     {% endfor %}
