@@ -14,7 +14,7 @@ from src.utils.dependencies import api_context_manager
 router = APIRouter()
 
 
-@router.get("/", response_model=List[Client], response_model_exclude={"password_hash"})
+@router.get("/", response_model=List[Client], response_model_exclude={"password_hash": ...})
 async def get(
     query: QueryClient = Depends(),
     session: Session = Depends(make_session),
