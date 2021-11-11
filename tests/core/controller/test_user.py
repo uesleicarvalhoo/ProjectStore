@@ -17,7 +17,7 @@ from tests.factories.user import CreateUserFactory
 
 def test_create_user_success(session: Session, context: Context) -> None:
     # prepare
-    schema = CreateUserFactory(admin=False)
+    schema = CreateUserFactory(access_level=AccessLevel.USER)
     admin_schema = CreateUserFactory(access_level=AccessLevel.SUPER_USER)
 
     # create
