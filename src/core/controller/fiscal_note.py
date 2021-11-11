@@ -59,7 +59,7 @@ def get_by_id(session: Session, fiscal_note_id: UUID, context: Context) -> Fisca
         raise NotFoundError(f"Não foi possível localizar a nota fiscal com ID {fiscal_note_id}")
 
     if not context.user_is_super_user and fiscal_note.owner_id != context.user_id:
-        raise NotAuthorizedError(f"Você não possui perimssão para consultar os dados da Nota Fiscal {fiscal_note_id}!")
+        raise NotAuthorizedError(f"Você não possui permissão para consultar os dados da Nota Fiscal {fiscal_note_id}!")
 
     if not fiscal_note.file or not file.check_file_exists(fiscal_note.file.bucket_key):
         raise NotFoundError(f"Não foi possível localizar o arquivo da nota fiscal {fiscal_note_id}")

@@ -47,7 +47,7 @@ def get_by_id(session: Session, client_id: UUID, context: Context) -> Client:
         raise NotFoundError(f"Não foi possível localizar o Client com ID: {client_id}")
 
     if not context.user_is_super_user and client.owner_id != context.user_id:
-        raise NotAuthorizedError(f"Você não possui perimssão para consultar os dados do cliente com ID {client_id}!")
+        raise NotAuthorizedError(f"Você não possui permissão para consultar os dados do cliente com ID {client_id}!")
 
     return client
 
