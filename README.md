@@ -81,6 +81,7 @@ $ make test
 - [ ] Implementar testes de integração para a API e WEB
 - [ ] Gerar notas fiscais para cada venda realizada
 - [ ] Action para deploy na AWS
+- [ ] Ajustar os endpoints da API
 
 ### Tecnologias
 
