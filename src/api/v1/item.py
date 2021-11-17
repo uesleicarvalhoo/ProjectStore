@@ -1,3 +1,4 @@
+from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter
@@ -7,10 +8,19 @@ from starlette.status import HTTP_201_CREATED
 
 from src.core.controller import item
 from src.core.helpers.database import make_session
-from src.core.models import Context, CreateItem, Item
+from src.core.models import Context, CreateItem, Item, QueryItem
 from src.utils.dependencies import api_context_manager
 
 router = APIRouter()
+
+
+@router.get("/", response_model=List[Item])
+async def get_all(
+    query: QueryItem = Depends(),
+    session: Session = Depends(make_session),
+    context: Context = Depends(api_context_manager),
+):
+    return item.get_all(session, query, context=context)
 
 
 @router.get("/{item_id}", response_model=Item)
