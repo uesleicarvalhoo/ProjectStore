@@ -74,7 +74,7 @@ async def items_create_post(
     return RedirectResponse(request.url_for("web:items_view"), status_code=status.HTTP_303_SEE_OTHER)
 
 
-@router.get("/{item_id}")
+@router.get("/update/{item_id}")
 async def update_item_by_id(
     request: Request,
     item_id: UUID,
@@ -88,7 +88,7 @@ async def update_item_by_id(
     )
 
 
-@router.post("/{item_id}")
+@router.post("/update/{item_id}")
 async def update_item_by_id_post(
     request: Request,
     item_id: UUID,

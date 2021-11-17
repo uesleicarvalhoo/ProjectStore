@@ -66,14 +66,14 @@
                 class="text-xs font-semibold tracking-wide text-center text-white uppercase border-b dark:border-gray-700 bg-purple-500 dark:text-gray-400 dark:bg-gray-800">
                 <th class="px-4 py-3">Produto</th>
                 <th class="px-4 py-3">Código</th>
-                <th class="px-4 py-3">Preço de compra</th>
-                <th class="px-4 py-3">Preço de venda</th>
-                <th class="px-4 py-3">Lucro</th>
+                <th class="px-4 py-3">Quantidade</th>
+                <th class="px-4 py-3">Valor unitário</th>
+                <th class="px-4 py-3">Sub total</th>
                 <th class="px-4 py-3"></th>
             </tr>
         </thead>
         {% for detail in order.details %}
-        <tr class="text-gray-700 dark:text-gray-400 border-t dark:border-gray-700">
+        <tr class="text-gray-700 dark:text-gray-400 border-t dark:border-g  ray-700">
             <td class="px-4 py-3 text-center text-xs">
                 <span class="px-4 py-3 text-sm">{{ detail.item.name }}</span>
             </td>
@@ -81,13 +81,13 @@
                 <span class="px-4 py-3 text-sm">{{ detail.item.code }}</span>
             </td>
             <td class="px-4 py-3 text-center text-xs">
-                <span class="px-4 py-3 text-sm"> R$ {{ '%0.2f' % detail.cost }}</span>
+                <span class="px-4 py-3 text-sm"> {{ detail.item_amount }}</span>
             </td>
             <td class="px-4 py-3 text-center text-xs">
                 <span class="px-4 py-3 text-sm"> R$ {{ '%0.2f' % detail.sell_value }} </span>
             </td>
             <td class="px-4 py-3 text-center text-xs">
-                <span class="px-4 py-3 text-sm"> R$ {{ '%0.2f' % detail.profit }} </span>
+                <span class="px-4 py-3 text-sm"> R$ {{ '%0.2f' % (detail.item_amount * detail.sell_value) }} </span>
             </td>
             <td class="px-4 py-3 text-center text-xs">
                 <div class="flex justify-center items-center space-x-4 text-sm">
@@ -115,13 +115,13 @@
                     <span class="px-4 py-3 text-sm"> - </span>
                 </td>
                 <td class="px-4 py-3 text-center text-xs">
-                    <span class="px-4 py-3 text-sm"> R$ {{ '%0.2f' % order.cost_total }} </span>
+                    <span class="px-4 py-3 text-sm"> - </span>
+                </td>
+                <td class="px-4 py-3 text-center text-xs">
+                    <span class="px-4 py-3 text-sm"> - </span>
                 </td>
                 <td class="px-4 py-3 text-center text-xs">
                     <span class="px-4 py-3 text-sm"> R$ {{ '%0.2f' % order.sell_total }} </span>
-                </td>
-                <td class="px-4 py-3 text-center text-xs">
-                    <span class="px-4 py-3 text-sm"> R$ {{ '%0.2f' % order.profit }} </span>
                 </td>
             </tr>
         </tfoot>

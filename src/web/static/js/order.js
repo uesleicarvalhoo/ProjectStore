@@ -1,5 +1,5 @@
 function deleteOrder(orderId) {
-  fetch(window.location.pathname.split(/\/\d$/)[0] + 'delete', {
+  fetch(window.location.pathname.split(/\/\d$/)[0] + '/delete', {
     method: 'POST',
     body: new URLSearchParams({ 'id': orderId })
   })
@@ -12,7 +12,7 @@ function deleteOrder(orderId) {
 }
 
 function confirmOrder(orderId) {
-  fetch(window.location.pathname.split(/\/\d$/)[0] + "status", {
+  fetch(window.location.pathname.split(/\/\d$/)[0] + "/status", {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -29,7 +29,7 @@ function confirmOrder(orderId) {
 }
 
 function cancelOrder(orderId) {
-  fetch(window.location.pathname.split(/\/\d$/)[0] + "status", {
+  fetch(window.location.pathname.split(/\/\d$/)[0] + "/status", {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({

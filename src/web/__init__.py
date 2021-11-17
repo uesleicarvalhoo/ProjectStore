@@ -154,7 +154,7 @@ async def error(
             "request": request,
             "error": exc,
             "context": context,
-            "error_description": "400 - Erro interno",
+            "error_description": f"400 - Erro interno, detalhes: {exc}",
         },
         status_code=status.HTTP_400_BAD_REQUEST,
     )
