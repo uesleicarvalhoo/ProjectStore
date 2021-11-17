@@ -112,11 +112,12 @@ def delete_by_id(session: Session, order_id: UUID, context: Context, streamer: S
     if not order:
         raise NotFoundError(f"Não foi possível localizar a venda com o ID: {order_id}")
 
-    if not context.user_is_super_user and not order.owner_id != context.user_id:
+    if not context.user_is_super_user and order.owner_id != context.user_id:
         raise NotAuthorizedError(f"Você não possui permissão para excluir a Venda {order_id}")
 
-    for item in [order.item for order in order.details]:
-        item.avaliable = True
+    for detail in [detail for detail in order.details]:
+        item = detail.item
+        item.amount += detail.item_amount
         session.add(item)
 
     session.delete(order)
