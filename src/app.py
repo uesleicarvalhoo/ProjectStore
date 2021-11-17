@@ -16,10 +16,7 @@ app.mount(path=f"{settings.BASE_PATH}/", app=web.app, name="web")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost",
-        "https://localhost",
-    ],
+    allow_origins="*",
     allow_credentials=True,
     allow_methods="*",
     allow_headers="*",
