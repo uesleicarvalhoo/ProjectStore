@@ -23,6 +23,9 @@ class CreateItem(BaseItem):
     @validator("value")
     def validate_value(cls, value: Union[str, float], values: Dict[str, Any]) -> float:
         if isinstance(value, str):
+            if "," in value and "." not in value:
+                value = value.replace(",", ".")
+
             value = float(value)
 
         if values.get("cost", 0) >= value:

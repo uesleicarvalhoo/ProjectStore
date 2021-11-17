@@ -48,6 +48,10 @@ class CreateUser(BaseUser):
 
         raise ValueError("The password and confirmation must be equal!")
 
+    @validator("email")
+    def normalize_email(cls, value: str) -> str:
+        return value.lower()
+
 
 class QueryUser(BaseQuerySchema):
     pass

@@ -22,6 +22,7 @@ class BaseBalance(SQLModel):
 
 
 class CreateBalance(BaseBalance):
+    # FIXME: Mover o tipo do balanço pra cá e aqui mesmo definir o sinal
     @root_validator(pre=True)
     def prepare_fields(cls, values: Dict[str, Any]) -> Dict[str, Any]:
         if operation := values.get("operation"):

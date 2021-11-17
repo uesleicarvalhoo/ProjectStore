@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING, List, Optional
 from uuid import UUID, uuid4
 
 from pydantic import EmailStr, constr, validator
@@ -16,8 +16,8 @@ if TYPE_CHECKING:
 
 class BaseClient(SQLModel):
     name: str = Field(..., description="Client name")
-    email: EmailStr = Field(..., description="Client email")
-    phone: constr(regex=r"^\d{2}9\d{8}$") = Field(..., description="Client cellphone")  # noqa
+    email: Optional[EmailStr] = Field(..., description="Client email")
+    phone: Optional[constr(regex=r"^\d{2}9\d{8}$")] = Field(..., description="Client cellphone")  # noqa
 
     @validator("name")
     def validate_name(cls, value: str) -> str:
