@@ -82,6 +82,7 @@ $ make test
 - [ ] Gerar notas fiscais para cada venda realizada
 - [ ] Action para deploy na AWS
 - [ ] Ajustar os endpoints da API
+- [ ] Fazer testes de exclusão de um item após a venda ser finalizada
 
 ### Tecnologias
 
