@@ -9,7 +9,7 @@ deploy: upgrade
 	@poetry run gunicorn src.app:app -c "./src/gunicorn.py"
 
 test:
-	@ENVIRONMENT=test pytest tests
+	@ENVIRONMENT=test poetry run pytest
 
 docker:
 	@docker rm -f store || true
