@@ -29,18 +29,13 @@ def create(session: Session, schema: CreateItem, context: Context, streamer: Str
 def get_all(session: Session, query_schema: QueryItem, context: Context) -> List[Item]:
     args = []
 
-    if not context.user_is_super_user:
+    if not context.user_is_super_user and context.user_id:
         args.append(Item.owner_id == context.user_id)
 
     if query_schema.avaliable is not None:
         args.append(Item.amount >= 1 if query_schema.avaliable else Item.amount < 1)
 
-    query = select(Item).where(*args).offset(query_schema.offset)
-
-    if query_schema.limit > 0:
-        query = query.limit(query_schema.limit)
-
-    return session.exec(query).all()
+    return session.exec(select(Item).where(*args)).all()
 
 
 def get_by_id(session: Session, item_id: UUID, context: Context) -> Item:
@@ -63,7 +58,7 @@ def update(session: Session, data: UpdateItem, context: Context, streamer: Strea
         raise NotFoundError(f"Não foi possível localizar o Produto com ID: {data.id}")
 
     if not context.user_is_super_user and item.owner_id != context.user_id:
-        raise NotAuthorizedError(f"Você não possui permissão para excluir o Produto com ID: {data.id}")
+        raise NotAuthorizedError(f'Você não possui permissão para editar o Produto: "{item.name}"')
 
     columns = item.__table__.columns.keys()
 
@@ -81,7 +76,7 @@ def update(session: Session, data: UpdateItem, context: Context, streamer: Strea
         context=context,
         data={"item_data": item.dict(), "update_schema": data.dict()},
     )
-    return Item
+    return item
 
 
 @inject.params(streamer=Streamer)

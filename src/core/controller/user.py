@@ -59,14 +59,7 @@ def update_password(session: Session, user_id: UUID, password: str, context: Con
 
 
 def get_all(session: Session, query_schema: QueryUser, context: Context) -> List[User]:
-    query = select(User)
-
-    query = query.offset(query_schema.offset)
-
-    if query_schema.limit > 0:
-        query = query.limit(query_schema.limit)
-
-    return session.exec(query).all()
+    return session.exec(select(User)).all()
 
 
 @inject.params(streamer=Streamer)

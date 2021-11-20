@@ -28,12 +28,7 @@ def get_all(session: Session, query_schema: QueryBalance, context: Context) -> L
     if query_schema.start_date is not None and query_schema.end_date is not None:
         args.append(between(Balance.created_at, query_schema.start_date, query_schema.end_date))
 
-    query = select(Balance).where(*args).offset(query_schema.offset)
-
-    if query_schema.limit > 0:
-        query = query.limit(query_schema.limit)
-
-    return session.exec(query).all()
+    return session.exec(select(Balance).where(*args)).all()
 
 
 @inject.params(streamer=Streamer)

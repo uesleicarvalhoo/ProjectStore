@@ -32,12 +32,7 @@ def get_all(session: Session, query_schema: QueryClient, context: Context) -> Li
     if not context.user_is_super_user:
         args.append(Client.owner_id == context.user_id)
 
-    query = select(Client).where(*args).offset(query_schema.offset)
-
-    if query_schema.limit > 0:
-        query = query.limit(query_schema.limit)
-
-    return session.exec(query).all()
+    return session.exec(select(Client).where(*args)).all()
 
 
 def get_by_id(session: Session, client_id: UUID, context: Context) -> Client:

@@ -41,15 +41,12 @@ def create(session: Session, schema: CreateFiscalNote, context: Context, streame
 
 
 def get_all(session: Session, query_schema: QueryFiscalNote, context: Context) -> List[FiscalNote]:
-    query = select(FiscalNote).offset(query_schema.offset)
+    args = []
 
     if not context.user_is_super_user:
-        query = query.where(FiscalNote.owner_id == context.user_id)
+        args.append(FiscalNote.owner_id == context.user_id)
 
-    if query_schema.limit > 0:
-        query = query.limit(query_schema.limit)
-
-    return session.exec(query).all()
+    return session.exec(select(FiscalNote).where(*args)).all()
 
 
 def get_by_id(session: Session, fiscal_note_id: UUID, context: Context) -> FiscalNote:

@@ -4,11 +4,19 @@ from uuid import UUID
 import inject
 from sqlmodel import Session, between, select
 
-from src.core.constants import BalanceType
 from src.core.events import EventDescription
 from src.core.helpers.exceptions import DataValidationError, NotAuthorizedError, NotFoundError
-from src.core.models import Client, Context, CreateOrder, Item, Order, OrderDetail, QueryOrder, UpdateOrderStatus
-from src.core.models.balance import CreateBalance
+from src.core.models import (
+    Client,
+    Context,
+    CreateBalance,
+    CreateOrder,
+    Item,
+    Order,
+    OrderDetail,
+    QueryOrder,
+    UpdateOrderStatus,
+)
 from src.core.services import Streamer
 
 from . import balance
@@ -26,12 +34,7 @@ def get_all(session: Session, query_schema: QueryOrder, context: Context) -> Lis
     if query_schema.start_date is not None and query_schema.end_date is not None:
         args.append(between(Order.date, query_schema.start_date, query_schema.end_date))
 
-    query = select(Order).where(*args).offset(query_schema.offset)
-
-    if query_schema.limit > 0:
-        query = query.limit(query_schema.limit)
-
-    return session.exec(query).all()
+    return session.exec(select(Order).where(*args)).all()
 
 
 def get_by_id(session: Session, order_id: UUID, context: Context) -> Order:
@@ -92,8 +95,7 @@ def register_sale(session: Session, schema: CreateOrder, context: Context, strea
 
     balance_schema = CreateBalance(
         value=sum(detail.sell_value for detail in schema.details),
-        type=BalanceType.CREDIT,
-        operation=schema.operation_type,
+        operation=schema.operation.name,
         description=schema.description,
     )
     balance_obj = balance.create(session, balance_schema, context=context)
