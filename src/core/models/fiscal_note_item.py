@@ -8,7 +8,6 @@ from sqlmodel.sql.sqltypes import GUID
 
 from src.monitoring import capture_exception
 
-from .base import BaseQuerySchema
 from .file import File
 from .item import Item
 
@@ -54,7 +53,7 @@ class CreateFiscalNoteItem(BaseFiscalNoteItem):
         return self.filename.split(".")[-1]
 
 
-class QueryFiscalNoteItem(BaseQuerySchema):
+class QueryFiscalNoteItem(SQLModel):
     avaliable: Optional[bool] = Field(description="Flag to identify items avaliable")
 
 

@@ -7,7 +7,6 @@ from sqlmodel import Column, Field, Relationship, SQLModel
 from sqlmodel.sql.sqltypes import GUID
 
 from ...utils.date import now_datetime
-from .base import BaseQuerySchema
 
 if TYPE_CHECKING:
     from .order import Order
@@ -32,15 +31,15 @@ class UpdateClient(BaseClient):
     id: UUID = Field(..., description="Client ID")
 
 
-class QueryClient(BaseQuerySchema):
-    pass
+class QueryClient(SQLModel):
+    name: Optional[str] = Field(description="Name of client for query")
 
 
 class Client(BaseClient, table=True):
     __tablename__ = "clients"
 
     id: UUID = Field(default_factory=uuid4, description="Client ID", sa_column=Column("id", GUID(), primary_key=True))
-    owner_id: UUID = Field(default_factory=uuid4, description="User ID that owns the client", foreign_key="users.id")
+    owner_id: UUID = Field(..., description="User ID that owns the client", foreign_key="users.id")
     created_at: datetime = Field(default_factory=now_datetime)
 
     owner: "User" = Relationship()

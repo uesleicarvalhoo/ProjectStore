@@ -5,8 +5,6 @@ from pydantic import PositiveFloat, validator
 from sqlmodel import Column, Field, Relationship, SQLModel
 from sqlmodel.sql.sqltypes import GUID
 
-from .base import BaseQuerySchema
-
 if TYPE_CHECKING:
     from .user import User
 
@@ -28,27 +26,29 @@ class CreateItem(BaseItem):
 
             value = float(value)
 
-        if values.get("cost", 0) >= value:
+        if (values.get("cost") or 0) >= value:
             raise ValueError("The sugested sell value must be higher then buy value!")
 
         return value
 
 
 class UpdateItem(BaseItem):
-    id: UUID = Field(default_factory=uuid4, description="ID do item")
+    id: UUID = Field(..., description="ID do item")
 
     @validator("value")
     def validate_value(cls, value: Union[str, float], values: Dict[str, Any]) -> float:
         if isinstance(value, str):
             value = float(value)
 
-        if values.get("cost", 0) >= value:
+        if (values.get("cost") or 0) >= value:
             raise ValueError("The sugested sell value must be higher then buy value!")
 
         return value
 
 
-class QueryItem(BaseQuerySchema):
+class QueryItem(SQLModel):
+    name: Optional[str] = Field(description="Name of the item for query")
+    code: Optional[str] = Field(description="Code of the item for query")
     avaliable: Optional[bool] = Field(description="Flag to identify if the item is avaliable")
 
 

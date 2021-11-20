@@ -9,7 +9,6 @@ from sqlmodel.sql.sqltypes import GUID
 
 from src.monitoring import capture_exception
 
-from .base import BaseQuerySchema
 from .file import File
 from .fiscal_note_item import CreateFiscalNoteItem, FiscalNoteItem
 from .user import User
@@ -38,7 +37,7 @@ class CreateFiscalNote(BaseFiscalNote):
             raise ValueError("Couldn't decode the file!")
 
 
-class QueryFiscalNote(BaseQuerySchema):
+class QueryFiscalNote(SQLModel):
     pass
 
 

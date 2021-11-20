@@ -6,8 +6,6 @@ from pydantic.types import PositiveInt
 from sqlmodel import Column, Field, Relationship, SQLModel
 from sqlmodel.sql.sqltypes import GUID
 
-from .base import BaseQuerySchema
-
 if TYPE_CHECKING:
     from .item import Item
     from .order import Order
@@ -25,7 +23,7 @@ class CreateOrderDetail(BaseOrderDetail):
     pass
 
 
-class QueryOrderDetail(BaseQuerySchema):
+class QueryOrderDetail(SQLModel):
     pass
 
 

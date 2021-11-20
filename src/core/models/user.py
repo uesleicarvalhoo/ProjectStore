@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
 from pydantic import EmailStr, validator
@@ -6,8 +6,6 @@ from sqlmodel import Column, Enum, Field, Relationship, SQLModel
 from sqlmodel.sql.sqltypes import GUID
 
 from src.core.constants import AccessLevel
-
-from .base import BaseQuerySchema
 
 if TYPE_CHECKING:
     from .client import Client
@@ -53,8 +51,8 @@ class CreateUser(BaseUser):
         return value.lower()
 
 
-class QueryUser(BaseQuerySchema):
-    pass
+class QueryUser(SQLModel):
+    name: Optional[str]
 
 
 class User(BaseUser, table=True):

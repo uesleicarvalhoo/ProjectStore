@@ -5,7 +5,6 @@ from sqlmodel import Field, SQLModel
 
 from ...utils.date import now_datetime
 from ..config import settings
-from .base import BaseQuerySchema
 
 
 class CreateFile(SQLModel):
@@ -13,7 +12,7 @@ class CreateFile(SQLModel):
     filename: str = Field(..., description="Image filename", min_length=1)
 
 
-class QueryFile(BaseQuerySchema):
+class QueryFile(SQLModel):
     bucket_key: str = Field(..., description="Identation of file in storage service")
 
 
