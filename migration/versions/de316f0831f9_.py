@@ -63,15 +63,11 @@ def upgrade():
     op.drop_column("order_details", "sell_value")
     op.drop_column("order_details", "cost")
 
-    op.drop_index("ix_fiscal_note_items_buy_value", table_name="fiscal_note_items")
-    op.drop_index("ix_fiscal_note_items_file_id", table_name="fiscal_note_items")
     op.drop_index("ix_fiscal_note_items_fiscal_note_id", table_name="fiscal_note_items")
     op.drop_index("ix_fiscal_note_items_item_id", table_name="fiscal_note_items")
     op.drop_index("ix_fiscal_note_items_owner_id", table_name="fiscal_note_items")
     op.drop_index("ix_fiscal_note_items_sugested_sell_value", table_name="fiscal_note_items")
     op.drop_table("fiscal_note_items")
-    op.drop_index("ix_fiscal_notes_description", table_name="fiscal_notes")
-    op.drop_index("ix_fiscal_notes_file_id", table_name="fiscal_notes")
     op.drop_index("ix_fiscal_notes_owner_id", table_name="fiscal_notes")
     op.drop_index("ix_fiscal_notes_purchase_date", table_name="fiscal_notes")
     op.drop_table("fiscal_notes")
@@ -122,8 +118,6 @@ def downgrade():
     )
     op.create_index("ix_fiscal_notes_purchase_date", "fiscal_notes", ["purchase_date"], unique=False)
     op.create_index("ix_fiscal_notes_owner_id", "fiscal_notes", ["owner_id"], unique=False)
-    op.create_index("ix_fiscal_notes_file_id", "fiscal_notes", ["file_id"], unique=False)
-    op.create_index("ix_fiscal_notes_description", "fiscal_notes", ["description"], unique=False)
     op.create_table(
         "fiscal_note_items",
         sa.Column("id", postgresql.UUID(), autoincrement=False, nullable=False),
@@ -147,6 +141,4 @@ def downgrade():
     op.create_index("ix_fiscal_note_items_owner_id", "fiscal_note_items", ["owner_id"], unique=False)
     op.create_index("ix_fiscal_note_items_item_id", "fiscal_note_items", ["item_id"], unique=False)
     op.create_index("ix_fiscal_note_items_fiscal_note_id", "fiscal_note_items", ["fiscal_note_id"], unique=False)
-    op.create_index("ix_fiscal_note_items_file_id", "fiscal_note_items", ["file_id"], unique=False)
-    op.create_index("ix_fiscal_note_items_buy_value", "fiscal_note_items", ["buy_value"], unique=False)
     # ### end Alembic commands ###
