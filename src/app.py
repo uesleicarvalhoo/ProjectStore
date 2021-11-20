@@ -7,7 +7,7 @@ from fastapi.responses import UJSONResponse
 from .api import auth, health_check, v1
 from .core.config import settings
 from .core.helpers.database import init_database
-from .core.helpers.exceptions import DatabaseError, NotFoundError
+from .core.helpers.exceptions import DatabaseError, InvalidCredentialError, NotFoundError
 from .core.helpers.logger import logger
 from .monitoring import capture_exception, monitoring_client
 
@@ -54,6 +54,11 @@ async def http_error(request: Request, exc: HTTPException):
 async def database_error(request: Request, exc: DatabaseError):
     capture_exception()
     return UJSONResponse(content={"message": exc.detail}, status_code=status.HTTP_400_BAD_REQUEST)
+
+
+@app.exception_handler(InvalidCredentialError)
+async def invalid_credential_error(request: Request, exc: InvalidCredentialError):
+    return UJSONResponse(content={"message": exc.detail}, status_code=status.HTTP_401_UNAUTHORIZED)
 
 
 @app.exception_handler(NotFoundError)
