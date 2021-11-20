@@ -70,8 +70,7 @@ def test_get_update_item_by_id_fail(session: Session, context: Context) -> None:
 
 
 def test_get_all_item_success(session: Session, context: Context) -> None:
-    query = QueryItem(limit=10, page=1)
-    query2 = QueryItem(limit=5, page=2)
+    query = QueryItem()
     query_avaliable = QueryItem(avaliable=True)
     query_not_avaliable = QueryItem(avaliable=False)
 
@@ -85,18 +84,10 @@ def test_get_all_item_success(session: Session, context: Context) -> None:
         controller.item.create(session, schema=schema, context=context)
 
     items = controller.item.get_all(session, query_schema=query, context=context)
-    items2 = controller.item.get_all(session, query_schema=query2, context=context)
     items_avaliable = controller.item.get_all(session, query_schema=query_avaliable, context=context)
     items_not_avaliable = controller.item.get_all(session, query_schema=query_not_avaliable, context=context)
 
-    assert query.offset == 0
-    assert query2.offset == 5
-    assert query.limit == 10
-    assert query2.limit == 5
-
     assert all(isinstance(item, Item) for item in items)
-    assert len(items) == 10
-    assert len(items2) == 5
     assert all(item.avaliable for item in items_avaliable)
     assert all(not item.avaliable for item in items_not_avaliable)
 

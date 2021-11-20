@@ -122,8 +122,7 @@ def test_get_by_email_fail(session: Session, context: Context) -> None:
 
 def test_get_all_success(session: Session, context: Context) -> None:
     # prepare
-    query = QueryUser(limit=10, page=1)
-    query2 = QueryUser(limit=5, page=2)
+    query = QueryUser()
 
     # create
     for _ in range(10):
@@ -131,18 +130,9 @@ def test_get_all_success(session: Session, context: Context) -> None:
         controller.user.create(session, schema=schema, context=context)
 
     users = controller.user.get_all(session, query_schema=query, context=context)
-    users2 = controller.user.get_all(session, query_schema=query2, context=context)
 
     # assert
-    assert query.offset == 0
-    assert query2.offset == 5
-    assert query.limit == 10
-    assert query2.limit == 5
-
-    assert isinstance(users, list)
-    assert len(users) == query.limit
     assert all(isinstance(user, User) for user in users)
-    assert len(users2) == query2.limit
 
 
 def test_delete_success(session: Session, context: Context) -> None:

@@ -5,7 +5,7 @@ from pydantic import ValidationError
 from sqlmodel import Session
 
 from src.core import controller
-from src.core.constants import OperationType, OrderStatus
+from src.core.constants import OrderStatus, SaleType
 from src.core.helpers.exceptions import DataValidationError, NotFoundError
 from src.core.models.context import Context
 from src.core.models.order import UpdateOrderStatus
@@ -22,12 +22,12 @@ def test_register_sale_success(session: Session, context: Context) -> None:
     item = controller.item.create(session, CreateItemFactory(cost=100, value=150), context=context)
     order_detail = CreateOrderDetailFactory(
         item_id=item.id,
-        cost=item.cost,
-        sell_value=item.value,
+        item_name=item.name,
+        value=item.value,
         item_amount=item.amount,
     )
     initial_item_amount = item.amount
-    schema = CreateOrderFactory(client_id=client.id, details=[order_detail], operation_type=OperationType.SALE_IN_PIX)
+    schema = CreateOrderFactory(client_id=client.id, items=[order_detail], sale_type=SaleType.SALE_IN_PIX)
 
     # create
     order = controller.order.register_sale(session, schema, context=context)
@@ -37,10 +37,7 @@ def test_register_sale_success(session: Session, context: Context) -> None:
     assert order.client_id == order.client_id
     assert order.status == schema.status
     assert order.description == schema.description
-    assert len(order.details) == len(schema.details)
-    assert order.profit == 50
-    assert order.cost_total == 100
-    assert order.sell_total == 150
+    assert len(order.items) == len(schema.items)
     assert item.amount + order.details[0].item_amount == initial_item_amount
 
 
@@ -54,15 +51,12 @@ def test_register_sale_fail(session: Session, context: Context) -> None:
     with pytest.raises(NotFoundError):
         order_detail = CreateOrderDetailFactory(
             item_id=item.id,
-            cost=item.cost,
-            sell_value=item.value,
+            value=item.value,
             item_amount=item.amount,
         )
         controller.order.register_sale(
             session,
-            schema=CreateOrderFactory(
-                client_id=uuid4(), details=[order_detail], operation_type=OperationType.SALE_IN_MONEY
-            ),
+            schema=CreateOrderFactory(client_id=uuid4(), items=[order_detail], sale_type=SaleType.SALE_IN_MONEY),
             context=context,
         )
 
@@ -70,15 +64,12 @@ def test_register_sale_fail(session: Session, context: Context) -> None:
     with pytest.raises(NotFoundError):
         order_detail = CreateOrderDetailFactory(
             item_id=uuid4(),
-            cost=item.cost,
-            sell_value=item.value,
+            value=item.value,
             item_amount=item.amount,
         )
         controller.order.register_sale(
             session,
-            schema=CreateOrderFactory(
-                client_id=uuid4(), details=[order_detail], operation_type=OperationType.SALE_IN_CREDIT
-            ),
+            schema=CreateOrderFactory(client_id=uuid4(), items=[order_detail], sale_type=SaleType.SALE_IN_CREDIT),
             context=context,
         )
 
@@ -86,47 +77,12 @@ def test_register_sale_fail(session: Session, context: Context) -> None:
     with pytest.raises(DataValidationError):
         order_detail = CreateOrderDetailFactory(
             item_id=item.id,
-            cost=item.cost,
-            sell_value=item.value,
+            value=item.value,
             item_amount=item.amount + 1,
         )
         controller.order.register_sale(
             session,
-            schema=CreateOrderFactory(
-                client_id=client.id, details=[order_detail], operation_type=OperationType.SALE_IN_DEBT
-            ),
-            context=context,
-        )
-
-    # Invalid cost
-    with pytest.raises(DataValidationError):
-        order_detail = CreateOrderDetailFactory(
-            item_id=item.id,
-            cost=item.cost - 1,
-            sell_value=item.value,
-            item_amount=item.amount,
-        )
-        controller.order.register_sale(
-            session,
-            schema=CreateOrderFactory(
-                client_id=client.id, details=[order_detail], operation_type=OperationType.SALE_IN_PIX
-            ),
-            context=context,
-        )
-
-    # Invalid sell value
-    with pytest.raises(DataValidationError):
-        order_detail = CreateOrderDetailFactory(
-            item_id=item.id,
-            cost=item.cost,
-            sell_value=item.cost - 1,
-            item_amount=item.amount,
-        )
-        controller.order.register_sale(
-            session,
-            schema=CreateOrderFactory(
-                client_id=client.id, details=[order_detail], operation_type=OperationType.SALE_IN_PIX
-            ),
+            schema=CreateOrderFactory(client_id=client.id, items=[order_detail], sale_type=SaleType.SALE_IN_DEBT),
             context=context,
         )
 
@@ -138,12 +94,11 @@ def test_get_by_id_success(session: Session, context: Context) -> None:
     item = controller.item.create(session, CreateItemFactory(buy_value=100, sugested_sell_value=150), context=context)
     order_detail = CreateOrderDetailFactory(
         item_id=item.id,
-        cost=item.cost,
-        sell_value=item.value,
+        value=item.value,
         item_amount=item.amount,
     )
 
-    schema = CreateOrderFactory(client_id=client.id, details=[order_detail], operation_type=OperationType.SALE_IN_PIX)
+    schema = CreateOrderFactory(client_id=client.id, items=[order_detail], sale_type=SaleType.SALE_IN_PIX)
 
     # create
     order = controller.order.register_sale(session, schema, context=context)
@@ -165,14 +120,11 @@ def test_update_order_status_success(session: Session, context: Context) -> None
     item = controller.item.create(session, CreateItemFactory(buy_value=100, sugested_sell_value=150), context=context)
     order_detail = CreateOrderDetailFactory(
         item_id=item.id,
-        cost=item.cost,
-        sell_value=item.value,
+        value=item.value,
         item_amount=item.amount,
     )
 
-    order_schema = CreateOrderFactory(
-        client_id=client.id, details=[order_detail], operation_type=OperationType.SALE_IN_PIX
-    )
+    order_schema = CreateOrderFactory(client_id=client.id, items=[order_detail], sale_type=SaleType.SALE_IN_PIX)
     order = controller.order.register_sale(session, order_schema, context=context)
     pending_schema = UpdateOrderStatus(order_id=order.id, status=OrderStatus.PENDING)
     completed_schema = UpdateOrderStatus(order_id=order.id, status=OrderStatus.COMPLETED)
@@ -198,17 +150,14 @@ def test_update_order_status_fail(session: Session, context: Context) -> None:
     item = controller.item.create(session, CreateItemFactory(buy_value=100, sugested_sell_value=150), context=context)
     order_detail = CreateOrderDetailFactory(
         item_id=item.id,
-        cost=item.cost,
-        sell_value=item.value,
+        value=item.value,
         item_amount=item.amount,
     )
 
     # create
     order = controller.order.register_sale(
         session,
-        schema=CreateOrderFactory(
-            client_id=client.id, details=[order_detail], operation_type=OperationType.SALE_IN_PIX
-        ),
+        schema=CreateOrderFactory(client_id=client.id, items=[order_detail], sale_type=SaleType.SALE_IN_PIX),
         context=context,
     )
 

@@ -16,7 +16,7 @@ class CreateOrderFactory(factory.Factory):
     date: factory.LazyFunction(date_.today)
     status: OrderStatus = OrderStatus.PENDING
     description: str = factory.Faker("sentence")
-    details: List[CreateOrderDetail] = factory.List([factory.SubFactory(CreateOrderDetailFactory)])
+    items: List[CreateOrderDetail] = factory.List([factory.SubFactory(CreateOrderDetailFactory)])
     date: date_ = factory.LazyFunction(lambda: date_.today())
 
     class Meta:
