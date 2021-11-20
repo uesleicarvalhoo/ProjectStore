@@ -56,7 +56,7 @@ def register_sale(session: Session, schema: CreateOrder, context: Context, strea
 
     checked_ids = []
 
-    for detail in schema.details:
+    for detail in schema.items:
         if detail.item_id in checked_ids:
             continue
 
@@ -66,16 +66,10 @@ def register_sale(session: Session, schema: CreateOrder, context: Context, strea
         if not item:
             raise NotFoundError(f"Não foi possível salvar a venda, item com o ID {detail.item_id} não existe")
 
-        if item.cost != detail.cost:
-            raise DataValidationError(f"O valor de compra do Item {item.name} está incorreto!")
-
-        if detail.sell_value < item.cost:
-            raise DataValidationError("O valor de venda de um item não pode ser inferior ao valor de compra!")
-
         if not item.avaliable:
             raise DataValidationError(f"O item {item.name} de ID {item.id} não está disponível!")
 
-        total_required = sum(x.item_amount for x in schema.details if x.item_id == item.id)
+        total_required = sum(x.item_amount for x in schema.items if x.item_id == item.id)
 
         if item.amount < total_required:
             raise DataValidationError(
@@ -89,13 +83,13 @@ def register_sale(session: Session, schema: CreateOrder, context: Context, strea
     order = Order(**schema.dict(exclude={"details": ...}), owner_id=context.user_id)
     session.add(order)
 
-    for detail in schema.details:
+    for detail in schema.items:
         detail_obj = OrderDetail(**detail.dict(), order_id=order.id)
         session.add(detail_obj)
 
     balance_schema = CreateBalance(
-        value=sum(detail.sell_value for detail in schema.details),
-        operation=schema.operation.name,
+        value=sum(detail.value for detail in schema.items),
+        operation=schema.sale_type.value,
         description=schema.description,
     )
     balance_obj = balance.create(session, balance_schema, context=context)
@@ -117,7 +111,7 @@ def delete_by_id(session: Session, order_id: UUID, context: Context, streamer: S
     if not context.user_is_super_user and order.owner_id != context.user_id:
         raise NotAuthorizedError(f"Você não possui permissão para excluir a Venda {order_id}")
 
-    for detail in [detail for detail in order.details]:
+    for detail in [detail for detail in order.items]:
         item = detail.item
         item.amount += detail.item_amount
         session.add(item)

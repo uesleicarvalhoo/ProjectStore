@@ -13,10 +13,7 @@ from src.core.services import Streamer
 @inject.params(streamer=Streamer)
 def create(session: Session, schema: CreateItem, context: Context, streamer: Streamer) -> Item:
 
-    item = Item(
-        **schema.dict(exclude={"image": ..., "filename": ...}),
-        owner_id=context.user_id,
-    )
+    item = Item(**schema.dict(), owner_id=context.user_id)
 
     session.add(item)
     session.commit()
