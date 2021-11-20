@@ -2,21 +2,18 @@ from datetime import timedelta
 from time import time
 from typing import Union
 
-import inject
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError
 from passlib.context import CryptContext
 from pydantic.error_wrappers import ValidationError
-from starlette.responses import Response
 
 from src.core.constants import AccessLevel
 from src.core.helpers.exceptions import NotAuthorizedError
-from src.core.services import CacheClient
 from src.monitoring import capture_exception
 from src.utils.date import now_datetime
 
 from .config import settings
-from .models import Token
+from .models import ParsedToken
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -44,9 +41,9 @@ def create_access_token(subject: str, access_level: AccessLevel, expires_delta: 
     return token
 
 
-def load_jwt_token(token: str) -> Token:
+def load_jwt_token(token: str) -> ParsedToken:
     try:
-        return Token(**jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM]))
+        return ParsedToken(**jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM]))
 
     except ExpiredSignatureError:
         capture_exception()
@@ -55,26 +52,6 @@ def load_jwt_token(token: str) -> Token:
     except (jwt.JWTError, ValidationError):
         capture_exception()
         raise NotAuthorizedError("Não foi possível validar as suas credenciais")
-
-
-@inject.params(cache=CacheClient)
-def validate_access_token(token: str, cache: CacheClient) -> bool:
-    try:
-        load_jwt_token(token=token)
-    except NotAuthorizedError:
-        return False
-
-    return cache.get("token-black-list", token) is None
-
-
-@inject.params(cache=CacheClient)
-async def invalidate_access_token(jwt_token: str, cache: CacheClient, response: Response = None) -> None:
-    token = load_jwt_token(jwt_token)
-    expire = int(token.exp - now_datetime().timestamp())
-    cache.set("token-black-list", jwt_token, token, expire)
-
-    if response:
-        response.delete_cookie(settings.ACCESS_TOKEN_NAME)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
