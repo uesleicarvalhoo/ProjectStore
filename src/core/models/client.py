@@ -15,8 +15,10 @@ if TYPE_CHECKING:
 
 class BaseClient(SQLModel):
     name: str = Field(..., description="Client name")
-    email: Optional[EmailStr] = Field(..., description="Client email")
-    phone: Optional[constr(regex=r"^\d{2}9\d{8}$")] = Field(..., description="Client cellphone")  # noqa
+    email: Optional[EmailStr] = Field(..., description="Client email", nullable=True)
+    phone: Optional[constr(regex=r"^\d{2}9\d{8}$")] = Field(..., description="Client cellphone", nullable=True)  # noqa
+    zip_code: Optional[str] = Field(..., description="Postal code", nullable=True)
+    address: Optional[str] = Field(..., description="Address of Client", nullable=True)
 
     @validator("name")
     def validate_name(cls, value: str) -> str:

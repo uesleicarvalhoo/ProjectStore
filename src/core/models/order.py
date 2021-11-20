@@ -25,15 +25,15 @@ class BaseOrder(SQLModel):
     date: date_ = Field(..., description="Purchase date")
     status: OrderStatus = Field(..., description="Purchase Status", sa_column=Column(Enum(OrderStatus), nullable=False))
     description: Optional[str] = Field(description="Description of sale")
-    payment_type: PaymentType = Field(..., description="Tipo da operação")
+    payment_type: PaymentType = Field(
+        ..., description="Tipo da operação", sa_column=Column(Enum(PaymentType), nullable=False)
+    )
 
 
 class CreateOrder(BaseOrder):
     items: List["CreateOrderDetail"] = Field(..., description="Details of purchase")
     date: date_ = Field(default_factory=lambda: now_datetime().date(), description="Purchase date")
-    status: OrderStatus = Field(
-        default=OrderStatus.PENDING, description="Purchase Status", sa_column=Column(Enum(OrderStatus), nullable=False)
-    )
+    status: OrderStatus = Field(default=OrderStatus.PENDING, description="Purchase Status")
 
 
 class QueryOrder(SQLModel):
