@@ -1,19 +1,75 @@
-from datetime import timedelta
-from time import time
 from typing import Union
 
 import inject
-from fastapi import Request, Response
+from fastapi import Request
 from fastapi.param_functions import Cookie, Depends, Header
+from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session, select
 
 from ..core.config import settings
 from ..core.constants import AccessLevel, ContextEnum
 from ..core.helpers.database import make_session
 from ..core.helpers.exceptions import NotAuthorizedError
-from ..core.models import Context, Message, Token, User
-from ..core.security import create_access_token, invalidate_access_token, load_jwt_token, validate_access_token
+from ..core.models import Context, Message, ParsedToken, User
+from ..core.security import load_jwt_token, validate_access_token
 from ..core.services import CacheClient
+
+reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="api/v1/auth/access-token")
+
+
+def get_string_token(token: str = Header(None, alias="Authorization")) -> Union[None, str]:
+    if token:
+        _, token = token.split(" ", maxsplit=1)
+
+    return token
+
+
+def load_access_token(token: str = Depends(reusable_oauth2)) -> ParsedToken:
+    return load_jwt_token(token)
+
+
+def get_token(
+    cookie_token: str = Cookie(None, alias="access_token"), header_token: str = Header(None, alias="access_token")
+) -> str:
+    access_token = header_token or cookie_token
+
+    if not access_token:
+        raise NotAuthorizedError("Você precisa fazer login antes de continuar")
+
+    return access_token
+
+
+def get_parsed_token(token: str = Depends(get_token)) -> ParsedToken:
+    if not token:
+        raise NotAuthorizedError("Você precisa fazer login antes de continuar")
+
+    return load_jwt_token(token)
+
+
+async def get_current_user(
+    session: Session = Depends(make_session), token: ParsedToken = Depends(load_access_token)
+) -> User:
+    user = session.exec(select(User).where(User.id == token.sub)).first()
+
+    if not user:
+        raise NotAuthorizedError("Usuário não localizado")
+
+    return user
+
+
+async def login_required(
+    token: ParsedToken = Depends(get_token), current_user: User = Depends(get_current_user)
+) -> None:
+    if not validate_access_token(token):
+        raise NotAuthorizedError("Sessão expirada!")
+
+    if not current_user.is_active:
+        raise NotAuthorizedError("Sua licença expirou! Entre em contato com um administrador.")
+
+
+async def validate_super_user(user: User = Depends(get_current_user)) -> None:
+    if not user.is_super_user:
+        raise NotAuthorizedError("Essa página só está disponível para administradores")
 
 
 class ContextManager:
@@ -22,17 +78,15 @@ class ContextManager:
     def __init__(self, context: Union[str, ContextEnum]) -> None:
         self.context = context if isinstance(context, ContextEnum) else ContextEnum(context)
 
-    def __call__(self, request: Request) -> Context:
-        token = request.cookies.get(settings.ACCESS_TOKEN_NAME)
-
+    def __call__(self, request: Request, token: str = Depends(get_string_token)) -> Context:
         try:
             parsed_token = get_parsed_token(token=token)
             user_id = parsed_token.sub
             access_level = parsed_token.access_level
-            authenticated = validate_access_token(token)
+            authenticated = True
 
         except NotAuthorizedError:
-            user_id = "anonymous"
+            user_id = None
             authenticated = False
             access_level = AccessLevel.ANONIMOUS
 
@@ -70,68 +124,4 @@ class ContextManager:
         cache.set("messages", session_id, {"header": header, "text": text}, expiration=5 * 60)
 
 
-def get_token(
-    cookie_token: str = Cookie(None, alias="access_token"), header_token: str = Header(None, alias="access_token")
-) -> str:
-    access_token = header_token or cookie_token
-
-    if not access_token:
-        raise NotAuthorizedError("Você precisa fazer login antes de continuar")
-
-    return access_token
-
-
-def get_parsed_token(token: str = Depends(get_token)) -> Token:
-    if not token:
-        raise NotAuthorizedError("Você precisa fazer login antes de continuar")
-
-    return load_jwt_token(token)
-
-
-async def get_current_user(session: Session = Depends(make_session), token: Token = Depends(get_parsed_token)) -> User:
-    user = session.exec(select(User).where(User.id == token.sub)).first()
-
-    if not user:
-        raise NotAuthorizedError("Usuário não localizado")
-
-    return user
-
-
-async def login_required(token: Token = Depends(get_token), current_user: User = Depends(get_current_user)) -> None:
-    if not validate_access_token(token):
-        raise NotAuthorizedError("Sessão expirada!")
-
-    if not current_user.is_active:
-        raise NotAuthorizedError("Sua licença expirou! Entre em contato com um administrador.")
-
-
-async def validate_super_user(user: User = Depends(get_current_user)) -> None:
-    if not user.is_super_user:
-        raise NotAuthorizedError("Essa página só está disponível para administradores")
-
-
-async def refresh_access_token(response: Response, token: str, expires_delta: Union[int, timedelta] = None) -> None:
-    parsed_token = load_jwt_token(token)
-
-    if not validate_access_token(token):
-        return None
-
-    if parsed_token.created_at + (settings.ACESS_TOKEN_REFRESH_MINUTES * 60) > time():
-        return None
-
-    await invalidate_access_token(jwt_token=token, response=response)
-    await set_token_on_response(
-        response,
-        token=create_access_token(
-            str(parsed_token.sub), access_level=parsed_token.access_level, expires_delta=expires_delta
-        ),
-    )
-
-
-async def set_token_on_response(response: Response, token: str) -> None:
-    parsed_token = load_jwt_token(token)
-    response.set_cookie(settings.ACCESS_TOKEN_NAME, token, max_age=parsed_token.exp)
-
-
-web_context_manager = ContextManager(ContextEnum.WEB)
 api_context_manager = ContextManager(ContextEnum.API)
