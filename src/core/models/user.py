@@ -9,14 +9,13 @@ from src.core.constants import AccessLevel
 
 if TYPE_CHECKING:
     from .client import Client
-    from .fiscal_note import FiscalNote
     from .item import Item
     from .order import Order
 
 
 class BaseUser(SQLModel):
     name: str = Field(..., description="Username")
-    email: EmailStr = Field(..., description="Email of the user")
+    email: EmailStr = Field(..., description="Email of the user", sa_column_kwargs={"unique": True})
     access_level: AccessLevel = Field(
         AccessLevel.USER,
         description="Level of access access permission of that user",
@@ -64,11 +63,6 @@ class User(BaseUser, table=True):
     password_hash: str = Field(..., description="Hash of password")
 
     items: List["Item"] = Relationship(
-        back_populates="owner",
-        sa_relationship_kwargs={"cascade": "all,delete", "lazy": "selectin", "passive_deletes": True},
-    )
-
-    fiscal_notes: List["FiscalNote"] = Relationship(
         back_populates="owner",
         sa_relationship_kwargs={"cascade": "all,delete", "lazy": "selectin", "passive_deletes": True},
     )

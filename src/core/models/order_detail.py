@@ -1,7 +1,6 @@
 from typing import TYPE_CHECKING, Optional
 from uuid import UUID, uuid4
 
-from pydantic import PositiveFloat
 from pydantic.types import PositiveInt
 from sqlmodel import Column, Field, Relationship, SQLModel
 from sqlmodel.sql.sqltypes import GUID
@@ -14,8 +13,7 @@ if TYPE_CHECKING:
 class BaseOrderDetail(SQLModel):
     item_id: UUID = Field(foreign_key="items.id", description="ID do cliente que realizou a compra")
     item_name: str = Field(description="Name of item")
-    cost: float = Field(description="Value the item was purchased", ge=0)
-    sell_value: PositiveFloat = Field(description="Value the item was sold")
+    value: float = Field(description="Value of the item", ge=0)
     item_amount: PositiveInt = Field(description="Quantity of item")
 
 

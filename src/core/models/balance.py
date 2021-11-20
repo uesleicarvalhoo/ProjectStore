@@ -2,12 +2,12 @@ from datetime import date, datetime
 from typing import Any, Dict, Optional
 from uuid import UUID, uuid4
 
-from pydantic.class_validators import validator
+from pydantic.class_validators import root_validator
 from sqlmodel import Column, Enum, Field, SQLModel
 from sqlmodel.sql.sqltypes import GUID
 
 from ...utils.date import now_datetime
-from ..constants import OperationType, PaymentType
+from ..constants import OperationType, PaymentType, SaleType
 
 
 class BaseBalance(SQLModel):
@@ -20,12 +20,21 @@ class BaseBalance(SQLModel):
 
 
 class CreateBalance(BaseBalance):
-    @validator("value")
-    def normalize_value(cls, value: float, values: Dict[str, Any]) -> float:
+    @root_validator()
+    def normalize_value(cls, values: Dict[str, Any]) -> float:
+        operation_type = values.get("operation")
+        value = values.get("value")
 
-        if operation_type := value.get("operation"):
-            if any(operation_type.name == name for name, _ in PaymentType) and value > 0:
-                return value * -1
+        if not operation_type or not value:
+            return values
+
+        if any(operation_type.name == payment_type.name for payment_type in PaymentType) and value > 0:
+            values["value"] = value * -1
+
+        if any(operation_type.name == sale_type.name for sale_type in SaleType) and value < 0:
+            values["value"] = value * -1
+
+        return values
 
 
 class QueryBalance(SQLModel):

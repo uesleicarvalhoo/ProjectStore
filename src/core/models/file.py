@@ -8,8 +8,8 @@ from ..config import settings
 
 
 class CreateFile(SQLModel):
-    image: bytes = Field(..., description="Content base64 of the image")
-    filename: str = Field(..., description="Image filename", min_length=1)
+    data: bytes = Field(..., description="Content of File")
+    filename: str = Field(..., description="Name of file", min_length=1)
 
 
 class QueryFile(SQLModel):

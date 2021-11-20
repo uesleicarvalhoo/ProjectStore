@@ -10,7 +10,7 @@ from sqlmodel.sql.sqltypes import GUID
 
 from src.utils.date import now_datetime
 
-from ..constants import OrderStatus, PaymentType
+from ..constants import OrderStatus, SaleType
 from .client import Client
 from .item import Item
 from .order_detail import CreateOrderDetail, OrderDetail
@@ -25,9 +25,7 @@ class BaseOrder(SQLModel):
     date: date_ = Field(..., description="Purchase date")
     status: OrderStatus = Field(..., description="Purchase Status", sa_column=Column(Enum(OrderStatus), nullable=False))
     description: Optional[str] = Field(description="Description of sale")
-    payment_type: PaymentType = Field(
-        ..., description="Tipo da operação", sa_column=Column(Enum(PaymentType), nullable=False)
-    )
+    sale_type: SaleType = Field(..., description="Tipo da operação", sa_column=Column(Enum(SaleType), nullable=False))
 
 
 class CreateOrder(BaseOrder):
