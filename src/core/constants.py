@@ -1,9 +1,5 @@
 from enum import Enum, unique
 
-from elasticapm.conf.constants import BASE_SANITIZE_FIELD_NAMES_UNPROCESSED
-
-APM_SANITIZE_FIELDS = [] + BASE_SANITIZE_FIELD_NAMES_UNPROCESSED
-
 
 @unique
 class EnvironmentEnum(str, Enum):
