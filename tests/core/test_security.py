@@ -14,7 +14,7 @@ from src.core.security import (
 
 def test_test_create_acess_token_success(current_user: User):
     sub = str(current_user.id)
-    encoded_token = create_access_token(sub, access_level=current_user.access_level)
+    encoded_token, _ = create_access_token(sub, access_level=current_user.access_level)
     token = load_jwt_token(encoded_token)
 
     assert str(token.sub) == sub
