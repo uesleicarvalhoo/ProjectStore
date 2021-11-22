@@ -18,18 +18,16 @@ from .user import User
 
 
 class BaseOrder(SQLModel):
-    client_id: UUID = Field(
-        ..., foreign_key="clients.id", description="Identification of the customer who made purchase"
-    )
+    client_id: UUID = Field(foreign_key="clients.id", description="Identification of the customer who made purchase")
 
-    date: date_ = Field(..., description="Purchase date")
-    status: OrderStatus = Field(..., description="Purchase Status", sa_column=Column(Enum(OrderStatus), nullable=False))
+    date: date_ = Field(description="Purchase date")
+    status: OrderStatus = Field(description="Purchase Status", sa_column=Column(Enum(OrderStatus), nullable=False))
     description: Optional[str] = Field(description="Description of sale")
-    sale_type: SaleType = Field(..., description="Tipo da operação", sa_column=Column(Enum(SaleType), nullable=False))
+    sale_type: SaleType = Field(description="Tipo da operação", sa_column=Column(Enum(SaleType), nullable=False))
 
 
 class CreateOrder(BaseOrder):
-    items: List["CreateOrderDetail"] = Field(..., description="Details of purchase")
+    items: List["CreateOrderDetail"] = Field(description="Details of purchase")
     date: date_ = Field(default_factory=lambda: now_datetime().date(), description="Purchase date")
     status: OrderStatus = Field(default=OrderStatus.PENDING, description="Purchase Status")
 
@@ -41,9 +39,18 @@ class QueryOrder(SQLModel):
     end_date: Optional[date_] = Field(description="End date for query")
 
 
+class UpdateOrder(BaseOrder):
+    id: UUID = Field(description="ID of the order")
+    items: Optional[List["CreateOrderDetail"]] = Field(description="Details of purchase")
+    date: Optional[date_] = Field(description="Purchase date")
+    status: Optional[OrderStatus] = Field(description="Purchase Status")
+    description: Optional[str] = Field(description="Description of sale")
+    sale_type: Optional[SaleType] = Field(description="Tipo da operação")
+
+
 class UpdateOrderStatus(BaseModel):
-    order_id: UUID = Field(..., description="Identification of Purchase")
-    status: OrderStatus = Field(..., description="Purchase Status")
+    order_id: UUID = Field(description="Identification of Purchase")
+    status: OrderStatus = Field(description="Purchase Status")
 
 
 class Order(BaseOrder, table=True):
@@ -54,7 +61,7 @@ class Order(BaseOrder, table=True):
         description="Identification of Purchase",
         sa_column=Column("id", GUID(), primary_key=True),
     )
-    owner_id: UUID = Field(..., description="User ID that owns the order", foreign_key="users.id")
+    owner_id: UUID = Field(description="User ID that owns the order", foreign_key="users.id")
     owner: User = Relationship()
     client: "Client" = Relationship(back_populates="orders")
     details: List["OrderDetail"] = Relationship(
@@ -63,20 +70,8 @@ class Order(BaseOrder, table=True):
     )
 
     @property
-    def cost_total(self) -> float:
-        return sum(detail.cost for detail in self.details)
-
-    @property
-    def sell_total(self) -> float:
-        return sum(detail.sell_value for detail in self.details)
-
-    @property
-    def profit(self) -> float:
-        return self.sell_total - self.cost_total
-
-    @property
     def value(self) -> float:
-        return self.sell_total
+        return sum(detail.value for detail in self.details)
 
     @property
     def items(self) -> List[Item]:

@@ -14,8 +14,8 @@ if TYPE_CHECKING:
 
 
 class BaseUser(SQLModel):
-    name: str = Field(..., description="Username")
-    email: EmailStr = Field(..., description="Email of the user", sa_column_kwargs={"unique": True})
+    name: str = Field(description="Username")
+    email: EmailStr = Field(description="Email of the user", sa_column_kwargs={"unique": True})
     access_level: AccessLevel = Field(
         AccessLevel.USER,
         description="Level of access access permission of that user",
@@ -34,9 +34,21 @@ class BaseUser(SQLModel):
         return value.title()
 
 
+class UpdateUser(BaseUser):
+    name: Optional[str] = Field(description="Username")
+    email: Optional[EmailStr] = Field(description="Email of the user")
+    access_level: Optional[AccessLevel] = Field(description="Level of access access permission of that user")
+    active: Optional[bool] = Field(description="Flag to identify if user is active")
+
+
+class UpdateUserPassword(SQLModel):
+    current_password: str = Field(description="Current password")
+    new_password: str = Field(description="New password")
+
+
 class CreateUser(BaseUser):
-    password: str = Field(..., description="User password", min_length=5)
-    confirm_password: str = Field(..., description="Password confirmation")
+    password: str = Field(description="User password", min_length=5)
+    confirm_password: str = Field(description="Password confirmation")
 
     @validator("confirm_password")
     def validate_password(cls, value: str, values: Dict[str, Any]) -> str:
@@ -60,7 +72,7 @@ class User(BaseUser, table=True):
     id: UUID = Field(
         default_factory=uuid4, description="ID of the User", sa_column=Column("id", GUID(), primary_key=True)
     )
-    password_hash: str = Field(..., description="Hash of password")
+    password_hash: str = Field(description="Hash of password")
 
     items: List["Item"] = Relationship(
         back_populates="owner",

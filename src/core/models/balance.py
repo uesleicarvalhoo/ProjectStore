@@ -11,11 +11,11 @@ from ..constants import OperationType, PaymentType, SaleType
 
 
 class BaseBalance(SQLModel):
-    value: float = Field(..., description="Value of operation")
+    value: float = Field(description="Value of operation")
     operation: OperationType = Field(
-        ..., description="Type of operation", sa_column=Column(Enum(OperationType), nullable=False)
+        description="Type of operation", sa_column=Column(Enum(OperationType), nullable=False)
     )
-    description: str = Field(..., description="Description of operation", min_length=1)
+    description: str = Field(description="Description of operation", min_length=1)
     created_at: datetime = Field(default_factory=now_datetime)
 
 

@@ -14,9 +14,9 @@ class Event(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     application: str = Field(settings.APPLICATION_NAME)
     date_time: str = Field(default_factory=datetime.now)
-    description: EventDescription = Field(...)
-    data: Dict[str, Any] = Field(...)
-    context: Context = Field(...)
+    description: EventDescription
+    data: Dict[str, Any]
+    context: Context
 
     class Config:
         allow_population_by_field_name = True

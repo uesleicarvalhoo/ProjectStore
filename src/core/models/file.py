@@ -8,23 +8,23 @@ from ..config import settings
 
 
 class CreateFile(SQLModel):
-    data: bytes = Field(..., description="Content of File")
-    filename: str = Field(..., description="Name of file", min_length=1)
+    data: bytes = Field(description="Content of File")
+    filename: str = Field(description="Name of file", min_length=1)
 
 
 class QueryFile(SQLModel):
-    bucket_key: str = Field(..., description="Identation of file in storage service")
+    bucket_key: str = Field(description="Identation of file in storage service")
 
 
 class DeleteFile(BaseModel):
-    bucket_key: str = Field(..., description="Identation of file in storage service")
+    bucket_key: str = Field(description="Identation of file in storage service")
 
 
 class File(SQLModel, table=True):
     __tablename__ = "files"
 
-    bucket_key: str = Field(..., description="Identation of file in storage service", primary_key=True)
-    hash: str = Field(..., description="Hash of file")
+    bucket_key: str = Field(description="Identation of file in storage service", primary_key=True)
+    hash: str = Field(description="Hash of file")
 
     uploaded_at: datetime = Field(default_factory=now_datetime, description="Datetime of the file update")
 

@@ -10,10 +10,10 @@ if TYPE_CHECKING:
 
 
 class BaseItem(SQLModel):
-    code: str = Field(..., description="Item code", min_length=1)
-    name: str = Field(..., description="Item Name", min_length=1)
+    code: str = Field(description="Item code", min_length=1)
+    name: str = Field(description="Item Name", min_length=1)
     cost: Optional[float] = Field(description="Production/Buy cost of the item", ge=0)
-    value: PositiveFloat = Field(..., description="Sugested sell value of item")
+    value: PositiveFloat = Field(description="Sugested sell value of item")
     amount: int = Field(default=0, description="Quantity of itens avaliable", ge=0)
 
 
@@ -33,7 +33,7 @@ class CreateItem(BaseItem):
 
 
 class UpdateItem(BaseItem):
-    id: UUID = Field(..., description="ID do item")
+    id: UUID = Field(description="ID do item")
 
     @validator("value")
     def validate_value(cls, value: Union[str, float], values: Dict[str, Any]) -> float:
