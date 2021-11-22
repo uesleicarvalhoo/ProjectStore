@@ -2,6 +2,7 @@ from typing import List
 from uuid import UUID
 
 import inject
+from sqlalchemy.sql.expression import desc
 from sqlmodel import Session, between, select
 
 from src.core.events import EventDescription
@@ -28,7 +29,7 @@ def get_all(session: Session, query_schema: QueryBalance, context: Context) -> L
     if query_schema.start_date is not None and query_schema.end_date is not None:
         args.append(between(Balance.created_at, query_schema.start_date, query_schema.end_date))
 
-    return session.exec(select(Balance).where(*args)).all()
+    return session.exec(select(Balance).where(*args).order_by(desc(Balance.created_at))).all()
 
 
 @inject.params(streamer=Streamer)
