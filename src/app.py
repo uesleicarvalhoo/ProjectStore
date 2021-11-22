@@ -1,4 +1,3 @@
-from elasticapm.contrib.starlette import ElasticAPM
 from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,7 +8,7 @@ from .core.config import settings
 from .core.helpers.database import init_database
 from .core.helpers.exceptions import DatabaseError, InvalidCredentialError, NotFoundError
 from .core.helpers.logger import logger
-from .monitoring import capture_exception, monitoring_client
+from .monitoring import capture_exception
 
 app = FastAPI(
     title="ProjectStore - API",
@@ -28,10 +27,6 @@ app.add_middleware(
     allow_methods="*",
     allow_headers="*",
 )
-
-if monitoring_client:
-    app.add_middleware(ElasticAPM, client=monitoring_client)
-
 
 app.include_router(v1.endpoints, prefix="/v1")
 app.include_router(health_check.router, prefix="/health")
