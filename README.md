@@ -1,6 +1,6 @@
 # Store
 
-<p align="center">Aplicação para controle de vendas para micro e pequenas empresas 🚀</p>
+<p align="center">Backend da aplicação para controle de vendas para micro e pequenas empresas 🚀</p>
 
 <h4 align="center"> 🚧  🚀 Em construção...  🚧 </h4>
 
@@ -28,14 +28,10 @@
 Antes de começar, você vai precisar ter instalado em sua máquina as seguintes ferramentas:
 
 * [Git](https://git-scm.com)
-* [Node.js](https://nodejs.org/en/)
 * [Python](https://www.python.org/) * Versão 3.9 ou superior
 * [Poetry](https://python-poetry.org/docs/cli/)
-* [ElasticAPM](https://www.elastic.co/guide/en/apm/index.html)
-* [Redis](https://redis.io/)
 * [PostgreSQL](https://www.postgresql.org/)
 * [S3](https://aws.amazon.com/pt/s3/)
-* [ElasticSearch](https://www.elastic.co/pt/)
 
 Dica: Para as dependencias de serviços externos o projeto você pode usar o docker-compose-dev.yaml para iniciar os containers, para conferir mais alguns docker-composes que eu utilizo no meu desenvolvimento, pode conferir o meu [Docker-Localstack]("https://github.com/uesleicarvalhoo/Docker-localstack").
 
@@ -77,12 +73,13 @@ $ make test
 
 ### TODO's
 
-- [ ] Converter a aplicação em micro-serviços separando o back e o front
 - [ ] Implementar testes de integração para a API e WEB
 - [ ] Gerar notas fiscais para cada venda realizada
 - [ ] Action para deploy na AWS
-- [ ] Ajustar os endpoints da API
 - [ ] Fazer testes de exclusão de um item após a venda ser finalizada
+- [ ] Implementar o monitoramento de erros
+- [ ] Implementar as lambdas/services
+- [ ] Incluir as informações extras dos clientes
 
 ### Tecnologias
 
@@ -90,10 +87,6 @@ As seguintes ferramentas foram usadas na construção do projeto:
 
 * [FastAPI](https://fastapi.tiangolo.com/)
 * [SQLModel](https://sqlmodel.tiangolo.com/)
-* [Node.js](https://nodejs.org/en/)
-* [TailwindCSS](https://tailwindcss.com/docs/height)
-
-Também utilizei [esse template](https://github.com/estevanmaito/windmill-dashboard) como base para o frontend.
 
 ### Licença
 
