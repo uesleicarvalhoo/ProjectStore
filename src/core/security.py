@@ -1,6 +1,6 @@
 from datetime import timedelta
 from time import time
-from typing import Union
+from typing import Tuple, Union
 
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError
@@ -21,7 +21,9 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 ALGORITHM = "HS256"
 
 
-def create_access_token(subject: str, access_level: AccessLevel, expires_delta: Union[int, timedelta] = None) -> str:
+def create_access_token(
+    subject: str, access_level: AccessLevel, expires_delta: Union[int, timedelta] = None
+) -> Tuple[str, int]:
     if not subject:
         raise ValueError("Subject can't be null!")
 
@@ -38,10 +40,13 @@ def create_access_token(subject: str, access_level: AccessLevel, expires_delta: 
 
     token = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
 
-    return token
+    return token, expire
 
 
 def load_jwt_token(token: str) -> ParsedToken:
+    if not token:
+        raise NotAuthorizedError("Token invalido")
+
     try:
         return ParsedToken(**jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM]))
 
@@ -63,7 +68,7 @@ def get_password_hash(password: str) -> str:
 
 
 def generate_password_reset_token(email: str) -> str:
-    delta = timedelta(hours=settings.EMAIL_RESET_TOKEN_EXPIRE_HOURS)
+    delta = timedelta(hours=settings.RESET_TOKEN_EXPIRE_HOURS)
     now = now_datetime()
     expires = now + delta
     exp = expires.timestamp()
