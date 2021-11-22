@@ -1,6 +1,5 @@
 from src.core.config import settings
 
-accesslog = "-"
 loglevel = settings.LOG_LEVEL
 bind = f"{settings.HOST}:{settings.PORT}"
 workers = settings.WORKERS
