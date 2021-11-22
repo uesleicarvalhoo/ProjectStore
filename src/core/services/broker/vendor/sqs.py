@@ -14,7 +14,7 @@ class SQSBroker(Broker):
 
     def send_message(self, message: str, topic: str) -> None:
         try:
-            self.__client.send_message(QueueUrl=settings.EVENTS_BROKER_URL, MessageBody=message)
+            self.client.send_message(QueueUrl=settings.EVENTS_BROKER_URL, MessageBody=message)
 
         except Exception as exc:
             capture_exception()

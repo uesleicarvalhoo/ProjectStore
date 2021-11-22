@@ -15,7 +15,7 @@ class BrokerStreamer(Streamer):
     @classmethod
     def send_event(cls, description: EventDescription, context: Context, **data) -> None:
         try:
-            event = Event(description, context=context, data=data)
+            event = Event(description=description, context=context, data=data)
 
             cls.broker.send_message(message=event.json(by_alias=True, exclude={"context": {"message"}}), topic="event")
 
