@@ -20,8 +20,6 @@ uvicorn = "^0.14.0"
 pytz = "^2021.1"
 alembic = "^1.6.5"
 ujson = "^4.0.2"
-elastic-apm = "^6.3.3"
-elasticsearch = "^7.14.0"
 pydantic = {version = "^1.8.2", extras = ["dotenv", "email"]}
 SQLAlchemy = "^1.4.22"
 psycopg2-binary = "^2.9.1"
@@ -43,7 +41,6 @@ isort = "^5.9.3"
 flake8 = "^3.9.2"
 pytest = "^6.2.4"
 Faker = "^8.11.0"
-pytest-env = "^0.6.2"
 pre-commit = "^2.14.1"
 factory-boy = "^3.2.0"
 autoflake8 = "^0.2.2"
@@ -55,8 +52,3 @@ profile = "black"
 
 [tool.black]
 line-length=120
-
-[tool.pytest.ini_options]
-env = [
-    "ENVIRONMENT = test"
-    ]
