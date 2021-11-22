@@ -2,6 +2,7 @@ from typing import List
 from uuid import UUID
 
 import inject
+from sqlalchemy.sql.expression import desc
 from sqlmodel import Session, between, select
 
 from src.core.events import EventDescription
@@ -15,6 +16,7 @@ from src.core.models import (
     Order,
     OrderDetail,
     QueryOrder,
+    UpdateOrder,
     UpdateOrderStatus,
 )
 from src.core.services import Streamer
@@ -34,7 +36,7 @@ def get_all(session: Session, query_schema: QueryOrder, context: Context) -> Lis
     if query_schema.start_date is not None and query_schema.end_date is not None:
         args.append(between(Order.date, query_schema.start_date, query_schema.end_date))
 
-    return session.exec(select(Order).where(*args)).all()
+    return session.exec(select(Order).where(*args).order_by(desc(Order.date))).all()
 
 
 def get_by_id(session: Session, order_id: UUID, context: Context) -> Order:
@@ -120,6 +122,36 @@ def delete_by_id(session: Session, order_id: UUID, context: Context, streamer: S
     session.commit()
 
     streamer.send_event(EventDescription.DELETE_ORDER, context=context, order=order.dict())
+
+    return order
+
+
+@inject.params(streamer=Streamer)
+def update(session: Session, data: UpdateOrder, context: Context, streamer: Streamer) -> Client:
+    order = session.exec(select(Order).where(Order.id == data.id)).first()
+
+    if not order:
+        raise NotFoundError(f"Não foi possível localizar a venda com ID: {data.id}")
+
+    if not context.user_is_super_user and order.owner_id != context.user_id:
+        raise NotAuthorizedError(f"Você não possui permissão para excluir a venda com ID: {data.id}")
+
+    columns = order.__table__.columns.keys()
+
+    for key, value in data.dict(exclude_defaults=True).items():
+        if key not in columns:
+            continue
+
+        setattr(order, key, value)
+
+    session.add(order)
+    session.commit()
+
+    streamer.send_event(
+        description=EventDescription.UPDATE_ORDER,
+        context=context,
+        data={"order_data": order.dict(), "update_schema": data.dict()},
+    )
 
     return order
 
