@@ -9,7 +9,7 @@ from starlette.status import HTTP_201_CREATED
 from src.core.controller import order
 from src.core.helpers.database import make_session
 from src.core.models import Context, CreateOrder, Order, QueryOrder
-from src.core.models.order import OrderResponse
+from src.core.models.order import OrderResponse, UpdateOrder
 from src.utils.dependencies import context_manager
 
 router = APIRouter()
@@ -39,3 +39,10 @@ async def create(
 @router.delete("/{order_id}", response_model=Order)
 async def delete(order_id: UUID, session: Session = Depends(make_session), context: Context = Depends(context_manager)):
     return order.delete_by_id(session, order_id, context=context)
+
+
+@router.patch("/", response_model=Order)
+async def update(
+    data: UpdateOrder, session: Session = Depends(make_session), context: Context = Depends(context_manager)
+):
+    return order.update(session, data, context=context)
