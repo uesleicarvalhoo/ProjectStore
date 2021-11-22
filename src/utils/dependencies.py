@@ -21,10 +21,7 @@ def get_string_token(token: str = Header(None, alias="Authorization")) -> Union[
     return token
 
 
-def load_access_token(token: str = Depends(reusable_oauth2)) -> ParsedToken:
-    if not token:
-        raise NotAuthorizedError("Token invalido")
-
+def load_access_token(request: Request, token: str = Depends(reusable_oauth2)) -> ParsedToken:
     return load_jwt_token(token)
 
 

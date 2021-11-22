@@ -40,7 +40,7 @@ def create_access_token(
 
     token = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
 
-    return token, expire
+    return token, expire.timestamp()
 
 
 def load_jwt_token(token: str) -> ParsedToken:

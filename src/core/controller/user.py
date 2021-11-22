@@ -83,7 +83,7 @@ def update_password(session: Session, user_id: UUID, schema: UpdateUserPassword,
 
     if not user:
         raise NotFoundError("Não foi possível localizar o usuário com o ID: %s" % user_id)
-    print(schema)
+
     if not verify_password(schema.current_password, user.password_hash):
         raise InvalidCredentialError("Senha invalida")
 
@@ -111,7 +111,7 @@ def delete(session: Session, user_id: UUID, context: Context, streamer: Streamer
 
 def authenticate(session: Session, email: EmailStr, password: str, context: Context) -> User:
     user = session.exec(select(User).where(User.email == email)).first()
-    print(password)
+
     if not user:
         raise InvalidCredentialError(f'Usuário "{email}" não localizado!')
 

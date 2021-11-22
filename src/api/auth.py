@@ -26,10 +26,6 @@ async def get_access_token(
 
 @router.post("/refresh-token", response_model=Token)
 async def refresh_access_token(current_user: User = Depends(get_current_user)):
-    token = create_access_token(str(current_user.id), access_level=current_user.access_level)
+    token, expire = create_access_token(str(current_user.id), access_level=current_user.access_level)
 
-    return {
-        "accessToken": token,
-        "grantType": "bearer",
-        "user": current_user,
-    }
+    return {"accessToken": token, "grantType": "bearer", "exp": expire}
