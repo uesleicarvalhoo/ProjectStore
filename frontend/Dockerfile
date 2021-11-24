@@ -12,10 +12,6 @@ RUN yarn install --nolock
 # Copy rest of the files
 COPY . .
 
-ARG FRONTEND_ENV=docker
-
-ENV VUE_APP_ENV=${FRONTEND_ENV}
-
 # Build the project
 RUN yarn run build
 
