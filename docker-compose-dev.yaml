@@ -20,7 +20,7 @@ services:
       - .data/db:/var/lib/postgresql/data
 
     networks:
-      - store-network
+      - projectstore-network
 
 # Cache
 
@@ -32,7 +32,7 @@ services:
       - 6379:6379
 
     networks:
-      - store-network
+      - projectstore-network
 
     volumes:
       - .data/cache:/data
@@ -52,11 +52,11 @@ services:
       - DATA_DIR=/tmp/localstack/data
 
     networks:
-      - store-network
+      - projectstore-network
 
     volumes:
       - .data/localstack:/tmp/localstack
 
 networks:
-  store-network:
+  projectstore-network:
     driver: bridge
