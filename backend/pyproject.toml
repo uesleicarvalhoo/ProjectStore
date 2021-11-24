@@ -1,0 +1,54 @@
+[tool.poetry]
+name = "src"
+version = "0.1.0"
+description = "Aplicação para controle de vendas para micro e pequenas empresas 🚀"
+authors = ["Ueslei Carvalho <uesleicdoliveira@gmail.com>"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+processor = "src.lambdas.event:main"
+
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.68.0"
+gunicorn = "^20.1.0"
+uvicorn = "^0.14.0"
+pytz = "^2021.1"
+alembic = "^1.6.5"
+ujson = "^4.0.2"
+pydantic = {version = "^1.8.2", extras = ["dotenv", "email"]}
+SQLAlchemy = "^1.4.22"
+psycopg2-binary = "^2.9.1"
+python-jose = {version = "^3.3.0", extras = ["cryptography"]}
+passlib = {version = "^1.7.4", extras = ["bcrypt"]}
+boto3 = "^1.18.22"
+python-multipart = "^0.0.5"
+Jinja2 = "^3.0.1"
+aiofiles = "^0.7.0"
+redis = "^3.5.3"
+Inject = "^4.3.1"
+sqlmodel = "^0.0.4"
+Pillow = "^8.3.2"
+emails = "^0.6"
+
+[tool.poetry.dev-dependencies]
+black = "^21.7b0"
+isort = "^5.9.3"
+flake8 = "^3.9.2"
+pytest = "^6.2.4"
+Faker = "^8.11.0"
+pre-commit = "^2.14.1"
+factory-boy = "^3.2.0"
+autoflake8 = "^0.2.2"
+coverage = "^6.1.1"
+
+[tool.isort]
+line_length=120
+profile = "black"
+
+[tool.black]
+line-length=120
