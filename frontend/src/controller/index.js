@@ -13,14 +13,15 @@ async function dispatchApiError(error) {
   let title = 'Erro no servidor'
   let message = 'Ocorreu um erro interno e não foi possível processar a sua solicitação!'
   const response = error.response
-  console.log(error)
 
   if (response) {
     title = `${response.status} - ${title}`
+
     if (response.data.message) {
       message = response.data.message
     }
   }
+
   dispatchNotification(title, message, 'danger')
 }
 
@@ -58,7 +59,7 @@ export const dispatchLogin = async (email, password) => {
     await dispatchGetMe()
     router.push({ name: 'home' })
   } catch (error) {
-    dispatchApiError(error)
+    await dispatchApiError(error)
     await dispatchLogout()
   }
 }
@@ -67,8 +68,16 @@ export const dispatchRefreshToken = async () => {
   try {
     await access.actionRefresh()
   } catch (error) {
-    dispatchApiError(error)
+    await dispatchApiError(error)
     await dispatchLogout()
+  }
+}
+
+export const dispatchLoadContext = async () => {
+  const token = await access.actionLoadLocalStorageToken()
+  if (token) {
+    await access.actionLoggedIn(token)
+    await dispatchGetMe()
   }
 }
 

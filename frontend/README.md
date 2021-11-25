@@ -1,3 +1,3 @@
 # TODO's
 
-- [ ] Implementar o refresh token aqui!
+- [ ] Fazer o README.md

@@ -23,14 +23,14 @@
 // @ is an alias to /src
 import { computed } from 'vue'
 import { useStore } from 'vuex'
+import router from '@/router'
 import menu from '@/helpers/menu.js'
 import NavBar from '@/components/NavBar'
 import AsideMenu from '@/components/AsideMenu'
 import FooterBar from '@/components/FooterBar'
 import Overlay from '@/components/Overlay'
 import Notification from '@/components/Notification'
-import { useRouter } from 'vue-router'
-import { dispatchConfirmNotification } from '@/controller'
+import { dispatchConfirmNotification, dispatchLogout, dispatchLoadContext } from '@/controller'
 
 export default {
   name: 'Home',
@@ -41,10 +41,17 @@ export default {
     Notification,
     NavBar
   },
+  methods: {
+    async logout(){
+      await dispatchLogout()
+      router.push({ name: 'login' })
+    }
+  },
+  async created(){
+    await dispatchLoadContext()
+  },
   setup () {
-    const context = useStore()
-    console.log(process.env.TESTE)
-    const router = useRouter()
+  const context = useStore()
 
     const loggedIn = computed(() => context.state.loggedIn)
 
@@ -60,15 +67,8 @@ export default {
       context.dispatch('asideLgToggle', false)
     }
 
-    const logout = () => {
-      context.commit('loggedIn', false)
-      context.commit('accessToken', null)
-      router.push({ name: 'login' })
-    }
-
     return {
       menu,
-      logout,
       notification,
       confirmNotification,
       loggedIn,
