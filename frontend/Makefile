@@ -12,6 +12,7 @@ docker:
 	docker build -t projectstore-frontend .
 
 release:
+	@echo "Connecting into Docker account"
 	@aws ecr get-login-password | docker login --username AWS --password-stdin $(AWS_URI)
 	@echo "Input version[$(shell git describe --abbrev=0 --tags --always)]:"
 	@read INPUT_VERSION;\
