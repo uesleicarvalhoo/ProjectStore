@@ -10,7 +10,7 @@
     </thead>
     <tbody>
       <tr v-for="balance in itemsPaginated" :key="balance.id">
-        <td data-label="Operação">{{ balance.operation }}</td>
+        <td class="text-center" data-label="Operação">{{ balance.operation }}</td>
         <td class="text-center" data-label="Valor">
           R$ {{ balance.value }}
         </td>

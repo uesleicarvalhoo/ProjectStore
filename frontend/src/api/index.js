@@ -10,11 +10,17 @@ function authHeaders (token) {
 }
 
 export const api = {
+  /* Utils */
+  async healthCheck(){
+    return await axios.get(`${apiUrl}/health`)
+  },
   /* Authentication */
   async loginGetToken (username, password) {
     const params = new URLSearchParams()
     params.append('username', username)
     params.append('password', password)
+    console.log(apiUrl)
+    console.log(params)
     return await axios.post(`${apiUrl}/auth/access-token`, params)
   },
   async refreshAcessToken (token) {

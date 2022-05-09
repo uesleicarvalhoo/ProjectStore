@@ -20,6 +20,14 @@
         <control v-model="data.client.email" :disabled="true" required />
       </field>
 
+      <field label="Endereço">
+        <control v-model="data.client.address" :disabled="true" required />
+      </field>
+
+      <field label="CEP">
+        <control v-model="data.client.zip_code" :disabled="true" required />
+      </field>
+
       <field label="Tipo de Pagamento">
         <control :options="saleTypes" v-model="data.saleType" required />
       </field>

@@ -31,6 +31,7 @@ import FooterBar from '@/components/FooterBar'
 import Overlay from '@/components/Overlay'
 import Notification from '@/components/Notification'
 import { dispatchConfirmNotification, dispatchLogout, dispatchLoadContext } from '@/controller'
+import { api } from './api'
 
 export default {
   name: 'Home',
@@ -49,6 +50,8 @@ export default {
   },
   async created(){
     await dispatchLoadContext()
+    const response = api.healthCheck()
+    console.log(response.data)
   },
   setup () {
   const context = useStore()
